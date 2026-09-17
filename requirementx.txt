@@ -1,0 +1,3 @@
+npm create vite@latest my-react-app "--" --template react
+eslint
+npm install
