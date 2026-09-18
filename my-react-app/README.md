@@ -1,16 +1,25 @@
-# React + Vite
+# 萬春宮文化探索前端
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+目前為程式骨架，LINE、照片處理與任務提交尚待實作。
 
-Currently, two official plugins are available:
+## 環境與依賴
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+使用 Node.js 與 npm；所有指令在此目錄執行。
+現有 package.json 包含 React、React DOM、Vite 與 ESLint 工具。
+已安裝：react-router 8（頁面路由）、@line/liff（LINE SDK）。
+依賴已安裝，Node.js 24.x / npm 11.x；完整需求與其他組員安裝步驟見 ../requirement.txt。
 
-## React Compiler
+## 開發指令
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- npm run dev：本機開發
+- npm run build：建置至 dist
+- npm run lint：靜態檢查
+- npm run preview：預覽建置結果
 
-## Expanding the ESLint configuration
+## 設定與素材
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+將 .env.example 複製為 .env.local，再填入 VITE_LIFF_ID。
+VITE_* 是公開資訊，不可存放私密憑證。
+public/demo/README.md 列出待補素材；map.svg 是占位圖。
+
+詳細規格請參考 ../docs/demo-file-spec.md。
