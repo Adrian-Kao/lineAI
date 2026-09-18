@@ -25,7 +25,7 @@ export default function TempleDetailPage() {
 
   const temple = result.key === key ? result.temple : null
   const content = temple ? templeContentById[temple.id] : null
-  const returnPath = temple ? `${backToMap}?temple=${encodeURIComponent(temple.id)}` : backToMap
+  const returnPath = temple ? `${backToMap}?${location.state?.returnDistrictId ? `district=${encodeURIComponent(location.state.returnDistrictId)}&` : ''}temple=${encodeURIComponent(temple.id)}` : backToMap
   return <main className="temple-detail-page">
     <Link className="detail-back" to={returnPath} state={{ returnView: location.state?.returnView }}><ArrowLeft size={19} />返回地圖</Link>
     {result.key !== key && <p role="status">宮廟資料載入中…</p>}

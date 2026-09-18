@@ -4,7 +4,7 @@ import { X } from 'lucide-react'
 import { ROUTES } from '../../config/routes.js'
 import TempleArtwork from './TempleArtwork.jsx'
 
-export default function TemplePreviewCard({ temple, onClose, returnView, style }) {
+export default function TemplePreviewCard({ temple, onClose, returnView, returnDistrictId, style }) {
   useEffect(() => {
     const handleKey = event => { if (event.key === 'Escape') onClose() }
     window.addEventListener('keydown', handleKey)
@@ -20,7 +20,7 @@ export default function TemplePreviewCard({ temple, onClose, returnView, style }
       <p className="temple-religion">{temple.religion}</p>
       <p>{description}</p>
       {temple.address && <p className="temple-address">{temple.address}</p>}
-      <Link className="temple-detail-link" to={ROUTES.templeDetail.replace(':county', encodeURIComponent(temple.county)).replace(':uuid', encodeURIComponent(temple.id))} state={{ returnView }}>查看完整介紹</Link>
+      <Link className="temple-detail-link" to={ROUTES.templeDetail.replace(':county', encodeURIComponent(temple.county)).replace(':uuid', encodeURIComponent(temple.id))} state={{ returnView, returnDistrictId }}>查看完整介紹</Link>
     </div>
   </section>
 }

@@ -27,7 +27,7 @@ export const router = createBrowserRouter([
     { path: ROUTES.friends, element: <PlaceholderPage title="好友" /> },
     { path: ROUTES.profile, element: <PlaceholderPage title="個人資料" /> },
   ] },
-  { element: <RequireReady><Outlet /></RequireReady>, children: [
+  { element: <RequireReady><AppLayout><Outlet /></AppLayout></RequireReady>, children: [
     { path: ROUTES.temple, element: <TemplePage /> },
     { path: ROUTES.mission, element: <MissionPage /> },
     { path: ROUTES.story, element: <StoryPage /> },

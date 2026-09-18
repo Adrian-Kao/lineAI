@@ -3,23 +3,20 @@ import L from 'leaflet'
 import 'leaflet.markercluster'
 import 'leaflet/dist/leaflet.css'
 import 'leaflet.markercluster/dist/MarkerCluster.css'
-import { loadCountyBoundaries, loadDistrictBoundaries, findCountyFeature, getMainlandBounds } from '../../services/geoData.js'
-import { getCountyName } from './geoLoader.js'
+import { loadDistrictBoundaries, loadCountyBorders, getMainlandBounds } from '../../services/geoData.js'
+import { getCountyName, getCollectionBounds } from './geoLoader.js'
+import { isTempleInDistrict } from '../../utils/districtGeometry.js'
 import { getRegionStatus, REGION_STATUS_COLORS } from './regionStatus.js'
 import './markerStyles.css'
 
 const countyPadding = [28, 36]
 const tileUrl = 'https://wmts.nlsc.gov.tw/wmts/EMAP/default/GoogleMapsCompatible/{z}/{y}/{x}'
 
-function boundaryStyle(feature, regionProgress, selectedCounty) {
-  const name = getCountyName(feature)
-  const colors = REGION_STATUS_COLORS[getRegionStatus(regionProgress, name)]
-  return {
-    color: `rgb(${colors.line.slice(0, 3).join(',')})`,
-    weight: 1,
-    fillColor: `rgb(${colors.fill.slice(0, 3).join(',')})`,
-    fillOpacity: name === selectedCounty ? 0.12 : colors.fill[3] / 255,
-  }
+function boundaryStyle(feature, selectedDistrictId, regionProgress) {
+  const selected = feature.properties.TOWNCODE === selectedDistrictId
+  const fill = REGION_STATUS_COLORS[getRegionStatus(regionProgress, feature.properties.TOWNCODE)].fill
+  return { color: '#45494e', weight: selected ? 1 : 0.35,
+    fillColor: `rgb(${fill.slice(0, 3).join(',')})`, fillOpacity: selected ? 0 : 1 }
 }
 
 function markerIcon(selected = false) {
@@ -30,34 +27,43 @@ function clusterIcon(cluster) {
   return L.divIcon({ className: 'temple-cluster', html: `<span>${cluster.getChildCount()}</span>`, iconSize: [42, 42] })
 }
 
-export default function TaiwanTempleMap({ selectedCounty, selectedTemple, selectedTempleId, temples, regionProgress, restoreView, onCountySelect, onTempleSelect, onViewChange, onTemplePositionChange, onMapError, onDistrictError }) {
+export default function TaiwanTempleMap({ regionProgress, selectedCounty, selectedDistrictId, selectedDistrict, selectedTemple, selectedTempleId, temples, restoreView, onDistrictSelect, onOverviewSelect, onTempleSelect, onViewChange, onTemplePositionChange, onMapError, onDistrictError }) {
   const containerRef = useRef(null)
   const mapRef = useRef(null)
   const boundaryRef = useRef(null)
-  const layersByCountyRef = useRef(new Map())
+  const layersByDistrictRef = useRef(new Map())
   const clusterRef = useRef(null)
-  const tileRef = useRef(null)
-  const districtRef = useRef(null)
   const markerByIdRef = useRef(new Map())
   const batchTimerRef = useRef(null)
-  const lastCountyRef = useRef(undefined)
-  const callbacksRef = useRef({ onCountySelect, onTempleSelect, onViewChange, onTemplePositionChange, onMapError, onDistrictError })
-  const progressRef = useRef(regionProgress)
+  const lastSelectionRef = useRef(undefined)
+  const callbacksRef = useRef({ onDistrictSelect, onTempleSelect, onViewChange, onTemplePositionChange, onMapError, onDistrictError })
   const selectedTempleRef = useRef(selectedTempleId)
+  const progressRef = useRef(regionProgress)
+  const overviewCallbackRef = useRef(onOverviewSelect)
+  const selectedDistrictRef = useRef(selectedDistrict)
   const [geometryReady, setGeometryReady] = useState(0)
 
   useEffect(() => {
-    callbacksRef.current = { onCountySelect, onTempleSelect, onViewChange, onTemplePositionChange, onMapError, onDistrictError }
-    progressRef.current = regionProgress
+    overviewCallbackRef.current = onOverviewSelect
+    selectedDistrictRef.current = selectedDistrict
+  }, [onOverviewSelect, selectedDistrict])
+
+  useEffect(() => {
+    callbacksRef.current = { onDistrictSelect, onTempleSelect, onViewChange, onTemplePositionChange, onMapError, onDistrictError }
     selectedTempleRef.current = selectedTempleId
-  }, [onCountySelect, onTempleSelect, onViewChange, onTemplePositionChange, onMapError, onDistrictError, regionProgress, selectedTempleId])
+  }, [onDistrictSelect, onTempleSelect, onViewChange, onTemplePositionChange, onMapError, onDistrictError, selectedTempleId])
 
   useEffect(() => {
     const map = L.map(containerRef.current, {
       zoomControl: false, scrollWheelZoom: true, touchZoom: true,
-      maxZoom: 18, minZoom: 5, zoomSnap: 0.25,
+      preferCanvas: true,
+      zoomAnimation: false, markerZoomAnimation: false, fadeAnimation: false,
+      maxZoom: 18, minZoom: 1, zoomSnap: 0.25,
     }).setView([23.8, 121], 7)
     mapRef.current = map
+    map.createPane('districtTiles').style.zIndex = 210
+    map.createPane('countyBorders').style.zIndex = 450
+    map.getPane('countyBorders').style.pointerEvents = 'none'
     const cluster = L.markerClusterGroup({
       maxClusterRadius: 60, zoomToBoundsOnClick: true,
       showCoverageOnHover: false, chunkedLoading: true,
@@ -67,104 +73,137 @@ export default function TaiwanTempleMap({ selectedCounty, selectedTemple, select
     clusterRef.current = cluster
     const saveView = () => callbacksRef.current.onViewChange({ center: [map.getCenter().lat, map.getCenter().lng], zoom: map.getZoom() })
     map.on('moveend', saveView)
-    const observer = new ResizeObserver(() => map.invalidateSize({ pan: false }))
+    const returnFromSea = event => {
+      if (!boundaryRef.current) return
+      if (event.originalEvent?.target?.closest?.('.temple-pin, .temple-cluster, .temple-preview')) return
+      const point = { longitude: event.latlng.lng, latitude: event.latlng.lat }
+      if (isTempleInDistrict(point, selectedDistrictRef.current)) return
+      const onLand = [...layersByDistrictRef.current.values()].some(layer =>
+        layer.getBounds().contains(event.latlng) && isTempleInDistrict(point, layer.feature))
+      if (!onLand) {
+        map.stop()
+        if (lastSelectionRef.current?.county) {
+          overviewCallbackRef.current()
+        } else {
+          map.fitBounds(boundaryRef.current.overviewBounds, { padding: [24, 24], maxZoom: 8, animate: false })
+        }
+      }
+    }
+    map.on('click', returnFromSea)
+    const observer = new ResizeObserver(() => {
+      map.invalidateSize({ pan: false })
+      if (boundaryRef.current && !lastSelectionRef.current?.county) {
+        map.fitBounds(boundaryRef.current.overviewBounds, { padding: [24, 24], maxZoom: 8, animate: false })
+      }
+    })
     observer.observe(containerRef.current)
     const markerById = markerByIdRef.current
 
     let mounted = true
-    loadCountyBoundaries().then(collection => {
+    loadDistrictBoundaries().then(collection => {
       if (!mounted) return
       const layers = new Map()
       const boundaries = L.geoJSON(collection, {
-        style: feature => boundaryStyle(feature, progressRef.current, null),
+        style: feature => boundaryStyle(feature, null, progressRef.current),
         onEachFeature: (feature, layer) => {
           const name = getCountyName(feature)
           if (!name) return
-          layers.set(name, layer)
-          layer.on('mouseover', () => layer.setStyle({ weight: 2, color: '#547b57', fillOpacity: name === lastCountyRef.current ? 0.12 : 1 }))
-          layer.on('mouseout', () => layer.setStyle(boundaryStyle(feature, progressRef.current, lastCountyRef.current)))
-          layer.on('click', () => callbacksRef.current.onCountySelect(name))
+          const id = feature.properties.TOWNCODE
+          layers.set(id, layer)
+          layer.bindTooltip(name + feature.properties.TOWNNAME, { sticky: true })
+          layer.on('mouseover', () => layer.setStyle({ weight: 0.75, color: '#45494e' }))
+          layer.on('mouseout', () => layer.setStyle(boundaryStyle(feature, lastSelectionRef.current?.district, progressRef.current)))
+          layer.on('click', () => callbacksRef.current.onDistrictSelect(name, id))
         },
       }).addTo(map)
-      boundaryRef.current = { boundaries, collection }
-      layersByCountyRef.current = layers
-      lastCountyRef.current = undefined
+      const overviewBounds = L.latLngBounds(getMainlandBounds(collection, { includePenghu: true }))
+      boundaryRef.current = { boundaries, collection, overviewBounds }
+      layersByDistrictRef.current = layers
+      lastSelectionRef.current = undefined
       callbacksRef.current.onMapError('')
       // Route-driven camera updates run in the effect below after geometry is ready.
       setGeometryReady(value => value + 1)
-    }).catch(error => { if (mounted) callbacksRef.current.onMapError(error.message || '縣市邊界載入失敗') })
+    }).catch(error => { if (mounted) callbacksRef.current.onMapError(error.message || '鄉鎮市區邊界載入失敗') })
+    loadCountyBorders().then(collection => {
+      if (mounted) L.geoJSON(collection, { pane: 'countyBorders', interactive: false,
+        style: { color: '#45494e', weight: 1.05, opacity: 1 } }).addTo(map)
+    }).catch(error => { if (mounted) callbacksRef.current.onMapError(error.message || '縣市界載入失敗') })
 
     return () => {
       mounted = false
       clearTimeout(batchTimerRef.current)
       observer.disconnect()
       map.off('moveend', saveView)
+      map.off('click', returnFromSea)
       map.remove()
       mapRef.current = null
       boundaryRef.current = null
       clusterRef.current = null
-      tileRef.current = null
-      districtRef.current = null
       markerById.clear()
-      layersByCountyRef.current.clear()
+      layersByDistrictRef.current.clear()
     }
   }, []) // Leaflet owns its DOM; route and data changes update the existing instance below.
 
   useEffect(() => {
     const map = mapRef.current
     const boundary = boundaryRef.current
-    if (!map || !boundary || lastCountyRef.current === selectedCounty) return
-    const previousCounty = lastCountyRef.current
-    lastCountyRef.current = selectedCounty
-    const clearDetailLayers = () => {
-      if (districtRef.current) { map.removeLayer(districtRef.current); districtRef.current = null }
-      if (tileRef.current) { map.removeLayer(tileRef.current); tileRef.current = null }
-    }
+    if (!map || !boundary) return
+    const previous = lastSelectionRef.current
+    if (previous?.county === selectedCounty && previous?.district === selectedDistrictId) return
+    lastSelectionRef.current = { county: selectedCounty, district: selectedDistrictId }
+    map.stop()
+    const features = selectedCounty ? boundary.collection.features.filter(feature =>
+      selectedDistrictId ? feature.properties.TOWNCODE === selectedDistrictId : getCountyName(feature) === selectedCounty
+    ) : boundary.collection.features
+    if (!features.length) { callbacksRef.current.onDistrictError('找不到這個鄉鎮市區'); return }
     callbacksRef.current.onDistrictError('')
-    let active = true
-    if (selectedCounty) {
-      clearDetailLayers()
-      boundary.boundaries.eachLayer(layer => layer.setStyle(boundaryStyle(layer.feature, progressRef.current, selectedCounty)))
-      const feature = findCountyFeature(boundary.collection, selectedCounty)
-      if (!feature) return
-      const focus = getMainlandBounds({ features: [feature] })
-      const bounds = Number.isFinite(focus[0][0]) ? L.latLngBounds(focus) : layersByCountyRef.current.get(selectedCounty).getBounds()
-      if (restoreView && Array.isArray(restoreView.center) && restoreView.center.every(Number.isFinite) && Number.isFinite(restoreView.zoom)) {
-        map.setView(restoreView.center, restoreView.zoom, { animate: false })
-      } else {
-        map.flyToBounds(bounds, { padding: countyPadding, maxZoom: 10, duration: 0.85 })
-      }
-      tileRef.current = L.tileLayer(tileUrl, { attribution: '© 國土測繪圖資服務雲', maxZoom: 18 }).addTo(map)
-      loadDistrictBoundaries().then(collection => {
-        if (!active) return
-        const features = collection.features.filter(item => getCountyName(item) === selectedCounty)
-        if (!features.length) throw new Error(`${selectedCounty}沒有區域分界資料`)
-        districtRef.current = L.geoJSON({ type: 'FeatureCollection', features }, {
-          interactive: false,
-          style: { color: '#526c58', weight: 1.15, opacity: 0.8, fillOpacity: 0 },
-        }).addTo(map)
-      }).catch(error => { if (active) callbacksRef.current.onDistrictError(error.message || '區域分界載入失敗') })
+    const [[west, south], [east, north]] = getCollectionBounds({ features })
+    const bounds = selectedCounty ? L.latLngBounds([[south, west], [north, east]]) : boundary.overviewBounds
+    if (selectedCounty && restoreView && Array.isArray(restoreView.center) && restoreView.center.every(Number.isFinite) && Number.isFinite(restoreView.zoom)) {
+      map.setView(restoreView.center, restoreView.zoom, { animate: false })
     } else {
-      const focus = getMainlandBounds(boundary.collection)
-      if (Number.isFinite(focus[0][0])) {
-        const bounds = L.latLngBounds(focus)
-        const options = { padding: [18, 28], maxZoom: 8 }
-        if (previousCounty) {
-          const finish = () => {
-            clearDetailLayers()
-            boundary.boundaries.eachLayer(layer => layer.setStyle(boundaryStyle(layer.feature, progressRef.current, null)))
-          }
-          map.once('moveend', finish)
-          map.flyToBounds(bounds, { ...options, duration: 0.85 })
-          return () => { active = false; map.off('moveend', finish) }
-        }
-        clearDetailLayers()
-        boundary.boundaries.eachLayer(layer => layer.setStyle(boundaryStyle(layer.feature, progressRef.current, null)))
-        map.fitBounds(bounds, { ...options, animate: false })
-      }
+      map.fitBounds(bounds, { padding: selectedCounty ? countyPadding : [24, 24], maxZoom: selectedDistrictId ? 15 : selectedCounty ? 10 : 8, animate: false })
     }
-    return () => { active = false }
-  }, [selectedCounty, geometryReady, restoreView])
+  }, [selectedCounty, selectedDistrictId, geometryReady, restoreView])
+
+  useEffect(() => {
+    progressRef.current = regionProgress
+    boundaryRef.current?.boundaries.eachLayer(layer => layer.setStyle(boundaryStyle(layer.feature, selectedDistrictId, regionProgress)))
+  }, [regionProgress, selectedDistrictId, geometryReady])
+
+  useEffect(() => {
+    const map = mapRef.current
+    if (!map || !selectedDistrict || !selectedDistrictId) return
+    const overviewLayer = layersByDistrictRef.current.get(selectedDistrictId)
+    if (overviewLayer) map.removeLayer(overviewLayer)
+    const outline = L.geoJSON(selectedDistrict, { interactive: false,
+      style: { color: '#45494e', weight: 1, fillOpacity: 0 } }).addTo(map)
+    const pane = map.getPane('districtTiles')
+    const updateClip = () => {
+      const geometry = selectedDistrict.geometry
+      const polygons = geometry.type === 'Polygon' ? [geometry.coordinates] : geometry.coordinates
+      const path = polygons.flatMap(rings => rings.map(ring => ring.map(([lng, lat], index) => {
+        const point = map.latLngToLayerPoint([lat, lng])
+        return `${index ? 'L' : 'M'}${point.x} ${point.y}`
+      }).join(' ') + ' Z')).join(' ')
+      pane.style.clipPath = `path(evenodd, "${path}")`
+    }
+    updateClip()
+    const tiles = L.tileLayer(tileUrl, { pane: 'districtTiles', bounds: outline.getBounds(),
+      attribution: '© 國土測繪圖資服務雲', maxZoom: 18, updateWhenIdle: true,
+      keepBuffer: 1 }).addTo(map)
+    const tileError = () => callbacksRef.current.onDistrictError('區內底圖暫時無法載入，仍可使用區界與宮廟錨點')
+    tiles.on('tileerror', tileError)
+    map.on('zoomend moveend viewreset resize', updateClip)
+    return () => {
+      map.off('zoomend moveend viewreset resize', updateClip)
+      tiles.off('tileerror', tileError)
+      map.removeLayer(tiles)
+      map.removeLayer(outline)
+      pane.style.clipPath = ''
+      if (overviewLayer) overviewLayer.addTo(map)
+    }
+  }, [selectedDistrict, selectedDistrictId, geometryReady])
 
   useEffect(() => {
     const map = mapRef.current
@@ -219,5 +258,5 @@ export default function TaiwanTempleMap({ selectedCounty, selectedTemple, select
     markerByIdRef.current.forEach((marker, id) => marker.setIcon(markerIcon(id === selectedTempleId)))
   }, [selectedTempleId, temples])
 
-  return <div className="leaflet-map" ref={containerRef} aria-label="台灣縣市與宮廟地圖" />
+  return <div className="leaflet-map" ref={containerRef} aria-label="台灣鄉鎮市區與宮廟地圖" />
 }

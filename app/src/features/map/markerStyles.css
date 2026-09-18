@@ -5,6 +5,8 @@
   touch-action: none;
 }
 .leaflet-map .leaflet-container { background: transparent; }
+.district-heading { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; padding: 8px 10px; border-radius: 7px; background: rgba(255,255,255,.96); }
+.district-heading button { border: 1px solid #b8bdc4; border-radius: 5px; background: white; padding: 4px 8px; cursor: pointer; white-space: nowrap; }
 .leaflet-map .leaflet-control-attribution {
   margin: 0 4px 2px 0;
   padding: 2px 5px;
