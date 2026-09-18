@@ -1,0 +1,36 @@
+.leaflet-map {
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  touch-action: none;
+}
+.leaflet-map .leaflet-container { background: transparent; }
+.leaflet-map .leaflet-control-attribution {
+  margin: 0 4px 2px 0;
+  padding: 2px 5px;
+  background: rgba(247, 253, 243, .9);
+  font-size: 10px;
+}
+.temple-pin { border: 0; background: none; }
+.temple-pin span {
+  display: block;
+  width: 20px;
+  height: 20px;
+  border: 3px solid white;
+  border-radius: 50% 50% 50% 4px;
+  background: #a54e35;
+  box-shadow: 0 2px 6px rgba(28, 50, 35, .35);
+  transform: rotate(-45deg);
+}
+.temple-pin.is-selected span { background: #286d50; transform: rotate(-45deg) scale(1.2); }
+.temple-cluster {
+  display: grid;
+  place-items: center;
+  border: 3px solid white;
+  border-radius: 50%;
+  background: #346d51;
+  color: white;
+  box-shadow: 0 2px 9px rgba(25, 57, 39, .3);
+  font-size: 12px;
+  font-weight: 750;
+}
