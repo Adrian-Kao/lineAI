@@ -116,7 +116,6 @@ button:focus-visible, a:focus-visible { outline: 3px solid #368f62; outline-offs
 .preview-body .temple-religion { font-weight: 700; color: #286d50; }
 .temple-address { color: #617469; }
 .preview-close { position: absolute; top: 8px; right: 8px; display: grid; place-items: center; width: 32px; height: 32px; padding: 0; border: 0; border-radius: 6px; background: #eaf2e8; color: #335c40; cursor: pointer; }
-.temple-detail-link { display: inline-block; margin-top: 9px; padding: 8px 12px; border-radius: 6px; background: #2f754b; color: white; font-size: 13px; text-decoration: none; }
 .temple-detail-page { max-width: 760px; min-height: 100dvh; margin: 0 auto; padding: 34px 22px 135px; }
 .detail-back { display: inline-flex; align-items: center; gap: 7px; margin-bottom: 24px; color: #286d50; text-decoration: none; }
 .temple-detail { overflow: hidden; border: 1px solid #d6e1d3; border-radius: 8px; background: #fffefa; }

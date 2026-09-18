@@ -16,18 +16,22 @@ function boundaryStyle(feature, selectedDistrictId, regionProgress) {
   const selected = feature.properties.TOWNCODE === selectedDistrictId
   const fill = REGION_STATUS_COLORS[getRegionStatus(regionProgress, feature.properties.TOWNCODE)].fill
   return { color: '#45494e', weight: selected ? 1 : 0.35,
-    fillColor: `rgb(${fill.slice(0, 3).join(',')})`, fillOpacity: selected ? 0 : 1 }
+    fillColor: `rgb(${fill.slice(0, 3).join(',')})`, fillOpacity: selected ? 0 : selectedDistrictId ? 0.68 : 0.95 }
 }
 
-function markerIcon(selected = false) {
-  return L.divIcon({ className: `temple-pin${selected ? ' is-selected' : ''}`, html: '<span></span>', iconSize: [22, 27], iconAnchor: [11, 26] })
+function markerIcon(selected = false, completed = false) {
+  const html = '<svg class="temple-statue" viewBox="0 0 44 58" aria-hidden="true"><ellipse class="statue-shadow" cx="22" cy="53" rx="17" ry="4"/><path class="statue-aura" d="M22 2 38 17 34 43 22 55 10 43 6 17Z"/><path class="statue-stone" d="M22 7 34 18 30 42 22 50 14 42 10 18Z"/><path class="statue-facet" d="m22 7 12 11-4 24-8 8Z"/><circle class="statue-orb" cx="22" cy="18" r="4"/><path class="statue-figure" d="m18 25-5 6 4 1 1 9h8l1-9 4-1-5-6-4 3Z"/><path class="statue-base" d="M12 43h20l3 6H9Z"/><path class="statue-detail" d="M17 46h10M22 11v2"/></svg>'
+  return L.divIcon({ className: 'temple-pin' + (completed ? ' is-lit' : '') + (selected ? ' is-selected' : ''),
+    html, iconSize: [44, 58], iconAnchor: [22, 54] })
 }
 
 function clusterIcon(cluster) {
-  return L.divIcon({ className: 'temple-cluster', html: `<span>${cluster.getChildCount()}</span>`, iconSize: [42, 42] })
+  const lit = cluster.getAllChildMarkers().every(marker => marker.options.completedTemple)
+  return L.divIcon({ className: 'temple-cluster' + (lit ? ' is-lit' : ''),
+    html: '<span>' + cluster.getChildCount() + '</span>', iconSize: [48, 48] })
 }
 
-export default function TaiwanTempleMap({ regionProgress, selectedCounty, selectedDistrictId, selectedDistrict, selectedTemple, selectedTempleId, temples, restoreView, onDistrictSelect, onOverviewSelect, onTempleSelect, onViewChange, onTemplePositionChange, onMapError, onDistrictError }) {
+export default function TaiwanTempleMap({ completedTempleIds, regionProgress, selectedCounty, selectedDistrictId, selectedDistrict, selectedTemple, selectedTempleId, temples, restoreView, onDistrictSelect, onOverviewSelect, onTempleSelect, onViewChange, onTemplePositionChange, onMapError, onDistrictError }) {
   const containerRef = useRef(null)
   const mapRef = useRef(null)
   const boundaryRef = useRef(null)
@@ -38,6 +42,7 @@ export default function TaiwanTempleMap({ regionProgress, selectedCounty, select
   const lastSelectionRef = useRef(undefined)
   const callbacksRef = useRef({ onDistrictSelect, onTempleSelect, onViewChange, onTemplePositionChange, onMapError, onDistrictError })
   const selectedTempleRef = useRef(selectedTempleId)
+  const completedTempleRef = useRef(completedTempleIds)
   const progressRef = useRef(regionProgress)
   const overviewCallbackRef = useRef(onOverviewSelect)
   const selectedDistrictRef = useRef(selectedDistrict)
@@ -51,7 +56,8 @@ export default function TaiwanTempleMap({ regionProgress, selectedCounty, select
   useEffect(() => {
     callbacksRef.current = { onDistrictSelect, onTempleSelect, onViewChange, onTemplePositionChange, onMapError, onDistrictError }
     selectedTempleRef.current = selectedTempleId
-  }, [onDistrictSelect, onTempleSelect, onViewChange, onTemplePositionChange, onMapError, onDistrictError, selectedTempleId])
+    completedTempleRef.current = completedTempleIds
+  }, [onDistrictSelect, onTempleSelect, onViewChange, onTemplePositionChange, onMapError, onDistrictError, selectedTempleId, completedTempleIds])
 
   useEffect(() => {
     const map = L.map(containerRef.current, {
@@ -179,17 +185,25 @@ export default function TaiwanTempleMap({ regionProgress, selectedCounty, select
     const outline = L.geoJSON(selectedDistrict, { interactive: false,
       style: { color: '#45494e', weight: 1, fillOpacity: 0 } }).addTo(map)
     const pane = map.getPane('districtTiles')
-    const updateClip = () => {
-      const geometry = selectedDistrict.geometry
+    // Clip to visible Taiwan land, including neighbouring districts. Cache each
+    // polygon's bounds so distant islands are never projected on every zoom.
+    const landFeatures = boundaryRef.current.collection.features.filter(feature => feature.properties.TOWNCODE !== selectedDistrictId)
+    landFeatures.push(selectedDistrict)
+    const landPolygons = landFeatures.flatMap(feature => {
+      const geometry = feature.geometry
       const polygons = geometry.type === 'Polygon' ? [geometry.coordinates] : geometry.coordinates
-      const path = polygons.flatMap(rings => rings.map(ring => ring.map(([lng, lat], index) => {
+      return polygons.map(rings => ({ rings, bounds: L.latLngBounds(rings[0].map(([lng, lat]) => [lat, lng])) }))
+    })
+    const updateClip = () => {
+      const visibleBounds = map.getBounds().pad(0.2)
+      const path = landPolygons.filter(polygon => polygon.bounds.intersects(visibleBounds)).flatMap(({ rings }) => rings.map(ring => ring.map(([lng, lat], index) => {
         const point = map.latLngToLayerPoint([lat, lng])
         return `${index ? 'L' : 'M'}${point.x} ${point.y}`
       }).join(' ') + ' Z')).join(' ')
       pane.style.clipPath = `path(evenodd, "${path}")`
     }
     updateClip()
-    const tiles = L.tileLayer(tileUrl, { pane: 'districtTiles', bounds: outline.getBounds(),
+    const tiles = L.tileLayer(tileUrl, { pane: 'districtTiles', bounds: boundaryRef.current.boundaries.getBounds(),
       attribution: '© 國土測繪圖資服務雲', maxZoom: 18, updateWhenIdle: true,
       keepBuffer: 1 }).addTo(map)
     const tileError = () => callbacksRef.current.onDistrictError('區內底圖暫時無法載入，仍可使用區界與宮廟錨點')
@@ -211,7 +225,7 @@ export default function TaiwanTempleMap({ regionProgress, selectedCounty, select
     const latLng = L.latLng(selectedTemple.latitude, selectedTemple.longitude)
     map.setView(latLng, Math.max(map.getZoom(), 15), { animate: false })
     const selectedMarker = L.marker(latLng, {
-      icon: markerIcon(true), interactive: false, zIndexOffset: 1000,
+      icon: markerIcon(true, completedTempleIds.has(selectedTemple.id)), interactive: false, zIndexOffset: 1000,
     }).addTo(map)
     const reportPosition = () => {
       const point = map.latLngToContainerPoint(latLng)
@@ -224,7 +238,7 @@ export default function TaiwanTempleMap({ regionProgress, selectedCounty, select
       map.off('move zoom resize', reportPosition)
       map.removeLayer(selectedMarker)
     }
-  }, [selectedTemple, geometryReady])
+  }, [selectedTemple, completedTempleIds, geometryReady])
 
   useEffect(() => {
     const cluster = clusterRef.current
@@ -238,7 +252,7 @@ export default function TaiwanTempleMap({ regionProgress, selectedCounty, select
     function appendBatch() {
       if (cancelled) return
       const batch = temples.slice(index, index + 80).map(temple => {
-        const marker = L.marker([temple.latitude, temple.longitude], { icon: markerIcon(temple.id === selectedTempleRef.current), title: temple.name })
+        const marker = L.marker([temple.latitude, temple.longitude], { icon: markerIcon(temple.id === selectedTempleRef.current, completedTempleRef.current.has(temple.id)), completedTemple: completedTempleRef.current.has(temple.id), title: temple.name })
         marker.on('click', event => {
           L.DomEvent.stopPropagation(event)
           callbacksRef.current.onTempleSelect(temple.id)
@@ -255,8 +269,12 @@ export default function TaiwanTempleMap({ regionProgress, selectedCounty, select
   }, [selectedCounty, temples])
 
   useEffect(() => {
-    markerByIdRef.current.forEach((marker, id) => marker.setIcon(markerIcon(id === selectedTempleId)))
-  }, [selectedTempleId, temples])
+    markerByIdRef.current.forEach((marker, id) => {
+      marker.options.completedTemple = completedTempleIds.has(id)
+      marker.setIcon(markerIcon(id === selectedTempleId, completedTempleIds.has(id)))
+    })
+    clusterRef.current?.refreshClusters()
+  }, [selectedTempleId, temples, completedTempleIds])
 
   return <div className="leaflet-map" ref={containerRef} aria-label="台灣鄉鎮市區與宮廟地圖" />
 }

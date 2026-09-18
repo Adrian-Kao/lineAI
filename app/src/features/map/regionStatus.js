@@ -21,6 +21,7 @@ export const REGION_STATUS_COLORS = {
 export const MAP_COLOR_PREVIEW = {
   enabled: true,
   counties: {},
+  temples: {},
   districts: {
     '65000210': 'unlocked',     // 台中市中區
     '66000020': 'inProgress', // 台中市東區
@@ -52,6 +53,28 @@ export function applyMapColorPreview(actualProgress, collection) {
     const { COUNTYCODE, TOWNCODE } = feature.properties
     const county = MAP_COLOR_PREVIEW.counties[COUNTYCODE]
     if (county?.enabled) result[TOWNCODE] = county.status
+  }
+  return result
+}
+
+// 宮廟錨點用資料中的 UUID，不使用 5 碼縣市或 8 碼鄉鎮代碼。
+// lit=true 亮黃、false 灰色；enabled=false 取消覆寫，恢復實際完成狀態。
+export function setTempleLightPreview(templeId, lit = true, enabled = true) {
+  if (typeof templeId !== 'string' || !/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(templeId)) throw new Error('宮廟 ID 請填資料中的 UUID')
+  if (typeof lit !== 'boolean' || typeof enabled !== 'boolean') throw new Error('lit 與 enabled 請填 true 或 false')
+  MAP_COLOR_PREVIEW.temples[templeId] = { lit, enabled }
+}
+
+// 手動測試區：第三個參數改 true 啟用；第二個參數切換亮黃／灰色。
+setTempleLightPreview('51c2c438-6bf2-4d6b-b10f-749ae1e95948', true, true) // 萬春宮亮黃（目前關閉）
+
+export function applyTempleLightPreview(actualCompletedIds) {
+  if (!MAP_COLOR_PREVIEW.enabled) return actualCompletedIds
+  const result = new Set(actualCompletedIds)
+  for (const [id, preview] of Object.entries(MAP_COLOR_PREVIEW.temples)) {
+    if (!preview.enabled) continue
+    if (preview.lit) result.add(id)
+    else result.delete(id)
   }
   return result
 }

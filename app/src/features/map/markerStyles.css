@@ -13,26 +13,25 @@
   background: rgba(247, 253, 243, .9);
   font-size: 10px;
 }
-.temple-pin { border: 0; background: none; }
-.temple-pin span {
-  display: block;
-  width: 20px;
-  height: 20px;
-  border: 3px solid white;
-  border-radius: 50% 50% 50% 4px;
-  background: #a54e35;
-  box-shadow: 0 2px 6px rgba(28, 50, 35, .35);
-  transform: rotate(-45deg);
+
+.temple-pin {
+  border: 0; background: none; color: #777e87;
+  --statue-face: #abb1b9; --statue-side: #7d8591; --statue-figure: #e4e7eb;
+  --statue-outline: #565d68; --statue-glow: transparent;
 }
-.temple-pin.is-selected span { background: #286d50; transform: rotate(-45deg) scale(1.2); }
-.temple-cluster {
-  display: grid;
-  place-items: center;
-  border: 3px solid white;
-  border-radius: 50%;
-  background: #346d51;
-  color: white;
-  box-shadow: 0 2px 9px rgba(25, 57, 39, .3);
-  font-size: 12px;
-  font-weight: 750;
-}
+.temple-statue { display: block; width: 44px; height: 58px; overflow: visible; filter: drop-shadow(0 2px 3px #0004); transition: filter .2s, transform .2s; transform-origin: 50% 93%; }
+.statue-shadow { fill: #0003; }
+.statue-aura { fill: var(--statue-glow); stroke: white; stroke-width: 2; stroke-linejoin: round; }
+.statue-stone { fill: var(--statue-face); stroke: var(--statue-outline); stroke-width: 1.5; stroke-linejoin: round; }
+.statue-facet { fill: var(--statue-side); }
+.statue-orb, .statue-figure { fill: var(--statue-figure); }
+.statue-base { fill: var(--statue-side); stroke: var(--statue-outline); stroke-width: 1.3; stroke-linejoin: round; }
+.statue-detail { fill: none; stroke: var(--statue-figure); stroke-width: 1.5; stroke-linecap: round; }
+.temple-pin.is-lit { color: #ffe134; --statue-face: #fff064; --statue-side: #f4bb20; --statue-figure: #fffde0; --statue-outline: #a87709; --statue-glow: #ffe33466; }
+.temple-pin.is-lit .temple-statue { filter: drop-shadow(0 0 6px #ffe334b3) drop-shadow(0 2px 3px #0003); }
+.temple-pin:hover .temple-statue, .temple-pin.is-selected .temple-statue { transform: scale(1.12); }
+.temple-pin.is-selected .statue-aura { stroke-width: 3; }
+.temple-cluster { display: grid; place-items: center; border: 2px solid #fff;
+  border-radius: 12px; background: #818995; color: white;
+  box-shadow: 0 2px 7px #0003; font-size: 14px; font-weight: 750; }
+.temple-cluster.is-lit { background: #ffe134; color: #69500d; box-shadow: 0 0 8px #ffe13480; }

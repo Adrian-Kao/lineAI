@@ -1,10 +1,8 @@
 import { useEffect } from 'react'
-import { Link } from 'react-router'
 import { X } from 'lucide-react'
-import { ROUTES } from '../../config/routes.js'
 import TempleArtwork from './TempleArtwork.jsx'
 
-export default function TemplePreviewCard({ temple, onClose, returnView, returnDistrictId, style }) {
+export default function TemplePreviewCard({ temple, onClose, style }) {
   useEffect(() => {
     const handleKey = event => { if (event.key === 'Escape') onClose() }
     window.addEventListener('keydown', handleKey)
@@ -20,7 +18,6 @@ export default function TemplePreviewCard({ temple, onClose, returnView, returnD
       <p className="temple-religion">{temple.religion}</p>
       <p>{description}</p>
       {temple.address && <p className="temple-address">{temple.address}</p>}
-      <Link className="temple-detail-link" to={ROUTES.templeDetail.replace(':county', encodeURIComponent(temple.county)).replace(':uuid', encodeURIComponent(temple.id))} state={{ returnView, returnDistrictId }}>查看完整介紹</Link>
     </div>
   </section>
 }

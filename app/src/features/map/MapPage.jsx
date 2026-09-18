@@ -7,7 +7,7 @@ import { loadDistrictBoundaries, loadDistrictBoundary } from '../../services/geo
 import { isTempleInDistrict } from '../../utils/districtGeometry.js'
 import { useGame } from '../../state/GameContext.js'
 import { TASKS } from '../../data/temple.js'
-import { applyMapColorPreview } from './regionStatus.js'
+import { applyMapColorPreview, applyTempleLightPreview } from './regionStatus.js'
 import TaiwanTempleMap from './TaiwanTempleMap.jsx'
 import TemplePreviewCard from '../temple/TemplePreviewCard.jsx'
 
@@ -15,6 +15,11 @@ import TemplePreviewCard from '../temple/TemplePreviewCard.jsx'
 
 export default function MapPage() {
   const { progress } = useGame()
+  const completedTempleIds = useMemo(() => {
+    const ids = new Set(progress.completedTempleIds ?? [])
+    if (TASKS.every(task => progress.missionCompletions[task.id])) ids.add('51c2c438-6bf2-4d6b-b10f-749ae1e95948') // 萬春宮
+    return import.meta.env.DEV ? applyTempleLightPreview(ids) : ids
+  }, [progress])
   const [districts, setDistricts] = useState(null)
   const regionProgress = useMemo(() => {
     const completed = TASKS.filter(task => progress.missionCompletions[task.id]).length
@@ -84,7 +89,7 @@ export default function MapPage() {
 
   return <main className="map-page">
     <div className="map-stage">
-      <TaiwanTempleMap key={mapRetry} regionProgress={regionProgress} selectedDistrictId={selectedDistrictId} selectedDistrict={selectedDistrict} selectedCounty={selectedCounty} selectedTemple={previewTemple} selectedTempleId={selectedTempleId}
+      <TaiwanTempleMap key={mapRetry} completedTempleIds={completedTempleIds} regionProgress={regionProgress} selectedDistrictId={selectedDistrictId} selectedDistrict={selectedDistrict} selectedCounty={selectedCounty} selectedTemple={previewTemple} selectedTempleId={selectedTempleId}
         temples={temples} restoreView={location.state?.returnView} onDistrictSelect={handleDistrictSelect} onOverviewSelect={() => navigate(ROUTES.map)}
         onTempleSelect={handleTempleSelect} onViewChange={view => { viewRef.current = view }} onTemplePositionChange={setTemplePosition}
         onMapError={setMapError} onDistrictError={setDistrictError} />
@@ -100,7 +105,7 @@ export default function MapPage() {
         {districtError && <p className="county-load" role="alert">{districtError}</p>}
         {temples?.length === 0 && <p className="county-load">這個區域目前沒有符合條件的宮廟</p>}
       </div>}
-      {previewTemple && templePosition?.id === previewTemple.id && <TemplePreviewCard temple={previewTemple} onClose={closePreview} returnView={templePosition.view} returnDistrictId={selectedDistrictId}
+      {previewTemple && templePosition?.id === previewTemple.id && <TemplePreviewCard temple={previewTemple} onClose={closePreview}
         style={{ left: templePosition.x, top: templePosition.y }} />}
     </div>
     {selectedTempleId && temples && !previewTemple && <div className="temple-preview temple-not-found" role="alert"><p>找不到這間宮廟</p><button type="button" onClick={closePreview}>關閉</button></div>}
