@@ -1,11 +1,11 @@
 export const REGION_STATUS_COLORS = {
   locked: { fill: [222, 223, 226, 255], line: [69, 73, 78, 255] },
-  inProgress: { fill: [255, 239, 173, 255], line: [69, 73, 78, 255] },
-  unlocked: { fill: [245, 157, 62, 255], line: [69, 73, 78, 255] },
+  inProgress: { fill: [207, 234, 200, 255], line: [69, 73, 78, 255] },
+  unlocked: { fill: [64, 124, 79, 255], line: [45, 86, 55, 255] },
 }
 
 // 手動測色：npm run dev 時將 enabled 改為 true，儲存後首頁即更新。
-// locked = 淺灰、inProgress = 淺黃、unlocked = 橘色。
+// locked = 未完成（灰）、inProgress = 單區完成（淺綠）、unlocked = 整縣市完成（深綠）。
 // 只覆寫地圖顏色，不修改任務或儲存進度；正式 build 不會啟用。
 // 代碼請使用字串，保留金門、連江的開頭 0。
 // 縣市代碼：5 碼 COUNTYCODE；鄉鎮市區代碼：8 碼 TOWNCODE。
@@ -19,11 +19,11 @@ export const REGION_STATUS_COLORS = {
 // 10009 雲林縣、10010 嘉義縣、10013 屏東縣、10014 台東縣、10015 花蓮縣、
 // 10016 澎湖縣、09020 金門縣、09007 連江縣。
 export const MAP_COLOR_PREVIEW = {
-  enabled: true,
+  enabled: false,
   counties: {},
   temples: {},
   districts: {
-    '65000210': 'unlocked',     // 台中市中區
+    '65000210': 'unlocked',   // 新北市泰山區
     '66000020': 'inProgress', // 台中市東區
     '66000210': 'inProgress', // 台中市外埔區
     '66000220': 'inProgress', // 台中市大安區
@@ -41,10 +41,10 @@ export function setCountyColorPreview(countyCode, status, enabled = true) {
 }
 
 // 手動測試區：最後一個參數改 true 即可啟用，改 false 即關閉。
-setCountyColorPreview('66000', 'inProgress', true) // 台中市全部淺黃
-setCountyColorPreview('63000', 'inProgress', true)   // 台北市全部橘色
-setCountyColorPreview('10014', 'unlocked', true) // 台東市全部橘色
-setCountyColorPreview('10016', 'unlocked', true) // 澎湖市全部橘色
+setCountyColorPreview('66000', 'inProgress', false) // 台中市全部完成（將顯示深綠）
+setCountyColorPreview('63000', 'inProgress', false) // 台北市全部完成（將顯示深綠）
+setCountyColorPreview('10014', 'unlocked', false) // 台東縣全部完成（將顯示深綠）
+setCountyColorPreview('10016', 'unlocked', false) // 澎湖縣全部完成（將顯示深綠）
 
 export function applyMapColorPreview(actualProgress, collection) {
   if (!MAP_COLOR_PREVIEW.enabled) return actualProgress
@@ -82,4 +82,31 @@ export function applyTempleLightPreview(actualCompletedIds) {
 export function getRegionStatus(regionProgress, districtId) {
   const status = regionProgress[districtId]
   return Object.hasOwn(REGION_STATUS_COLORS, status) ? status : 'locked'
+}
+
+const COMPLETED_DISTRICT_STATUSES = new Set(['inProgress', 'unlocked'])
+
+export function deriveRegionProgress(districtProgress, collection) {
+  if (!collection?.features?.length) return districtProgress
+
+  const result = { ...districtProgress }
+  const counties = new Map()
+
+  for (const feature of collection.features) {
+    const { COUNTYCODE, TOWNCODE } = feature.properties
+    if (!COUNTYCODE || !TOWNCODE) continue
+    const districts = counties.get(COUNTYCODE) ?? []
+    districts.push(TOWNCODE)
+    counties.set(COUNTYCODE, districts)
+  }
+
+  for (const districts of counties.values()) {
+    const countyComplete = districts.every(id => COMPLETED_DISTRICT_STATUSES.has(getRegionStatus(districtProgress, id)))
+    for (const id of districts) {
+      const districtComplete = COMPLETED_DISTRICT_STATUSES.has(getRegionStatus(districtProgress, id))
+      result[id] = countyComplete ? 'unlocked' : districtComplete ? 'inProgress' : 'locked'
+    }
+  }
+
+  return result
 }

@@ -11,6 +11,8 @@ import './markerStyles.css'
 
 const countyPadding = [28, 36]
 const overviewFitOptions = { padding: [0, 0] }
+const regionAnimationDuration = 0.85
+const templeAnimationDuration = 0.65
 const tileUrl = 'https://wmts.nlsc.gov.tw/wmts/EMAP/default/GoogleMapsCompatible/{z}/{y}/{x}'
 // Invisible interaction boundary: Taiwan, Penghu, Kinmen and Matsu plus a
 // comfortable sea margin. Leaflet clamps the map center inside this box.
@@ -35,7 +37,7 @@ function clusterIcon(cluster) {
     html: '<span>' + cluster.getChildCount() + '</span>', iconSize: [48, 48] })
 }
 
-export default function TaiwanTempleMap({ completedTempleIds, regionProgress, selectedCounty, selectedDistrictId, selectedDistrict, selectedTemple, selectedTempleId, temples, restoreView, onDistrictSelect, onOverviewSelect, onTempleSelect, onViewChange, onTemplePositionChange, onMapError, onDistrictError }) {
+export default function TaiwanTempleMap({ completedTempleIds, regionProgress, selectedCounty, selectedDistrictId, selectedDistrict, selectedTemple, selectedTempleId, temples, restoreView, onDistrictSelect, onOverviewSelect, onZoomBack, onTempleSelect, onViewChange, onTemplePositionChange, onMapError, onDistrictError }) {
   const containerRef = useRef(null)
   const mapRef = useRef(null)
   const boundaryRef = useRef(null)
@@ -43,8 +45,10 @@ export default function TaiwanTempleMap({ completedTempleIds, regionProgress, se
   const clusterRef = useRef(null)
   const markerByIdRef = useRef(new Map())
   const batchTimerRef = useRef(null)
+  const districtClickTimerRef = useRef(null)
   const lastSelectionRef = useRef(undefined)
-  const callbacksRef = useRef({ onDistrictSelect, onTempleSelect, onViewChange, onTemplePositionChange, onMapError, onDistrictError })
+  const lastTempleRef = useRef(null)
+  const callbacksRef = useRef({ onDistrictSelect, onZoomBack, onTempleSelect, onViewChange, onTemplePositionChange, onMapError, onDistrictError })
   const selectedTempleRef = useRef(selectedTempleId)
   const completedTempleRef = useRef(completedTempleIds)
   const progressRef = useRef(regionProgress)
@@ -58,16 +62,18 @@ export default function TaiwanTempleMap({ completedTempleIds, regionProgress, se
   }, [onOverviewSelect, selectedDistrict])
 
   useEffect(() => {
-    callbacksRef.current = { onDistrictSelect, onTempleSelect, onViewChange, onTemplePositionChange, onMapError, onDistrictError }
+    callbacksRef.current = { onDistrictSelect, onZoomBack, onTempleSelect, onViewChange, onTemplePositionChange, onMapError, onDistrictError }
     selectedTempleRef.current = selectedTempleId
     completedTempleRef.current = completedTempleIds
-  }, [onDistrictSelect, onTempleSelect, onViewChange, onTemplePositionChange, onMapError, onDistrictError, selectedTempleId, completedTempleIds])
+  }, [onDistrictSelect, onZoomBack, onTempleSelect, onViewChange, onTemplePositionChange, onMapError, onDistrictError, selectedTempleId, completedTempleIds])
 
   useEffect(() => {
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     const map = L.map(containerRef.current, {
       zoomControl: false, attributionControl: false, scrollWheelZoom: true, touchZoom: true,
+      doubleClickZoom: false,
       preferCanvas: true,
-      zoomAnimation: false, markerZoomAnimation: false, fadeAnimation: false,
+      zoomAnimation: !prefersReducedMotion, markerZoomAnimation: !prefersReducedMotion, fadeAnimation: !prefersReducedMotion,
       maxZoom: 18, minZoom: 1, zoomSnap: 0.1,
       maxBounds: interactionBounds, maxBoundsViscosity: 1,
     }).setView([23.8, 121], 7)
@@ -88,6 +94,7 @@ export default function TaiwanTempleMap({ completedTempleIds, regionProgress, se
     const returnFromSea = event => {
       if (!boundaryRef.current) return
       if (event.originalEvent?.target?.closest?.('.temple-pin, .temple-cluster, .temple-preview')) return
+      if (selectedTempleRef.current) return
       const point = { longitude: event.latlng.lng, latitude: event.latlng.lat }
       if (isTempleInDistrict(point, selectedDistrictRef.current)) return
       const onLand = [...layersByDistrictRef.current.values()].some(layer =>
@@ -102,6 +109,14 @@ export default function TaiwanTempleMap({ completedTempleIds, regionProgress, se
       }
     }
     map.on('click', returnFromSea)
+    const zoomBack = event => {
+      if (event.originalEvent?.target?.closest?.('.temple-pin, .temple-cluster, .temple-preview, .county-tools')) return
+      if (!selectedTempleRef.current && !lastSelectionRef.current?.county) return
+      clearTimeout(districtClickTimerRef.current)
+      L.DomEvent.stop(event.originalEvent)
+      callbacksRef.current.onZoomBack()
+    }
+    map.on('dblclick', zoomBack)
     const observer = new ResizeObserver(() => {
       map.invalidateSize({ pan: false })
       if (boundaryRef.current && !lastSelectionRef.current?.county) {
@@ -126,7 +141,11 @@ export default function TaiwanTempleMap({ completedTempleIds, regionProgress, se
           layer.bindTooltip(name + feature.properties.TOWNNAME, { sticky: true })
           layer.on('mouseover', () => layer.setStyle({ weight: 0.75, color: '#45494e' }))
           layer.on('mouseout', () => layer.setStyle(boundaryStyle(feature, lastSelectionRef.current?.district, progressRef.current)))
-          layer.on('click', () => callbacksRef.current.onDistrictSelect(name, id))
+          layer.on('click', event => {
+            clearTimeout(districtClickTimerRef.current)
+            if (event.originalEvent?.detail > 1) return
+            districtClickTimerRef.current = setTimeout(() => callbacksRef.current.onDistrictSelect(name, id), 240)
+          })
         },
       }).addTo(map)
       const overviewBounds = L.latLngBounds(getMainlandBounds(collection, { includePenghu: true }))
@@ -146,9 +165,11 @@ export default function TaiwanTempleMap({ completedTempleIds, regionProgress, se
     return () => {
       mounted = false
       clearTimeout(batchTimerRef.current)
+      clearTimeout(districtClickTimerRef.current)
       observer.disconnect()
       map.off('moveend', saveView)
       map.off('click', returnFromSea)
+      map.off('dblclick', zoomBack)
       map.remove()
       mapRef.current = null
       boundaryRef.current = null
@@ -177,7 +198,12 @@ export default function TaiwanTempleMap({ completedTempleIds, regionProgress, se
       map.setView(restoreView.center, restoreView.zoom, { animate: false })
     } else {
       const fitOptions = selectedCounty ? { padding: countyPadding } : overviewFitOptions
-      map.fitBounds(bounds, { ...fitOptions, maxZoom: selectedDistrictId ? 15 : selectedCounty ? 10 : 8, animate: false })
+      const maxZoom = selectedDistrictId ? 15 : selectedCounty ? 10 : 8
+      if (previous && (previous.county || selectedCounty)) {
+        map.flyToBounds(bounds, { ...fitOptions, maxZoom, duration: regionAnimationDuration })
+      } else {
+        map.fitBounds(bounds, { ...fitOptions, maxZoom, animate: false })
+      }
     }
   }, [selectedCounty, selectedDistrictId, geometryReady, restoreView])
 
@@ -231,9 +257,30 @@ export default function TaiwanTempleMap({ completedTempleIds, regionProgress, se
 
   useEffect(() => {
     const map = mapRef.current
-    if (!map || !selectedTemple) return
+    if (!map) return
+    const previousTempleId = lastTempleRef.current
+    lastTempleRef.current = selectedTemple?.id ?? null
+    if (!selectedTemple) {
+      if (previousTempleId) {
+        if (restoreView && Array.isArray(restoreView.center) && restoreView.center.every(Number.isFinite) && Number.isFinite(restoreView.zoom)) {
+          map.flyTo(restoreView.center, restoreView.zoom, { duration: templeAnimationDuration })
+        } else {
+          const boundary = boundaryRef.current
+          const features = boundary?.collection.features.filter(feature => selectedDistrictId
+            ? feature.properties.TOWNCODE === selectedDistrictId
+            : getCountyName(feature) === selectedCounty)
+          if (features?.length) {
+            const [[west, south], [east, north]] = getCollectionBounds({ features })
+            map.flyToBounds(L.latLngBounds([[south, west], [north, east]]), {
+              padding: countyPadding, maxZoom: selectedDistrictId ? 15 : 10, duration: templeAnimationDuration,
+            })
+          }
+        }
+      }
+      return
+    }
     const latLng = L.latLng(selectedTemple.latitude, selectedTemple.longitude)
-    map.setView(latLng, Math.max(map.getZoom(), 15), { animate: false })
+    map.flyTo(latLng, Math.max(map.getZoom(), 15), { duration: templeAnimationDuration })
     const selectedMarker = L.marker(latLng, {
       icon: markerIcon(true, completedTempleIds.has(selectedTemple.id)), interactive: false, zIndexOffset: 1000,
     }).addTo(map)
@@ -248,7 +295,7 @@ export default function TaiwanTempleMap({ completedTempleIds, regionProgress, se
       map.off('move zoom resize', reportPosition)
       map.removeLayer(selectedMarker)
     }
-  }, [selectedTemple, completedTempleIds, geometryReady])
+  }, [selectedTemple, selectedCounty, selectedDistrictId, completedTempleIds, geometryReady, restoreView])
 
   useEffect(() => {
     const cluster = clusterRef.current
