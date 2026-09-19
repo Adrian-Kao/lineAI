@@ -3,6 +3,7 @@ import { GameContext } from './GameContext.js'
 import { createInitialState, gameReducer } from './gameReducer.js'
 import { validateTaskResult } from './gameRules.js'
 import { loadProgress, saveProgress } from '../services/progressStorage.js'
+import { applyProfilePreferences, loadProfilePreferences, saveProfilePreferences } from '../services/profileStorage.js'
 
 const DEV_PUZZLE_PREREQUISITES = {
   stamp: {
@@ -36,14 +37,24 @@ export function GameProvider({ children }) {
     try {
       if (!profile?.userId) throw new Error('LINE 個人資料缺少使用者 ID')
       const snapshot = applyDevPuzzlePrerequisites(loadProgress(profile.userId) ?? createInitialState())
+      const editableProfile = applyProfilePreferences(profile, loadProfilePreferences(profile.userId))
       progressRef.current = snapshot
       dispatch({ type: 'HYDRATE', payload: snapshot })
-      setSession({ status: 'ready', profile, error: null })
+      setSession({ status: 'ready', profile: editableProfile, error: null })
     } catch (error) {
       setSession({ status: 'error', profile: null, error: error.message })
       throw error
     }
   }, [])
+  function updateProfile(input) {
+    if (session.status !== 'ready') throw new Error('請先登入 LINE')
+    const preferences = saveProfilePreferences(session.profile.userId, input)
+    setSession(current => ({
+      ...current,
+      profile: { ...current.profile, ...preferences },
+    }))
+    return preferences
+  }
   async function completeTask(result) {
     if (session.status !== 'ready') throw new Error('請先登入')
     if (submittingRef.current) throw new Error('任務正在提交，請稍候')
@@ -59,5 +70,5 @@ export function GameProvider({ children }) {
       submittingRef.current = false
     }
   }
-  return <GameContext.Provider value={{ progress, session, initializeSession, completeTask }}>{children}</GameContext.Provider>
+  return <GameContext.Provider value={{ progress, session, initializeSession, updateProfile, completeTask }}>{children}</GameContext.Provider>
 }

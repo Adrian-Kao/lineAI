@@ -1,0 +1,110 @@
+import { useRef, useState } from 'react'
+import { ArrowLeft, Camera, RotateCcw, Save, UserRound } from 'lucide-react'
+import { Link } from 'react-router'
+import { ROUTES } from '../../config/routes.js'
+import { useGame } from '../../state/GameContext.js'
+
+const MAX_AVATAR_FILE_BYTES = 8 * 1024 * 1024
+const AVATAR_SIZE = 512
+
+function loadImage(file) {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file)
+    const image = new Image()
+    image.onload = () => { URL.revokeObjectURL(url); resolve(image) }
+    image.onerror = () => { URL.revokeObjectURL(url); reject(new Error('無法讀取頭像圖片')) }
+    image.src = url
+  })
+}
+
+async function createAvatarDataUrl(file) {
+  if (!file?.type.startsWith('image/')) throw new Error('請選擇圖片檔案')
+  if (file.size > MAX_AVATAR_FILE_BYTES) throw new Error('頭像原圖不可超過 8 MB')
+  const image = await loadImage(file)
+  const sourceSize = Math.min(image.naturalWidth, image.naturalHeight)
+  if (!sourceSize) throw new Error('頭像圖片尺寸不正確')
+  const sourceX = (image.naturalWidth - sourceSize) / 2
+  const sourceY = (image.naturalHeight - sourceSize) / 2
+  const canvas = document.createElement('canvas')
+  canvas.width = AVATAR_SIZE
+  canvas.height = AVATAR_SIZE
+  const context = canvas.getContext('2d')
+  context.fillStyle = '#fffefa'
+  context.fillRect(0, 0, AVATAR_SIZE, AVATAR_SIZE)
+  context.drawImage(image, sourceX, sourceY, sourceSize, sourceSize, 0, 0, AVATAR_SIZE, AVATAR_SIZE)
+  return canvas.toDataURL('image/jpeg', 0.86)
+}
+
+export default function ProfilePage() {
+  const { session, updateProfile } = useGame()
+  const profile = session.profile
+  const [name, setName] = useState(profile.name)
+  const [phone, setPhone] = useState(profile.phone ?? '')
+  const [avatar, setAvatar] = useState(profile.avatar)
+  const [status, setStatus] = useState('idle')
+  const [message, setMessage] = useState('')
+  const fileInputRef = useRef(null)
+
+  async function handleAvatarChange(event) {
+    const file = event.target.files?.[0]
+    if (!file) return
+    setMessage('')
+    try {
+      setAvatar(await createAvatarDataUrl(file))
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : '無法處理頭像')
+    } finally {
+      event.target.value = ''
+    }
+  }
+
+  async function handleSubmit(event) {
+    event.preventDefault()
+    setStatus('saving')
+    setMessage('')
+    try {
+      const saved = updateProfile({ name, phone, avatar })
+      setName(saved.name)
+      setPhone(saved.phone)
+      setAvatar(saved.avatar)
+      setStatus('saved')
+      setMessage('個人資料已儲存在這台裝置。')
+    } catch (error) {
+      setStatus('error')
+      setMessage(error instanceof Error ? error.message : '個人資料保存失敗')
+    }
+  }
+
+  return <main className="profile-page">
+    <Link className="detail-back" to={ROUTES.map}><ArrowLeft size={19} />返回地圖</Link>
+    <header className="profile-heading">
+      <p>玩家帳戶</p>
+      <h1>個人資料</h1>
+      <p>自訂資料只會保存在目前裝置，LINE 帳號連結維持不變。</p>
+    </header>
+
+    <form className="profile-card" onSubmit={handleSubmit}>
+      <section className="profile-avatar-section" aria-label="大頭照">
+        <div className="profile-avatar">
+          {avatar ? <img src={avatar} alt="目前的大頭照" /> : <UserRound size={58} />}
+        </div>
+        <div className="profile-avatar-actions">
+          <button type="button" className="task-button" onClick={() => fileInputRef.current?.click()}><Camera size={18} />替換大頭照</button>
+          {avatar !== profile.lineAvatar && <button type="button" className="task-button is-secondary" onClick={() => setAvatar(profile.lineAvatar)}><RotateCcw size={17} />恢復 LINE 頭像</button>}
+          <input ref={fileInputRef} className="profile-file-input" type="file" accept="image/*" onChange={handleAvatarChange} />
+          <p>圖片會裁切成正方形並縮小後保存。</p>
+        </div>
+      </section>
+
+      <div className="profile-fields">
+        <label>姓名<input value={name} onChange={event => setName(event.target.value)} maxLength={40} autoComplete="name" required /></label>
+        <label>LINE 使用者 ID<input value={profile.userId} readOnly aria-describedby="line-id-note" /></label>
+        <p className="profile-field-note" id="line-id-note">由 LINE LIFF 提供，系統無法取得或修改使用者公開設定的 LINE ID。</p>
+        <label>電話<input value={phone} onChange={event => setPhone(event.target.value)} type="text" inputMode="tel" maxLength={24} autoComplete="tel" placeholder="例如：0912-345-678" /></label>
+      </div>
+
+      <button className="task-button profile-save" type="submit" disabled={status === 'saving'}><Save size={18} />{status === 'saving' ? '儲存中…' : '儲存個人資料'}</button>
+      {message && <p className={`profile-message is-${status}`} role={status === 'error' ? 'alert' : 'status'}>{message}</p>}
+    </form>
+  </main>
+}

@@ -10,6 +10,7 @@ import MissionPage from '../features/missions/MissionPage.jsx'
 import StoryPage from '../features/story/StoryPage.jsx'
 import CollectionPage from '../features/collection/CollectionPage.jsx'
 import StampBookPage from '../features/collection/StampBookPage.jsx'
+import ProfilePage from '../features/profile/ProfilePage.jsx'
 import PlaceholderPage from '../components/common/PlaceholderPage.jsx'
 
 export const router = createBrowserRouter([
@@ -25,7 +26,6 @@ export const router = createBrowserRouter([
     { path: ROUTES.news, element: <PlaceholderPage title="最新消息" /> },
     { path: ROUTES.settings, element: <PlaceholderPage title="設定" /> },
     { path: ROUTES.friends, element: <PlaceholderPage title="好友" /> },
-    { path: ROUTES.profile, element: <PlaceholderPage title="個人資料" /> },
   ] },
   { element: <RequireReady><AppLayout><Outlet /></AppLayout></RequireReady>, children: [
     { path: ROUTES.temple, element: <TemplePage /> },
@@ -33,6 +33,7 @@ export const router = createBrowserRouter([
     { path: ROUTES.story, element: <StoryPage /> },
     { path: ROUTES.collection, element: <CollectionPage /> },
     { path: ROUTES.stampbook, element: <StampBookPage /> },
+    { path: ROUTES.profile, element: <ProfilePage /> },
   ] },
   { path: '*', element: <Navigate to={ROUTES.map} replace /> },
 ])
