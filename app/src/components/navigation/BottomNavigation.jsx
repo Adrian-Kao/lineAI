@@ -1,12 +1,13 @@
 import { useState } from 'react'
 import { NavLink } from 'react-router'
-import { BookOpen, ChevronDown, ChevronUp, Stamp } from 'lucide-react'
+import { BookOpen, ChevronDown, ChevronUp, Images, Stamp } from 'lucide-react'
 import { ROUTES } from '../../config/routes.js'
 import TaiwanIcon from './TaiwanIcon.jsx'
 
 const items = [
   { to: ROUTES.map, label: '台灣', icon: TaiwanIcon },
-  { to: ROUTES.stamps, label: '集章', icon: Stamp },
+  { to: ROUTES.stampbook, label: '集章', icon: Stamp },
+  { to: ROUTES.collection, label: '圖鑑', icon: Images },
   { to: ROUTES.journal, label: '手札', icon: BookOpen },
   { to: ROUTES.points, label: '點數', icon: null },
 ]
