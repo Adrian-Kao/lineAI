@@ -16,7 +16,7 @@ const DEV_PUZZLE_PREREQUISITES = {
 }
 
 function applyDevPuzzlePrerequisites(snapshot) {
-  if (!import.meta.env.DEV) return snapshot
+  if (!import.meta.env.DEV || import.meta.env.VITE_SKIP_TO_PUZZLE !== 'true') return snapshot
   return {
     ...snapshot,
     missionCompletions: {

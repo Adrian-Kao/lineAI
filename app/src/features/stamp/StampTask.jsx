@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Nfc, Stamp } from 'lucide-react'
+import { Nfc } from 'lucide-react'
 import { TEMPLE } from '../../data/temple.js'
 
 // 流程：說明 → 模擬感應（DEMO，不連接真實硬體）→ 蓋章動畫 → 交由 MissionPage 保存。
@@ -47,7 +47,9 @@ export default function StampTask({ onComplete, disabled }) {
       <li>感應完成後印章會蓋上並加入集章簿。</li>
     </ol>
     <div className="stamp-pad" aria-live="polite">
-      <div className="stamp-mark" aria-hidden="true"><Stamp size={44} strokeWidth={1.6} /><span>{TEMPLE.name}</span></div>
+      <div className="stamp-mark" aria-hidden="true">
+        <img src={TEMPLE.stampImageUrl} alt="" />
+      </div>
       <p className="stamp-status">
         {step === 'intro' && '尚未感應'}
         {step === 'sensing' && '模擬感應中…'}

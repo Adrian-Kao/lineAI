@@ -13,7 +13,9 @@ function StampSlot({ temple, record }) {
   if (!temple) return <li className="stamp-slot is-empty" aria-label="尚未開放的空格"><span className="stamp-slot-mark" aria-hidden="true" /><p>尚未開放</p></li>
   const acquired = Boolean(record)
   return <li className={`stamp-slot${acquired ? ' is-acquired' : ''}`}>
-    <span className="stamp-slot-mark" aria-hidden="true">{acquired ? <><Stamp size={30} strokeWidth={1.6} /><span>{temple.name}</span></> : <Stamp size={30} strokeWidth={1.4} />}</span>
+    <span className="stamp-slot-mark" aria-hidden="true">
+      {acquired ? <img src={temple.stampImageUrl} alt="" /> : <Stamp size={30} strokeWidth={1.4} />}
+    </span>
     <h3>{temple.name}</h3>
     <p>{acquired ? formatTaipeiTime(record.acquiredAt) : '尚未取得'}</p>
     {!acquired && <Link className="stamp-slot-link" to={ROUTES.temple}>前往蓋章</Link>}
