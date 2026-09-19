@@ -7,7 +7,7 @@ import { loadDistrictBoundaries, loadDistrictBoundary } from '../../services/geo
 import { isTempleInDistrict } from '../../utils/districtGeometry.js'
 import { useGame } from '../../state/GameContext.js'
 import { TASKS } from '../../data/temple.js'
-import { applyMapColorPreview, applyTempleLightPreview } from './regionStatus.js'
+import { applyMapColorPreview, applyTempleLightPreview, deriveRegionProgress } from './regionStatus.js'
 import { CITY_COORDS } from './mapConfig.js'
 import TaiwanTempleMap from './TaiwanTempleMap.jsx'
 import TemplePreviewCard from '../temple/TemplePreviewCard.jsx'
@@ -24,8 +24,9 @@ export default function MapPage() {
   const [districts, setDistricts] = useState(null)
   const regionProgress = useMemo(() => {
     const completed = TASKS.filter(task => progress.missionCompletions[task.id]).length
-    const actual = { ...progress.regionProgress, '66000010': completed === TASKS.length ? 'unlocked' : completed > 0 ? 'inProgress' : 'locked' }
-    return import.meta.env.DEV ? applyMapColorPreview(actual, districts) : actual
+    const actual = { ...progress.regionProgress, '66000010': completed === TASKS.length ? 'inProgress' : 'locked' }
+    const previewed = import.meta.env.DEV ? applyMapColorPreview(actual, districts) : actual
+    return deriveRegionProgress(previewed, districts)
   }, [progress, districts])
   const { county } = useParams()
   const navigate = useNavigate()
@@ -83,15 +84,25 @@ export default function MapPage() {
   }, [navigate, selectedCounty, selectedDistrictId])
 
   const closePreview = useCallback(() => {
-    navigate({ pathname: ROUTES.county.replace(':county', encodeURIComponent(selectedCounty)), search: selectedDistrictId ? `?district=${encodeURIComponent(selectedDistrictId)}` : '' }, { state: { returnView: viewRef.current } })
-  }, [navigate, selectedCounty, selectedDistrictId])
+    navigate({ pathname: ROUTES.county.replace(':county', encodeURIComponent(selectedCounty)), search: selectedDistrictId ? `?district=${encodeURIComponent(selectedDistrictId)}` : '' }, { state: { returnView: location.state?.returnView } })
+  }, [navigate, selectedCounty, selectedDistrictId, location.state])
+
+  const handleZoomBack = useCallback(() => {
+    if (selectedTempleId) {
+      closePreview()
+    } else if (selectedDistrictId) {
+      navigate(ROUTES.county.replace(':county', encodeURIComponent(selectedCounty)))
+    } else if (selectedCounty) {
+      navigate(ROUTES.map)
+    }
+  }, [closePreview, navigate, selectedCounty, selectedDistrictId, selectedTempleId])
 
   if (county && !toSourceCountyName(county)) return <Navigate to={ROUTES.map} replace />
 
   return <main className="map-page">
     <div className="map-stage">
       <TaiwanTempleMap key={mapRetry} completedTempleIds={completedTempleIds} regionProgress={regionProgress} selectedDistrictId={selectedDistrictId} selectedDistrict={selectedDistrict} selectedCounty={selectedCounty} selectedTemple={previewTemple} selectedTempleId={selectedTempleId}
-        temples={temples} restoreView={location.state?.returnView} onDistrictSelect={handleDistrictSelect} onOverviewSelect={() => navigate(ROUTES.map)}
+        temples={temples} restoreView={location.state?.returnView} onDistrictSelect={handleDistrictSelect} onOverviewSelect={() => navigate(ROUTES.map)} onZoomBack={handleZoomBack}
         onTempleSelect={handleTempleSelect} onViewChange={view => { viewRef.current = view }} onTemplePositionChange={setTemplePosition}
         onMapError={setMapError} onDistrictError={setDistrictError} />
       {mapError && <div className="map-status" role="alert"><p>地圖載入失敗</p><button type="button" onClick={() => { setMapError(''); setMapRetry(value => value + 1) }}>重試</button></div>}
