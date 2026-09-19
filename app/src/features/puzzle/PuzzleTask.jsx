@@ -1,5 +1,6 @@
+
 import { useCallback, useRef, useState } from 'react'
-import { createStartingTiles, isSolved, swapTiles } from './puzzleRule'
+import { createStartingTiles, isSolved, swapTiles } from './puzzleRules'
 import './puzzleTask.css'
 
 const DEFAULT_IMAGE_URL = '/demo/wan-chun-temple.jpeg'
@@ -12,7 +13,6 @@ function tileBackgroundPosition(tile) {
 
 /**
  * A small, position-based 2 × 2 image puzzle.
- *
  * @param {{ imageUrl?: string, onComplete?: (tiles: number[]) => void }} props
  */
 export default function PuzzleTask({
@@ -32,7 +32,14 @@ export default function PuzzleTask({
 
       hasReportedCompletion.current = true
       setIsComplete(true)
-      onComplete?.(nextTiles)
+      onComplete?.({
+        taskId: 'puzzle',
+        completedAt: new Date().toISOString(),
+        evidence: {
+          kind: 'puzzle',
+          tileOrder: nextTiles,
+        },
+      })
       return true
     },
     [onComplete],
