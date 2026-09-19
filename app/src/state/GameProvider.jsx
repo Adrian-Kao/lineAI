@@ -3,8 +3,31 @@ import { GameContext } from './GameContext.js'
 import { createInitialState, gameReducer } from './gameReducer.js'
 import { validateTaskResult } from './gameRules.js'
 import { loadProgress, saveProgress } from '../services/progressStorage.js'
+
+const DEV_PUZZLE_PREREQUISITES = {
+  stamp: {
+    completedAt: '2026-09-19T00:00:00.000Z',
+    evidence: { kind: 'stamp', mockTouchConfirmed: true },
+  },
+  photo: {
+    completedAt: '2026-09-19T00:01:00.000Z',
+    evidence: { kind: 'photo', mediaId: 'dev-puzzle-prerequisite' },
+  },
+}
+
+function applyDevPuzzlePrerequisites(snapshot) {
+  if (!import.meta.env.DEV) return snapshot
+  return {
+    ...snapshot,
+    missionCompletions: {
+      ...DEV_PUZZLE_PREREQUISITES,
+      ...snapshot.missionCompletions,
+    },
+  }
+}
+
 export function GameProvider({ children }) {
-  const [progress, dispatch] = useReducer(gameReducer, undefined, createInitialState)
+  const [progress, dispatch] = useReducer(gameReducer, undefined, () => applyDevPuzzlePrerequisites(createInitialState()))
   const [session, setSession] = useState({ status: 'idle', profile: null, error: null })
   const progressRef = useRef(progress)
   const submittingRef = useRef(false)
@@ -12,7 +35,7 @@ export function GameProvider({ children }) {
     setSession({ status: 'loading', profile: null, error: null })
     try {
       if (!profile?.userId) throw new Error('LINE 個人資料缺少使用者 ID')
-      const snapshot = loadProgress(profile.userId) ?? createInitialState()
+      const snapshot = applyDevPuzzlePrerequisites(loadProgress(profile.userId) ?? createInitialState())
       progressRef.current = snapshot
       dispatch({ type: 'HYDRATE', payload: snapshot })
       setSession({ status: 'ready', profile, error: null })
