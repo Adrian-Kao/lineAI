@@ -17,18 +17,18 @@ button:focus-visible, a:focus-visible { outline: 3px solid #368f62; outline-offs
   background-size: 7px 7px;
 }
 .map-page {
-  min-height: 100dvh;
+  width: 100%;
+  height: 100dvh;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: calc(65px + env(safe-area-inset-top)) 0 calc(105px + env(safe-area-inset-bottom));
+  padding: 0;
 }
 .map-stage {
   position: relative;
   isolation: isolate;
-  width: min(100%, 660px);
-  height: min(770px, calc(100dvh - 170px - env(safe-area-inset-top) - env(safe-area-inset-bottom)));
-  min-height: 260px;
+  width: 100%;
+  height: 100dvh;
 }
 .taiwan-map { position: relative; width: 100%; height: 100%; touch-action: none; }
 .county-tools {
@@ -224,14 +224,14 @@ button:focus-visible, a:focus-visible { outline: 3px solid #368f62; outline-offs
   flex-direction: column;
   align-items: center;
   gap: 7px;
-  width: min(360px, calc(100vw - 32px));
+  width: min(410px, calc(100vw - 24px));
   transform: translateX(-50%);
 }
 .nav-toggle {
   display: grid;
   place-items: center;
-  width: 42px;
-  height: 30px;
+  width: 46px;
+  height: 32px;
   padding: 0;
   border: 1px solid #bfd8b3;
   border-radius: 8px;
@@ -246,8 +246,8 @@ button:focus-visible, a:focus-visible { outline: 3px solid #368f62; outline-offs
   grid-template-columns: repeat(4, 1fr);
   gap: 3px;
   width: 100%;
-  height: 68px;
-  padding: 6px;
+  height: 82px;
+  padding: 7px;
   border: 1px solid #d2e5c9;
   border-radius: 12px;
   background: rgba(247, 253, 243, .97);
@@ -259,7 +259,7 @@ button:focus-visible, a:focus-visible { outline: 3px solid #368f62; outline-offs
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 3px;
+  gap: 5px;
   min-width: 0;
   border-radius: 8px;
   color: #5a755d;
@@ -267,19 +267,19 @@ button:focus-visible, a:focus-visible { outline: 3px solid #368f62; outline-offs
 }
 .nav-item:hover { background: #edf7e9; }
 .nav-item.is-active { background: #cfeac8; color: #245735; }
-.nav-label { font-size: 11px; line-height: 1; }
+.nav-label { font-size: 13px; line-height: 1; }
 .points-icon {
   display: grid;
   place-items: center;
-  width: 22px;
-  height: 22px;
+  width: 27px;
+  height: 27px;
   border: 2px solid currentColor;
   border-radius: 50%;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 750;
   line-height: 1;
 }
-.bottom-navigation.is-collapsed .nav-toggle { transform: translateY(75px); }
+.bottom-navigation.is-collapsed .nav-toggle { transform: translateY(89px); }
 .bottom-navigation.is-collapsed .nav-items { transform: translateY(105%); opacity: 0; pointer-events: none; }
 .placeholder-page {
   display: flex;
@@ -294,8 +294,7 @@ button:focus-visible, a:focus-visible { outline: 3px solid #368f62; outline-offs
 .placeholder-page h1 { margin: 0; font-size: 24px; font-weight: 650; }
 .placeholder { padding: 20px; background: white; border-radius: 8px; }
 @media (max-height: 560px) {
-  .map-page { padding-top: 60px; padding-bottom: 100px; }
-  .map-stage { height: calc(100dvh - 160px); }
+  .map-page, .map-stage { height: 100dvh; padding: 0; }
 }
 @media (max-width: 480px) {
   .temple-artwork { flex-basis: 70px; }

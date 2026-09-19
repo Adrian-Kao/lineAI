@@ -10,7 +10,11 @@ import { getRegionStatus, REGION_STATUS_COLORS } from './regionStatus.js'
 import './markerStyles.css'
 
 const countyPadding = [28, 36]
+const overviewFitOptions = { padding: [0, 0] }
 const tileUrl = 'https://wmts.nlsc.gov.tw/wmts/EMAP/default/GoogleMapsCompatible/{z}/{y}/{x}'
+// Invisible interaction boundary: Taiwan, Penghu, Kinmen and Matsu plus a
+// comfortable sea margin. Leaflet clamps the map center inside this box.
+const interactionBounds = L.latLngBounds([[20.4, 117], [27.2, 124]])
 
 function boundaryStyle(feature, selectedDistrictId, regionProgress) {
   const selected = feature.properties.TOWNCODE === selectedDistrictId
@@ -61,12 +65,14 @@ export default function TaiwanTempleMap({ completedTempleIds, regionProgress, se
 
   useEffect(() => {
     const map = L.map(containerRef.current, {
-      zoomControl: false, scrollWheelZoom: true, touchZoom: true,
+      zoomControl: false, attributionControl: false, scrollWheelZoom: true, touchZoom: true,
       preferCanvas: true,
       zoomAnimation: false, markerZoomAnimation: false, fadeAnimation: false,
-      maxZoom: 18, minZoom: 1, zoomSnap: 0.25,
+      maxZoom: 18, minZoom: 1, zoomSnap: 0.1,
+      maxBounds: interactionBounds, maxBoundsViscosity: 1,
     }).setView([23.8, 121], 7)
     mapRef.current = map
+    map.attributionControl = L.control.attribution({ position: 'bottomleft', prefix: false }).addTo(map)
     map.createPane('districtTiles').style.zIndex = 210
     map.createPane('countyBorders').style.zIndex = 450
     map.getPane('countyBorders').style.pointerEvents = 'none'
@@ -91,7 +97,7 @@ export default function TaiwanTempleMap({ completedTempleIds, regionProgress, se
         if (lastSelectionRef.current?.county) {
           overviewCallbackRef.current()
         } else {
-          map.fitBounds(boundaryRef.current.overviewBounds, { padding: [24, 24], maxZoom: 8, animate: false })
+          map.fitBounds(boundaryRef.current.overviewBounds, { ...overviewFitOptions, maxZoom: 8, animate: false })
         }
       }
     }
@@ -99,7 +105,8 @@ export default function TaiwanTempleMap({ completedTempleIds, regionProgress, se
     const observer = new ResizeObserver(() => {
       map.invalidateSize({ pan: false })
       if (boundaryRef.current && !lastSelectionRef.current?.county) {
-        map.fitBounds(boundaryRef.current.overviewBounds, { padding: [24, 24], maxZoom: 8, animate: false })
+        map.setMinZoom(Math.min(8, map.getBoundsZoom(boundaryRef.current.overviewBounds, false, [0, 0])))
+        map.fitBounds(boundaryRef.current.overviewBounds, { ...overviewFitOptions, maxZoom: 8, animate: false })
       }
     })
     observer.observe(containerRef.current)
@@ -124,6 +131,7 @@ export default function TaiwanTempleMap({ completedTempleIds, regionProgress, se
       }).addTo(map)
       const overviewBounds = L.latLngBounds(getMainlandBounds(collection, { includePenghu: true }))
       boundaryRef.current = { boundaries, collection, overviewBounds }
+      map.setMinZoom(Math.min(8, map.getBoundsZoom(overviewBounds, false, [0, 0])))
       layersByDistrictRef.current = layers
       lastSelectionRef.current = undefined
       callbacksRef.current.onMapError('')
@@ -168,7 +176,8 @@ export default function TaiwanTempleMap({ completedTempleIds, regionProgress, se
     if (selectedCounty && restoreView && Array.isArray(restoreView.center) && restoreView.center.every(Number.isFinite) && Number.isFinite(restoreView.zoom)) {
       map.setView(restoreView.center, restoreView.zoom, { animate: false })
     } else {
-      map.fitBounds(bounds, { padding: selectedCounty ? countyPadding : [24, 24], maxZoom: selectedDistrictId ? 15 : selectedCounty ? 10 : 8, animate: false })
+      const fitOptions = selectedCounty ? { padding: countyPadding } : overviewFitOptions
+      map.fitBounds(bounds, { ...fitOptions, maxZoom: selectedDistrictId ? 15 : selectedCounty ? 10 : 8, animate: false })
     }
   }, [selectedCounty, selectedDistrictId, geometryReady, restoreView])
 

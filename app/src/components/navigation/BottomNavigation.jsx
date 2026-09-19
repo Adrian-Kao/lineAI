@@ -19,7 +19,7 @@ export default function BottomNavigation() {
     </button>
     <nav className="nav-items" aria-label="主要導覽" inert={!navExpanded}>
       {items.map(({ to, label, icon: Icon }) => <NavLink key={to} to={to} className={({ isActive }) => `nav-item${isActive ? ' is-active' : ''}`} aria-label={label} title={label}>
-        {Icon ? <Icon size={22} strokeWidth={1.9} /> : <span className="points-icon" aria-hidden="true">P</span>}
+        {Icon ? <Icon size={27} strokeWidth={1.9} /> : <span className="points-icon" aria-hidden="true">P</span>}
         <span className="nav-label">{label}</span>
       </NavLink>)}
     </nav>
