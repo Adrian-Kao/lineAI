@@ -12,6 +12,7 @@ import CollectionPage from '../features/collection/CollectionPage.jsx'
 import StampBookPage from '../features/collection/StampBookPage.jsx'
 import ProfilePage from '../features/profile/ProfilePage.jsx'
 import SettingsPage from '../features/settings/SettingsPage.jsx'
+import JournalPage from '../features/journal/JournalPage.jsx'
 import PlaceholderPage from '../components/common/PlaceholderPage.jsx'
 
 export const router = createBrowserRouter([
@@ -22,7 +23,6 @@ export const router = createBrowserRouter([
     { path: ROUTES.county, element: <MapPage /> },
     { path: ROUTES.templeDetail, element: <TempleDetailPage /> },
     { path: ROUTES.stamps, element: <PlaceholderPage title="集章簿" /> },
-    { path: ROUTES.journal, element: <PlaceholderPage title="旅程手札" /> },
     { path: ROUTES.points, element: <PlaceholderPage title="點數" /> },
     { path: ROUTES.news, element: <PlaceholderPage title="最新消息" /> },
     { path: ROUTES.settings, element: <SettingsPage /> },
@@ -35,6 +35,7 @@ export const router = createBrowserRouter([
     { path: ROUTES.collection, element: <CollectionPage /> },
     { path: ROUTES.stampbook, element: <StampBookPage /> },
     { path: ROUTES.profile, element: <ProfilePage /> },
+    { path: ROUTES.journal, element: <JournalPage /> },
   ] },
   { path: '*', element: <Navigate to={ROUTES.map} replace /> },
 ])

@@ -1,174 +1,41 @@
-// D：依 docs/project-guide.md 實作；此元件目前僅為骨架。
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect } from 'react'
+import { ArrowLeft, Flag, Landmark, MapPinned, Sparkles } from 'lucide-react'
+import { Link } from 'react-router'
+import { ROUTES } from '../../config/routes.js'
+import { DEMO_JOURNEY_EVENTS } from '../../data/journeyDemo.js'
 import { useGame } from '../../state/GameContext.js'
-import { getPhoto } from '../../services/mediaStorage.js'
-import { TEMPLE } from '../../data/temple.js'
-import { buildTimeline } from '../../utils/journalTimeline.js'
+import { useSettings } from '../../state/SettingsContext.js'
+import JourneyTree from './JourneyTree.jsx'
 
-function formatTime(value) {
-  if (!value) return '時間未記錄'
-
-  return new Intl.DateTimeFormat('zh-TW', {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-    timeZone: 'Asia/Taipei',
-  }).format(new Date(value))
-}
+const LEGEND = [
+  { type: 'temple', icon: Landmark, label: '大廟參訪' },
+  { type: 'county', icon: MapPinned, label: '縣市完成' },
+  { type: 'event', icon: Sparkles, label: '期間限定活動' },
+  { type: 'final', icon: Flag, label: '全台完成' },
+]
 
 export default function JournalPage() {
-  const { progress, session } = useGame()
-  const [isGenerating, setIsGenerating] = useState(false)
-  const [generatedAt, setGeneratedAt] = useState(null)
-  const [photoUrls, setPhotoUrls] = useState({})
-  const [shareMessage, setShareMessage] = useState('')
-  const objectUrlsRef = useRef([])
-
+  const { session } = useGame()
+  const { reduceMotion } = useSettings()
   const profile = session.profile
-  const timeline = useMemo(() => buildTimeline(progress), [progress])
-  const journalReady = Boolean(generatedAt)
+  const playerName = profile?.name?.trim() || '旅人'
+  const animationKey = `${profile?.userId ?? 'demo-player'}:demo-v3`
 
   useEffect(() => {
-    if (!journalReady || !profile?.userId) return undefined
+    window.scrollTo({ top: 0, left: 0 })
+  }, [])
 
-    let cancelled = false
+  return <main className="journey-page">
+    <header className="journey-page-header">
+      <Link className="detail-back" to={ROUTES.map}><ArrowLeft size={19} />返回地圖</Link>
+      <p className="journey-eyebrow">文化足跡</p>
+      <h1>{playerName}的進香旅程</h1>
+      <p className="journey-intro">沿著時間道路回顧拜訪宮廟、完成地區蒐集與參與限定活動的每一段記憶。</p>
+      <div className="journey-legend" aria-label="事件類型">
+        {LEGEND.map(({ type, icon: Icon, label }) => <span key={type} className={`is-${type}`}><Icon size={16} />{label}</span>)}
+      </div>
+    </header>
 
-    async function loadPhotos() {
-      const entries = await Promise.all(
-        timeline.map(async (item) => {
-          if (item.photoUrl) return [item.id, item.photoUrl]
-          if (!item.mediaId) return [item.id, null]
-
-          try {
-            const result = await getPhoto({
-              ownerId: profile.userId,
-              mediaId: item.mediaId,
-            })
-            const blob = result instanceof Blob ? result : result?.blob
-
-            if (!blob) return [item.id, null]
-
-            const url = URL.createObjectURL(blob)
-            objectUrlsRef.current.push(url)
-            return [item.id, url]
-          } catch {
-            return [item.id, null]
-          }
-        }),
-      )
-
-      if (!cancelled) {
-        setPhotoUrls(Object.fromEntries(entries.filter(([, url]) => url)))
-      }
-    }
-
-    loadPhotos()
-
-    return () => {
-      cancelled = true
-      objectUrlsRef.current.forEach((url) => URL.revokeObjectURL(url))
-      objectUrlsRef.current = []
-    }
-  }, [journalReady, profile?.userId, timeline])
-
-  function handleCreateJournal() {
-    setShareMessage('')
-    setIsGenerating(true)
-
-    window.setTimeout(() => {
-      setGeneratedAt(new Date().toISOString())
-      setIsGenerating(false)
-    }, 900)
-  }
-
-  async function handleShare() {
-    const text = `${profile?.name ?? '旅人'}的${TEMPLE.name}旅程手札：完成 ${timeline.length} 項任務。`
-
-    try {
-      if (navigator.share) {
-        await navigator.share({
-          title: `${TEMPLE.name}旅程手札`,
-          text,
-        })
-        setShareMessage('已開啟分享選單。')
-        return
-      }
-
-      await navigator.clipboard.writeText(text)
-      setShareMessage('手札文字已複製，可以貼到 LINE 分享。')
-    } catch {
-      setShareMessage('分享已取消。')
-    }
-  }
-
-  return (
-    <section className="journal-page">
-      <header>
-        <p>個人旅程紀錄</p>
-        <h2>{TEMPLE.name}手札</h2>
-        <p>
-          將你的集章、照片與任務故事整理成一頁專屬回憶。
-        </p>
-      </header>
-
-      {!journalReady && (
-        <button
-          type="button"
-          onClick={handleCreateJournal}
-          disabled={isGenerating || session.status !== 'ready'}
-        >
-          {isGenerating ? '手札生成中…' : '製作我的手札'}
-        </button>
-      )}
-
-      {isGenerating && (
-        <p role="status" aria-live="polite">
-          正在整理你的照片、章與故事…
-        </p>
-      )}
-
-      {journalReady && (
-        <article className="journal-card">
-          <header>
-            <p>{profile?.name ?? '旅人'}的旅程手札</p>
-            <h3>{TEMPLE.name}</h3>
-            <time dateTime={generatedAt}>製作時間：{formatTime(generatedAt)}</time>
-          </header>
-
-          {timeline.length === 0 ? (
-            <p>尚未完成任務；完成任一任務後再來製作手札吧。</p>
-          ) : (
-            <ol className="journal-timeline">
-              {timeline.map((item) => (
-                <li key={item.id}>
-                  <time dateTime={item.completedAt}>
-                    {formatTime(item.completedAt)}
-                  </time>
-                  <h4>{item.title}</h4>
-
-                  {item.stampName && (
-                    <p aria-label="取得的章">印章：{item.stampName}</p>
-                  )}
-
-                  {photoUrls[item.id] && (
-                    <img
-                      src={photoUrls[item.id]}
-                      alt={`${item.title}的任務照片`}
-                    />
-                  )}
-
-                  <p>{item.story}</p>
-                </li>
-              ))}
-            </ol>
-          )}
-
-          <button type="button" onClick={handleShare}>
-            分享手札
-          </button>
-
-          {shareMessage && <p role="status">{shareMessage}</p>}
-        </article>
-      )}
-    </section>
-  )
+    <JourneyTree events={DEMO_JOURNEY_EVENTS} animationKey={animationKey} reduceMotion={reduceMotion} />
+  </main>
 }
