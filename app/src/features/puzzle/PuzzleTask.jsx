@@ -1,6 +1,6 @@
 
 import { useCallback, useRef, useState } from 'react'
-import { createStartingTiles, isSolved, swapTiles } from './puzzleRule'
+import { createStartingTiles, isSolved, swapTiles } from './puzzleRules.js'
 import './puzzleTask.css'
 
 const DEFAULT_IMAGE_URL = '/demo/wan-chun-temple.jpeg'

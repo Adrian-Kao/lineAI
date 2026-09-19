@@ -238,6 +238,17 @@ button:focus-visible, a:focus-visible { outline: 3px solid #368f62; outline-offs
 .mission-panel > p { margin: 0 0 14px; }
 .mission-status { color: #58705c; }
 .mission-error { color: #b4321f; }
+.story-page { max-width: 760px; min-height: 100dvh; margin: 0 auto; padding: 34px 22px 135px; }
+.story-card { overflow: hidden; border: 1px solid #d6e1d3; border-radius: 8px; background: #fffefa; }
+.story-card > .temple-artwork { min-height: 210px; }
+.story-kicker { margin: 24px 24px 8px; color: #66806a; font-size: 13px; font-weight: 700; letter-spacing: .04em; }
+.story-card h1 { margin: 0 24px 18px; font-size: 28px; line-height: 1.35; }
+.story-image { display: block; width: 100%; max-height: 340px; object-fit: cover; }
+.story-image-note { margin: 10px 24px 0; color: #66806a; font-size: 13px; }
+.story-content { margin: 24px; font-size: 17px; line-height: 1.9; }
+.story-source { margin: 0 24px 24px; color: #66806a; font-size: 13px; line-height: 1.6; overflow-wrap: anywhere; }
+.story-source a { color: #286d50; }
+.story-map-link { margin-top: 18px; }
 .stamp-task { display: grid; gap: 16px; }
 .stamp-steps { margin: 0; padding-left: 22px; line-height: 1.7; color: #58705c; }
 .stamp-pad {
