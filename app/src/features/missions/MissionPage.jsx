@@ -3,6 +3,7 @@ import { Link, Navigate, useNavigate, useParams } from 'react-router'
 import { ROUTES } from '../../config/routes.js'
 import { useGame } from '../../state/GameContext.js'
 import { getTask, getTaskStatus } from '../../state/gameRules.js'
+import TaskProgress from '../../components/TaskProgress.jsx'
 import StampTask from '../stamp/StampTask.jsx'
 import PhotoTask from '../photo/PhotoTask.jsx'
 import PuzzleTask from '../puzzle/PuzzleTask.jsx'
@@ -16,7 +17,7 @@ export default function MissionPage() {
   const task = getTask(taskId)
   if (!task) return <Navigate to={ROUTES.temple} replace />
   const status = getTaskStatus(progress, taskId)
-  if (status !== 'available') return <section><h2>{task.title}</h2><p>{status === 'completed' ? '任務已完成' : '請先完成前一項任務'}</p><Link to={ROUTES.temple}>返回萬春宮</Link></section>
+  if (status !== 'available') return <main className="mission-page"><TaskProgress progress={progress} taskId={taskId} /><section className="mission-panel"><p>{status === 'completed' ? '任務已完成' : '請先完成前一項任務'}</p><Link className="task-button is-secondary" to={ROUTES.temple}>返回萬春宮</Link></section></main>
 
   async function handleComplete(result) {
     if (submitting) return
@@ -32,5 +33,5 @@ export default function MissionPage() {
     }
   }
   const TaskComponent = { stamp: StampTask, photo: PhotoTask, puzzle: PuzzleTask }[taskId]
-  return <section><h2>{task.title}</h2><TaskComponent onComplete={handleComplete} disabled={submitting} />{submitting && <p role="status">正在保存…</p>}{error && <p role="alert">{error}</p>}</section>
+  return <main className="mission-page"><TaskProgress progress={progress} taskId={taskId} /><section className="mission-panel"><TaskComponent onComplete={handleComplete} disabled={submitting} />{submitting && <p className="mission-status" role="status">正在保存…</p>}{error && <p className="mission-error" role="alert">{error}</p>}</section></main>
 }

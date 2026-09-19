@@ -38,6 +38,31 @@ button:focus-visible, a:focus-visible { outline: 3px solid #368f62; outline-offs
   left: 12px;
   width: min(290px, calc(100% - 90px));
 }
+.county-select {
+  width: 100%;
+  height: 42px;
+  margin-bottom: 6px;
+  padding: 0 12px;
+  border: 1px solid #a7c5a9;
+  border-radius: 7px;
+  outline-color: #368f62;
+  background: rgba(255, 255, 251, .96);
+  color: #30443a;
+  box-shadow: 0 2px 9px rgba(52, 80, 56, .14);
+  cursor: pointer;
+}
+.district-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+  padding: 8px 12px;
+  border-radius: 7px;
+  background: rgba(255, 254, 250, .96);
+  font-size: 14px;
+}
+.district-heading button { border: 0; padding: 0; background: none; color: #276d47; text-decoration: underline; cursor: pointer; white-space: nowrap; }
 .county-tools input {
   width: 100%;
   height: 42px;
@@ -115,6 +140,9 @@ button:focus-visible, a:focus-visible { outline: 3px solid #368f62; outline-offs
 .preview-body p { margin: 6px 0; font-size: 13px; line-height: 1.5; }
 .preview-body .temple-religion { font-weight: 700; color: #286d50; }
 .temple-address { color: #617469; }
+.preview-links { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.preview-links .task-button { padding: 8px 14px; font-size: 14px; }
+.explore-button { margin: 18px 24px; }
 .preview-close { position: absolute; top: 8px; right: 8px; display: grid; place-items: center; width: 32px; height: 32px; padding: 0; border: 0; border-radius: 6px; background: #eaf2e8; color: #335c40; cursor: pointer; }
 .temple-detail-page { max-width: 760px; min-height: 100dvh; margin: 0 auto; padding: 34px 22px 135px; }
 .detail-back { display: inline-flex; align-items: center; gap: 7px; margin-bottom: 24px; color: #286d50; text-decoration: none; }
@@ -127,8 +155,173 @@ button:focus-visible, a:focus-visible { outline: 3px solid #368f62; outline-offs
 .temple-detail dt { color: #66806a; }
 .temple-detail dd { min-width: 0; margin: 0; overflow-wrap: anywhere; }
 .temple-detail section, .temple-detail > p, .temple-detail > button { margin: 18px 24px; }
+.temple-detail > .explore-button { display: inline-block; margin-bottom: 24px; }
 .temple-detail section h2 { font-size: 19px; }
 .source-line, .record-line { font-size: 13px; color: #66806a; }
+.temple-page { max-width: 760px; min-height: 100dvh; margin: 0 auto; padding: 34px 22px 135px; }
+.temple-hero { display: flex; }
+.temple-hero > .temple-artwork { flex-basis: 120px; min-height: 130px; }
+.temple-hero-body { min-width: 0; padding: 18px 20px; }
+.temple-hero-body h1 { margin: 4px 0 10px; font-size: 26px; line-height: 1.3; }
+.temple-location { margin: 0; font-size: 13px; color: #66806a; }
+.demo-badge {
+  display: inline-block;
+  margin: 0;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #fff3c9;
+  color: #7a5a12;
+  font-size: 13px;
+  font-weight: 650;
+}
+.temple-next { margin: 22px 4px 12px; color: #58705c; }
+.temple-complete {
+  margin: 22px 0 12px;
+  padding: 20px 22px;
+  border: 1px solid #f0c98a;
+  border-radius: 8px;
+  background: #fff6e4;
+}
+.temple-complete h2 { margin: 0 0 8px; font-size: 20px; color: #8a5a10; }
+.temple-complete p { margin: 0 0 14px; }
+.temple-complete-links { display: flex; flex-wrap: wrap; gap: 10px; }
+.task-list { display: grid; gap: 12px; margin: 0; padding: 0; list-style: none; }
+.task-card {
+  display: grid;
+  grid-template-columns: 48px 1fr auto;
+  gap: 14px;
+  align-items: center;
+  padding: 16px 18px;
+  border: 1px solid #d6e1d3;
+  border-radius: 8px;
+  background: #fffefa;
+}
+.task-card.is-locked { color: #8a9a8d; background: #f6f6f0; }
+.task-card.is-available { border-color: #80ae81; box-shadow: 0 4px 14px rgba(52, 80, 56, .12); }
+.task-card.is-completed { border-color: #f0c98a; }
+.task-icon { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%; background: #e2f0dc; color: #2c5c3c; }
+.is-locked .task-icon { background: #e6e8e2; color: #8a9a8d; }
+.is-completed .task-icon { background: #ffd98a; color: #6b4707; }
+.task-body { min-width: 0; }
+.task-body h3 { margin: 2px 0 4px; font-size: 18px; line-height: 1.3; }
+.task-order { margin: 0; font-size: 12px; color: #66806a; }
+.task-status { margin-left: 8px; padding: 1px 7px; border-radius: 999px; background: #e6eee3; color: #3f5f47; }
+.is-completed .task-status { background: #ffe9b8; color: #6b4707; }
+.task-hint { margin: 0; font-size: 13px; line-height: 1.5; color: #58705c; }
+.is-locked .task-hint { color: #8a9a8d; }
+.task-button {
+  display: inline-block;
+  padding: 10px 18px;
+  border: 1px solid #368f62;
+  border-radius: 7px;
+  background: #368f62;
+  color: #fff;
+  font-weight: 650;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.task-button.is-secondary { background: #e2f0dc; border-color: #80ae81; color: #244d35; }
+.task-locked { font-size: 12px; color: #8a9a8d; white-space: nowrap; }
+.mission-page { max-width: 760px; min-height: 100dvh; margin: 0 auto; padding: 34px 22px 135px; }
+.task-progress { margin-bottom: 18px; }
+.task-progress .detail-back { margin-bottom: 18px; }
+.task-steps { display: flex; gap: 6px; margin: 0 0 14px; padding: 0; list-style: none; }
+.task-step { display: flex; flex: 1; align-items: center; gap: 8px; min-width: 0; padding: 8px 10px; border-radius: 8px; background: #eef2ea; color: #8a9a8d; font-size: 13px; }
+.task-step.is-available { background: #e2f0dc; color: #2c5c3c; }
+.task-step.is-completed { background: #fff3c9; color: #6b4707; }
+.task-step.is-active { outline: 2px solid #368f62; outline-offset: -2px; }
+.task-step-dot { display: grid; flex: none; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: rgba(255, 255, 255, .85); font-size: 12px; font-weight: 750; }
+.task-step-label { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.task-progress-title { margin: 0; font-size: 14px; color: #66806a; }
+.task-progress-title strong { display: block; margin-top: 2px; font-size: 24px; color: #30443a; }
+.mission-panel { padding: 22px; border: 1px solid #d6e1d3; border-radius: 8px; background: #fffefa; }
+.mission-panel > p { margin: 0 0 14px; }
+.mission-status { color: #58705c; }
+.mission-error { color: #b4321f; }
+.stamp-task { display: grid; gap: 16px; }
+.stamp-steps { margin: 0; padding-left: 22px; line-height: 1.7; color: #58705c; }
+.stamp-pad {
+  display: grid;
+  place-items: center;
+  gap: 10px;
+  padding: 28px 20px;
+  border: 2px dashed #b4d8ae;
+  border-radius: 12px;
+  background: #fffefa;
+}
+.is-sensing .stamp-pad { border-color: #368f62; animation: stamp-pulse 1.2s ease-in-out infinite; }
+.stamp-mark {
+  display: grid;
+  place-items: center;
+  gap: 4px;
+  width: 132px;
+  height: 132px;
+  border: 4px solid #c23b2c;
+  border-radius: 50%;
+  color: #c23b2c;
+  font-weight: 750;
+  letter-spacing: 2px;
+  opacity: 0;
+  transform: scale(1.6) rotate(-14deg);
+}
+.is-stamping .stamp-mark, .is-done .stamp-mark { opacity: .92; transform: scale(1) rotate(-8deg); transition: transform .45s cubic-bezier(.2, 1.4, .4, 1), opacity .25s ease; }
+.stamp-status { margin: 0; font-size: 14px; color: #58705c; }
+.stamp-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.stamp-button { display: inline-flex; align-items: center; gap: 8px; border: 1px solid #368f62; cursor: pointer; }
+.stamp-button:disabled { opacity: .55; cursor: default; }
+.stampbook-page { max-width: 760px; min-height: 100dvh; margin: 0 auto; padding: 34px 22px 135px; }
+.stampbook-header { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-bottom: 18px; }
+.stampbook-header h1 { margin: 0; font-size: 26px; }
+.stampbook-empty { margin: 0 0 18px; padding: 14px 16px; border-radius: 8px; background: #fffefa; border: 1px solid #d6e1d3; color: #58705c; }
+.stamp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; margin: 0; padding: 0; list-style: none; }
+.stamp-slot {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  padding: 18px 12px 16px;
+  border: 1px solid #d6e1d3;
+  border-radius: 8px;
+  background: #fffefa;
+  text-align: center;
+}
+.stamp-slot h3 { margin: 4px 0 0; font-size: 16px; }
+.stamp-slot p { margin: 0; font-size: 13px; color: #66806a; }
+.stamp-slot.is-empty { border-style: dashed; background: #f6f6f0; color: #8a9a8d; }
+.stamp-slot.is-acquired { border-color: #f0c98a; background: #fffaf0; }
+.stamp-slot-mark {
+  display: grid;
+  place-items: center;
+  gap: 2px;
+  width: 92px;
+  height: 92px;
+  border: 3px dashed #c5d9c5;
+  border-radius: 50%;
+  color: #a7b8aa;
+  font-size: 12px;
+  font-weight: 750;
+  letter-spacing: 1px;
+}
+.is-empty .stamp-slot-mark { border-color: #dfe3d8; }
+.is-acquired .stamp-slot-mark { border: 3px solid #c23b2c; color: #c23b2c; transform: rotate(-8deg); }
+.stamp-slot-link { font-size: 13px; color: #286d50; }
+.collection-page { max-width: 760px; min-height: 100dvh; margin: 0 auto; padding: 34px 22px 135px; }
+.collection-page section { margin-top: 22px; }
+.collection-heading { margin: 0 0 10px; font-size: 18px; color: #3f5f47; }
+.stampbook-empty a { margin-left: 6px; color: #286d50; }
+.photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; margin: 0; padding: 0; list-style: none; }
+.photo-card { overflow: hidden; border: 1px solid #d6e1d3; border-radius: 8px; background: #fffefa; }
+.photo-card.is-reward { border-color: #f0c98a; }
+.photo-frame { display: grid; height: 170px; background: #e9efe4; }
+.photo-frame img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.photo-frame > .temple-artwork { height: 100%; }
+.photo-frame-status { display: grid; place-items: center; align-content: center; gap: 6px; padding: 12px; color: #66806a; font-size: 13px; text-align: center; }
+.photo-frame-status p { margin: 0; }
+.photo-frame-status button { border: 0; background: none; color: #276d47; text-decoration: underline; cursor: pointer; }
+.photo-body { padding: 12px 14px 14px; }
+.photo-body h3 { margin: 0 0 4px; font-size: 16px; }
+.photo-body p { margin: 2px 0; font-size: 13px; color: #66806a; }
+.reward-note { color: #8a5a10; }
+@keyframes stamp-pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(54, 143, 98, .35); } 50% { box-shadow: 0 0 0 12px rgba(54, 143, 98, 0); } }
 .map-status {
   position: absolute;
   inset: 0;
@@ -206,7 +399,15 @@ button:focus-visible, a:focus-visible { outline: 3px solid #368f62; outline-offs
   color: #315a40;
   cursor: pointer;
 }
-.side-drawer nav { display: grid; gap: 3px; margin-top: 32px; }
+.session-card { display: grid; grid-template-columns: 48px 1fr; gap: 12px; align-items: center; margin-top: 18px; padding: 14px; border: 1px solid #d6e1d3; border-radius: 8px; background: #fffefa; }
+.session-avatar { display: grid; place-items: center; width: 48px; height: 48px; overflow: hidden; border-radius: 50%; background: #e2f0dc; color: #2c5c3c; }
+.session-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.session-body { min-width: 0; }
+.session-name { margin: 0; font-weight: 650; overflow-wrap: anywhere; }
+.session-meta { margin: 2px 0 0; font-size: 13px; color: #66806a; }
+.session-body .demo-badge { margin-top: 6px; font-size: 12px; }
+.session-login { grid-column: 1 / -1; text-align: center; }
+.side-drawer nav { display: grid; gap: 3px; margin-top: 22px; }
 .side-drawer nav a {
   padding: 17px 8px;
   border-bottom: 1px solid #dce5d4;
@@ -243,7 +444,7 @@ button:focus-visible, a:focus-visible { outline: 3px solid #368f62; outline-offs
 }
 .nav-items {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 3px;
   width: 100%;
   height: 82px;
@@ -299,8 +500,15 @@ button:focus-visible, a:focus-visible { outline: 3px solid #368f62; outline-offs
 @media (max-width: 480px) {
   .temple-artwork { flex-basis: 70px; }
   .preview-body { padding: 13px 39px 14px 12px; }
-  .temple-detail-page { padding: 22px 14px 125px; }
+  .temple-detail-page, .temple-page { padding: 22px 14px 125px; }
+  .temple-hero > .temple-artwork { flex-basis: 90px; }
+  .task-card { grid-template-columns: 42px 1fr; padding: 14px; }
+  .task-icon { width: 42px; height: 42px; }
+  .task-action { grid-column: 2; }
+  .task-step-label { display: none; }
+  .task-step { flex: none; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .drawer-backdrop, .side-drawer, .nav-toggle, .nav-items { transition-duration: .01ms; }
+  .drawer-backdrop, .side-drawer, .nav-toggle, .nav-items, .stamp-mark { transition-duration: .01ms; }
+  .is-sensing .stamp-pad { animation: none; }
 }
