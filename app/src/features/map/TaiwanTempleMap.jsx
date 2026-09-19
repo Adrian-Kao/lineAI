@@ -224,7 +224,8 @@ export default function TaiwanTempleMap({ completedTempleIds, regionProgress, se
       map.removeLayer(tiles)
       map.removeLayer(outline)
       pane.style.clipPath = ''
-      if (overviewLayer) overviewLayer.addTo(map)
+      // Unmount removes the map first; only restore the overview layer while it still exists.
+      if (overviewLayer && mapRef.current === map) overviewLayer.addTo(map)
     }
   }, [selectedDistrict, selectedDistrictId, geometryReady])
 

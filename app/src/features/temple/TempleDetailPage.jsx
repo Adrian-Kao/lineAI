@@ -6,9 +6,23 @@ import { toDisplayCountyName, toSourceCountyName } from '../../utils/countyNames
 import { loadTempleById } from '../../services/templeData.js'
 import { templeContentById, missionEnabledTempleIds } from '../../data/templeContent.js'
 import TempleArtwork from './TempleArtwork.jsx'
+import { useGame } from '../../state/GameContext.js'
+import { TASKS } from '../../data/temple.js'
+import { getTaskStatus } from '../../state/gameRules.js'
+import { formatTaipeiTime } from '../../utils/formatTime.js'
+
+// 目前只有萬春宮參與活動，任務紀錄直接對應 progress；多宮廟時需依宮廟 ID 區分。
+function recordLine(temple, progress) {
+  if (!missionEnabledTempleIds.has(temple.id)) return '此宮廟未納入 DEMO 活動'
+  const completed = TASKS.filter(task => getTaskStatus(progress, task.id) === 'completed')
+  if (!completed.length) return '尚無任務紀錄'
+  const latest = progress.missionCompletions[completed.at(-1).id].completedAt
+  return `已完成 ${completed.length}／${TASKS.length} 項任務，最近一次：${formatTaipeiTime(latest)}`
+}
 
 export default function TempleDetailPage() {
   const { county, uuid } = useParams()
+  const { progress } = useGame()
   const location = useLocation()
   const [result, setResult] = useState({ key: '', temple: null, error: '' })
   const displayCounty = toDisplayCountyName(county)
@@ -44,8 +58,8 @@ export default function TempleDetailPage() {
       {content?.contentSources?.length > 0 && <p>補充內容來源：{content.contentSources.join('、')}</p>}
       {content?.imageCredit && <p>圖片來源：{content.imageCredit}</p>}
       {temple.sourceUrl.startsWith('https://kiang.github.io/religion/data/poi/') && <p className="source-line">資料來源：<a href={temple.sourceUrl} target="_blank" rel="noreferrer">公開宗教場所資料</a></p>}
-      <p className="record-line">尚無紀錄</p>
-      {missionEnabledTempleIds.has(temple.id) && <button type="button" disabled>探索功能準備中</button>}
+      <p className="record-line">{recordLine(temple, progress)}</p>
+      {missionEnabledTempleIds.has(temple.id) && <Link className="task-button explore-button" to={ROUTES.temple}>探索任務</Link>}
     </article>}
   </main>
 }
