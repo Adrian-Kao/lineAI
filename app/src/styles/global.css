@@ -391,6 +391,62 @@ html[data-reduce-motion='true'] *, html[data-reduce-motion='true'] *::before, ht
 .photo-body h3 { margin: 0 0 4px; font-size: 16px; }
 .photo-body p { margin: 2px 0; font-size: 13px; color: #66806a; }
 .reward-note { color: #8a5a10; }
+.collection-index-page { max-width: 920px; }
+.collection-index-header { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px; margin: 12px 0 10px; }
+.collection-index-header p { margin: 0 0 3px; color: #66806a; font-size: 12px; font-weight: 750; letter-spacing: .12em; }
+.collection-index-header h1 { margin: 0; font-size: 28px; }
+.collection-index-intro { margin: 0 0 24px; color: #58705c; font-size: 14px; line-height: 1.7; }
+.region-collection { display: grid; gap: 28px; }
+.region-group { margin: 0 !important; }
+.region-group-header { display: flex; align-items: baseline; gap: 9px; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 2px solid #c9dbc6; }
+.region-group-header h2 { margin: 0; color: #304b38; font-size: 20px; }
+.region-group-header span { color: #7b8f7e; font-size: 12px; }
+.region-slot-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin: 0; padding: 0; list-style: none; }
+.region-slot { min-height: 128px; overflow: hidden; border: 1px solid #d8e1d4; border-radius: 9px; background: #fffefa; }
+.region-slot > h3 { margin: 0; padding: 9px 11px; border-bottom: 1px solid #e2e8df; background: #f3f7ef; color: #3e5946; font-size: 14px; }
+.region-slot.is-locked { background: #f8f8f3; }
+.region-slot.is-locked > h3 { color: #718075; }
+.region-slot.is-demo { border-color: #b7d4af; box-shadow: 0 4px 14px rgba(55, 92, 62, .08); }
+.region-slot-empty, .district-collection-empty { display: grid; min-height: 88px; place-items: center; align-content: center; gap: 5px; color: #9aa59c; font-size: 12px; }
+.district-collection-empty a, .district-collectible a { color: #286d50; font-size: 12px; }
+.district-collectible { display: grid; grid-template-columns: 72px 1fr; gap: 11px; align-items: center; padding: 11px; }
+.district-collectible.is-openable, .district-photo-item.is-openable { width: 100%; border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.district-collectible.is-openable:hover, .district-photo-item.is-openable:hover { background: rgba(220, 239, 213, .45); }
+.district-collectible.is-openable:focus-visible, .district-photo-item.is-openable:focus-visible { outline: 3px solid #368f62; outline-offset: -3px; border-radius: 6px; }
+.district-photo-item.is-openable:disabled { cursor: wait; }
+.district-collectible strong, .district-photo-item strong { color: #354b3a; font-size: 13px; }
+.district-collectible p, .district-photo-item p { margin: 3px 0; color: #718075; font-size: 11px; }
+.collection-date { white-space: nowrap; font-variant-numeric: tabular-nums; }
+.district-stamp-mark { display: grid; width: 68px; height: 68px; place-items: center; border: 2px dashed #cad8c6; border-radius: 50%; color: #9cad9e; }
+.district-collectible.is-acquired .district-stamp-mark { border: 0; transform: rotate(-7deg); }
+.district-stamp-mark img { width: 100%; height: 100%; object-fit: contain; }
+.district-photo-list { display: grid; gap: 8px; padding: 9px; }
+.district-photo-item { display: grid; grid-template-columns: 64px 1fr; gap: 9px; align-items: center; }
+.district-photo-item > :last-child { min-width: 0; }
+.district-photo-item + .district-photo-item { padding-top: 8px; border-top: 1px solid #e5e9e1; }
+.district-photo-frame { display: grid; width: 64px; aspect-ratio: 1; overflow: hidden; place-items: center; border-radius: 6px; background: #e7eee3; color: #7f9282; }
+.district-photo-frame img { width: 100%; height: 100%; object-fit: cover; }
+.district-photo-frame .temple-artwork { width: 100%; height: 100%; min-height: 0; }
+.district-photo-copy strong { display: block; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.district-photo-copy .memory-description { display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; line-height: 1.45; text-wrap: pretty; }
+.collectible-modal-layer { position: fixed; z-index: 19; inset: 0; display: grid; place-items: center; padding: 70px 20px 118px; background: rgba(31, 42, 34, .24); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); }
+.collectible-modal { position: relative; width: min(430px, 100%); max-height: 100%; overflow: auto; border: 1px solid #c9d9c5; border-radius: 16px; background: #fffefa; box-shadow: 0 20px 55px rgba(30, 46, 34, .3); }
+.collectible-modal-close { position: absolute; z-index: 1; top: 11px; right: 11px; display: grid; width: 40px; height: 40px; place-items: center; border: 1px solid rgba(255, 255, 255, .7); border-radius: 50%; background: rgba(34, 47, 38, .72); color: #fff; cursor: pointer; }
+.collectible-modal-media { display: grid; width: 100%; aspect-ratio: 1; overflow: hidden; place-items: center; background: #e8eee4; }
+.collectible-modal-media img { width: 100%; height: 100%; object-fit: cover; }
+.collectible-modal-media.is-stamp { padding: 34px; background: #fff8e8; }
+.collectible-modal-media.is-stamp img { object-fit: contain; }
+.collectible-modal-copy { padding: 19px 21px 23px; }
+.collectible-modal-kicker { margin: 0 0 5px; color: #5f7a65; font-size: 12px; font-weight: 750; letter-spacing: .08em; }
+.collectible-modal-copy h2 { margin: 0; color: #2f4535; font-size: 23px; }
+.collectible-modal-date { margin: 8px 0 0; color: #6c7e70; font-size: 13px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.collectible-modal-description { margin: 13px 0 0; color: #45594a; line-height: 1.7; text-wrap: pretty; }
+.collectible-modal-source { margin: 13px 0 0; padding-top: 11px; border-top: 1px solid #e2e8df; color: #7b877d; font-size: 11px; line-height: 1.55; }
+.region-collection-status { padding: 28px; border: 1px solid #d8e1d4; border-radius: 9px; color: #66806a; text-align: center; }
+.region-collection-status.is-error { color: #a83d2d; }
+@media (max-width: 480px) {
+  .region-slot-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
 @keyframes stamp-pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(54, 143, 98, .35); } 50% { box-shadow: 0 0 0 12px rgba(54, 143, 98, 0); } }
 .map-status {
   position: absolute;

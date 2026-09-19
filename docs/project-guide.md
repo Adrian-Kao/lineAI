@@ -112,7 +112,7 @@ lineAI/
 ├─ readme.md                              專案入口
 ├─ requirement.txt                        組員安裝與設定指令
 ├─ docs/project-guide.md                  統一設計與分工文件
-└─ my-react-app/
+└─ app/
    ├─ package.json / package-lock.json    套件、指令與版本鎖定
    ├─ .env.example / .gitignore           公開設定範本與忽略規則
    ├─ index.html                         HTML 入口、手機 viewport
@@ -203,8 +203,10 @@ lineAI/
 | --- | --- | --- |
 | 高 | 技術整合、LINE SDK、路由、任務規則與保存 | main/App、router/Entry、config/data、state、line/progressStorage、專案設定 |
 | 施 | LINE Console、部署協作、照片處理與真機測試 | PhotoTask、image、mediaStorage；與 A 配合 endpoint 設定 |
-| 芊 | 地圖、宮廟、蓋章、收藏與視覺 | AppLayout、Map/Temple/Stamp、Collection/StampBook、AsyncStatus、formatTime、global.css |
-| 姍 | 拼圖、故事、旅程回顧與內容素材 | Puzzle/puzzleRules、Story、Journal；提供 temple.js 內容給 A 整合 |
+| 芊 | 各自製作宮廟互動小遊戲 A（玩法、畫面、完成判定與素材） | `features/minigames/qian/`；以統一的 `onComplete(result)` 介面交給高整合，不直接修改共用 Mission、state 或 router |
+| 姍 | 各自製作宮廟互動小遊戲 B（玩法、畫面、完成判定與素材） | `features/minigames/shan/`；以統一的 `onComplete(result)` 介面交給高整合，不直接修改共用 Mission、state 或 router |
+
+芊、姍開始前須先從最新主分支各自建立功能分支（例如 `feature/qian-temple-game`、`feature/shan-temple-game`），只修改自己的小遊戲資料夾。完成可獨立操作的版本後，先 commit 並 push 到各自分支，再通知整合者依序合併；不要兩人同時直接修改或推送主分支，以降低 merge conflict。
 
 | 工作與完成標準 |
 | --- | --- |
@@ -329,13 +331,13 @@ flowchart TD
 從專案根目錄，在 Windows PowerShell 執行：
 
 ```powershell
-cd my-react-app
+cd app
 npm ci
 if (-not (Test-Path .env.local)) { Copy-Item .env.example .env.local }
 npm run dev
 ```
 
-將團隊的 LIFF ID 填入 .env.local 的 VITE_LIFF_ID；VITE_AUTH_MODE 維持 line。VITE_* 是公開變數，不放私密憑證。Vercel 設 Root Directory=my-react-app、Build Command=npm run build、Output Directory=dist，再設定 LINE HTTPS endpoint 與所需權限。
+將團隊的 LIFF ID 填入 .env.local 的 VITE_LIFF_ID；VITE_AUTH_MODE 維持 line。VITE_* 是公開變數，不放私密憑證。Vercel 設 Root Directory=app、Build Command=npm run build、Output Directory=dist，再設定 LINE HTTPS endpoint 與所需權限。
 
 已驗證 npm run lint、npm run build 與開發伺服器 HTTP 回應；尚未驗證 LINE 或完整遊戲實機流程。HTTP 200 不代表任務功能已實作。node_modules、dist、.npm-cache、.env.local 不提交 Git。
 

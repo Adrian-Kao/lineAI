@@ -1,0 +1,11 @@
+{
+  "name": "lineai-workspace",
+  "private": true,
+  "scripts": {
+    "dev": "npm --prefix app run dev",
+    "build": "npm --prefix app run build",
+    "lint": "npm --prefix app run lint",
+    "test": "npm --prefix app test",
+    "preview": "npm --prefix app run preview"
+  }
+}

@@ -6,8 +6,8 @@ Node.js 24.x（已驗證 24.18.0）
 npm 11.x（已驗證 11.16.0）
 Git
 不需要 Python、pip、Docker、pnpm 或 LINE CLI。
-本檔是安裝說明；npm 的依賴清單為 my-react-app/package.json，
-確切版本為 my-react-app/package-lock.json，由 npm ci 一次安裝。
+本檔是安裝說明；npm 的依賴清單為 app/package.json，
+確切版本為 app/package-lock.json，由 npm ci 一次安裝。
 
 二、首次取得專案（未下載專案的人執行）
 git clone https://github.com/Adrian-Kao/lineAI.git
@@ -16,13 +16,15 @@ cd lineAI
 三、安裝與啟動（從專案根目錄執行，Windows PowerShell）
 node --version
 npm --version
-cd my-react-app
-npm ci
-if (-not (Test-Path .env.local)) { Copy-Item .env.example .env.local }
+npm ci --prefix app
+if (-not (Test-Path app/.env.local)) { Copy-Item app/.env.example app/.env.local }
 npm run dev
 
+根目錄 package.json 會把 dev、build、lint、test、preview 指令轉交給 app。
+若未取得含根目錄 package.json 的版本，也可先 cd app，再執行 npm run dev。
+
 macOS / Linux 建立設定檔改用：
-cp -n .env.example .env.local
+cp -n app/.env.example app/.env.local
 其餘 npm 指令相同。
 
 四、已安裝套件版本（其他組員不必逐一安裝，執行 npm ci 即可）
@@ -30,6 +32,13 @@ react 19.3.0
 react-dom 19.3.0
 react-router 8.4.0
 @line/liff 2.31.0
+leaflet 1.9.4
+leaflet.markercluster 1.5.3
+topojson-client 3.1.0
+lucide-react 1.47.0
+@deck.gl/core 9.4.0
+@deck.gl/layers 9.4.0
+@deck.gl/react 9.4.0
 vite 8.3.0
 @vitejs/plugin-react 6.1.1
 eslint 10.10.0
@@ -42,7 +51,7 @@ globals 17.12.0
 Context、Canvas、IndexedDB 不需另裝套件。
 
 五、手動設定
-編輯 my-react-app/.env.local：
+編輯 app/.env.local：
 VITE_LIFF_ID=團隊在LINE Developers Console取得的LIFF_ID
 VITE_AUTH_MODE=line
 修改後重啟 npm run dev。
@@ -50,8 +59,9 @@ VITE_AUTH_MODE=line
 LINE SDK 已安裝，但登入和遊戲功能目前仍是程式骨架。
 LIFF_ID 無法透過 npm 安裝取得，需由團隊設定 channel 並提供。
 
-六、開發檢查（在 my-react-app 目錄執行）
+六、開發檢查（在 app 目錄執行）
 npm run lint
+npm test
 npm run build
 npm run preview
 本次 lint、build 與開發伺服器已驗證成功；尚未驗證 LINE 實機功能。
@@ -67,7 +77,7 @@ LTS 版本會變動，本專案要求 Node.js 24.x。
 需要 CLI 才執行：
 npm install --global vercel
 vercel login
-Vercel 專案設定：Root Directory=my-react-app，
+Vercel 專案設定：Root Directory=app，
 Build Command=npm run build，Output Directory=dist。
 LINE endpoint 與 Vercel 環境變數另由帳號負責人設定。
 

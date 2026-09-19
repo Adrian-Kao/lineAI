@@ -1,43 +1,47 @@
+import { useState } from 'react'
 import { Link } from 'react-router'
 import { ArrowLeft, Stamp } from 'lucide-react'
 import { ROUTES } from '../../config/routes.js'
 import { TEMPLE } from '../../data/temple.js'
 import { useGame } from '../../state/GameContext.js'
-import { formatTaipeiTime } from '../../utils/formatTime.js'
+import { formatTaipeiDate } from '../../utils/formatTime.js'
+import RegionCollection from './RegionCollection.jsx'
+import CollectibleModal from './CollectibleModal.jsx'
 
-// 集章簿完全由 progress.stampRecords 生成，不另外保存進度。
-// DEMO 活動只有萬春宮一個蓋章點；其餘格子為未開放的空位，不代表真實宮廟。
-const EMPTY_SLOTS = 5
-
-function StampSlot({ temple, record }) {
-  if (!temple) return <li className="stamp-slot is-empty" aria-label="尚未開放的空格"><span className="stamp-slot-mark" aria-hidden="true" /><p>尚未開放</p></li>
+function WanchunStampSlot({ record }) {
   const acquired = Boolean(record)
-  return <li className={`stamp-slot${acquired ? ' is-acquired' : ''}`}>
-    <span className="stamp-slot-mark" aria-hidden="true">
-      {acquired ? <img src={temple.stampImageUrl} alt="" /> : <Stamp size={30} strokeWidth={1.4} />}
+  const [selectedItem, setSelectedItem] = useState(null)
+  const content = <>
+    <span className="district-stamp-mark" aria-hidden="true">
+      {acquired ? <img src={TEMPLE.stampImageUrl} alt="" /> : <Stamp size={27} strokeWidth={1.4} />}
     </span>
-    <h3>{temple.name}</h3>
-    <p>{acquired ? formatTaipeiTime(record.acquiredAt) : '尚未取得'}</p>
-    {!acquired && <Link className="stamp-slot-link" to={ROUTES.temple}>前往蓋章</Link>}
-  </li>
+    <div>
+      <strong>{TEMPLE.name}</strong>
+      <p className={acquired ? 'collection-date' : ''}>{acquired ? formatTaipeiDate(record.acquiredAt) : '尚未取得'}</p>
+      {!acquired && <Link to={ROUTES.temple}>前往蓋章</Link>}
+    </div>
+  </>
+  return <>
+    {acquired
+      ? <button className="district-collectible is-acquired is-openable" type="button" onClick={() => setSelectedItem({
+        kind: 'stamp', imageUrl: TEMPLE.stampImageUrl, imageAlt: '萬春宮數位印章', title: '萬春宮數位印章',
+        location: '台中市・中區', date: formatTaipeiDate(record.acquiredAt), description: '完成萬春宮數位蓋章任務後取得的文化足跡。',
+      })}>{content}</button>
+      : <div className="district-collectible">{content}</div>}
+    <CollectibleModal item={selectedItem} onClose={() => setSelectedItem(null)} />
+  </>
 }
 
 export default function StampBookPage() {
   const { progress } = useGame()
-  // 目前蓋章任務只屬於萬春宮；有多間宮廟時需在紀錄中加入宮廟 ID。
   const wanchunRecord = progress.stampRecords.find(record => record.taskId === 'stamp') ?? null
-  const acquiredCount = wanchunRecord ? 1 : 0
-
-  return <main className="stampbook-page">
+  return <main className="stampbook-page collection-index-page">
     <Link className="detail-back" to={ROUTES.map}><ArrowLeft size={19} />返回地圖</Link>
-    <header className="stampbook-header">
-      <h1>集章簿</h1>
-      <p className="demo-badge">DEMO 活動：已取得 {acquiredCount} / 1 枚印章</p>
+    <header className="collection-index-header">
+      <div><p>文化足跡</p><h1>集章簿</h1></div>
+      <span className="demo-badge">已取得 {wanchunRecord ? 1 : 0} / 1 枚</span>
     </header>
-    {acquiredCount === 0 && <p className="stampbook-empty">還沒有任何印章。到萬春宮完成數位蓋章，印章會出現在這裡。</p>}
-    <ol className="stamp-grid" aria-label="印章列表">
-      <StampSlot temple={TEMPLE} record={wanchunRecord} />
-      {Array.from({ length: EMPTY_SLOTS }, (_, index) => <StampSlot key={index} />)}
-    </ol>
+    <p className="collection-index-intro">依縣市與鄉鎮市區查看數位印章。完成宮廟蓋章任務後，印章與取得時間會收進所在地區。</p>
+    <RegionCollection ariaLabel="依行政區分類的印章收藏" emptyLabel="尚未開放" renderDemoDistrict={() => <WanchunStampSlot record={wanchunRecord} />} />
   </main>
 }

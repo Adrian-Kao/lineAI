@@ -5,6 +5,6 @@
 
 - [專案指南](docs/project-guide.md)：檔案架構與函式、分工、系統流程、環境與設計。
 - [環境安裝指令](requirement.txt)：其他組員可複製執行的 CLI 與設定步驟。
-- [前端程式](my-react-app/)：React + Vite + JavaScript。
+- [前端程式](app/)：React + Vite + JavaScript。
 
 錄影與截圖由團隊在系統外處理。
