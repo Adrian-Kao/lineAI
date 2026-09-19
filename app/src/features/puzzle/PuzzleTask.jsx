@@ -1,9 +1,9 @@
-
 import { useCallback, useRef, useState } from 'react'
 import { createStartingTiles, isSolved, swapTiles } from './puzzleRules.js'
+import templeImageUrl from './wan-chun-temple.jpeg'
 import './puzzleTask.css'
 
-const DEFAULT_IMAGE_URL = '/demo/wan-chun-temple.jpeg'
+const DEFAULT_IMAGE_URL = templeImageUrl
 
 function tileBackgroundPosition(tile) {
   const column = tile % 2
@@ -13,11 +13,13 @@ function tileBackgroundPosition(tile) {
 
 /**
  * A small, position-based 2 × 2 image puzzle.
- * @param {{ imageUrl?: string, onComplete?: (tiles: number[]) => void }} props
+ *
+ * @param {{ imageUrl?: string, onComplete?: (result: object) => void, disabled?: boolean }} props
  */
 export default function PuzzleTask({
   imageUrl = DEFAULT_IMAGE_URL,
   onComplete,
+  disabled = false,
 }) {
   const [tiles, setTiles] = useState(createStartingTiles)
   const [selectedIndex, setSelectedIndex] = useState(null)
@@ -35,10 +37,7 @@ export default function PuzzleTask({
       onComplete?.({
         taskId: 'puzzle',
         completedAt: new Date().toISOString(),
-        evidence: {
-          kind: 'puzzle',
-          tileOrder: nextTiles,
-        },
+        evidence: { kind: 'puzzle', tileOrder: nextTiles },
       })
       return true
     },
@@ -46,7 +45,7 @@ export default function PuzzleTask({
   )
 
   function handleTileClick(index) {
-    if (isComplete) return
+    if (isComplete || disabled) return
 
     if (selectedIndex === null) {
       setSelectedIndex(index)
@@ -93,7 +92,7 @@ export default function PuzzleTask({
             key={`${tile}-${index}`}
             type="button"
             onClick={() => handleTileClick(index)}
-            disabled={isComplete}
+            disabled={isComplete || disabled}
             aria-pressed={selectedIndex === index}
             aria-label={`第 ${index + 1} 格，目前是圖片第 ${tile + 1} 塊${
               selectedIndex === index ? '，已選取' : ''

@@ -2,7 +2,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useGame } from '../../state/GameContext.js'
 import { getPhoto } from '../../services/mediaStorage.js'
-import { STORIES, TASKS, TEMPLE } from '../../data/temple.js'
+import { TEMPLE } from '../../data/temple.js'
+import { buildTimeline } from '../../utils/journalTimeline.js'
 
 function formatTime(value) {
   if (!value) return '時間未記錄'
@@ -12,38 +13,6 @@ function formatTime(value) {
     timeStyle: 'short',
     timeZone: 'Asia/Taipei',
   }).format(new Date(value))
-}
-
-export function buildTimeline(progress) {
-  const completions = progress?.missionCompletions ?? []
-  const photoRecords = progress?.photoRecords ?? []
-  const stampRecords = progress?.stampRecords ?? []
-
-  return completions
-    .map((completion) => {
-      const task = TASKS.find((item) => item.id === completion.taskId)
-      if (!task) return null
-
-      const photo = photoRecords.find((item) => item.taskId === task.id)
-      const stamp = stampRecords.find((item) => item.taskId === task.id)
-      const story = STORIES[task.storyId]
-
-      return {
-        id: `${task.id}-${completion.completedAt}`,
-        taskId: task.id,
-        title: task.title,
-        completedAt: completion.completedAt,
-        story: story?.content ?? `完成「${task.title}」，留下這段萬春宮旅程記憶。`,
-        stampName: stamp?.name ?? (task.id === 'stamp' ? '萬春宮數位紀念章' : null),
-        mediaId: completion.evidence?.mediaId ?? photo?.mediaId ?? null,
-        photoUrl: photo?.photoUrl ?? photo?.previewUrl ?? null,
-      }
-    })
-    .filter(Boolean)
-    .sort(
-      (a, b) =>
-        new Date(a.completedAt).getTime() - new Date(b.completedAt).getTime(),
-    )
 }
 
 export default function JournalPage() {
