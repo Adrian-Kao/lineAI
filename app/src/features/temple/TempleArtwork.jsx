@@ -1,5 +1,7 @@
 import { Landmark } from 'lucide-react'
+import { useSettings } from '../../state/SettingsContext.js'
 
 export default function TempleArtwork() {
-  return <div className="temple-artwork" role="img" aria-label="宮廟圖片待補"><Landmark size={48} strokeWidth={1.3} /><span>宮廟圖片待補</span></div>
+  const { t } = useSettings()
+  return <div className="temple-artwork" role="img" aria-label={t('temple.imagePending')}><Landmark size={48} strokeWidth={1.3} /><span>{t('temple.imagePending')}</span></div>
 }

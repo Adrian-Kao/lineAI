@@ -2,6 +2,7 @@ import { useCallback, useRef, useState } from 'react'
 import { createStartingTiles, isSolved, swapTiles } from './puzzleRules.js'
 import templeImageUrl from './wan-chun-temple.jpeg'
 import './puzzleTask.css'
+import { useSettings } from '../../state/SettingsContext.js'
 
 const DEFAULT_IMAGE_URL = templeImageUrl
 
@@ -21,6 +22,7 @@ export default function PuzzleTask({
   onComplete,
   disabled = false,
 }) {
+  const { t } = useSettings()
   const [tiles, setTiles] = useState(createStartingTiles)
   const [selectedIndex, setSelectedIndex] = useState(null)
   const [isComplete, setIsComplete] = useState(false)
@@ -73,18 +75,14 @@ export default function PuzzleTask({
   return (
     <section className="puzzle-task" aria-labelledby="puzzle-title">
       <header className="puzzle-task__header">
-        <p className="puzzle-task__eyebrow">廟宇尋寶</p>
-        <h2 id="puzzle-title">2 × 2 拼圖</h2>
-        <p id="puzzle-instructions">
-          點選兩塊碎片交換位置，將圖片恢復完整。
-        </p>
+        <p className="puzzle-task__eyebrow">{t('puzzle.eyebrow')}</p><h2 id="puzzle-title">{t('puzzle.title')}</h2><p id="puzzle-instructions">{t('puzzle.instructions')}</p>
       </header>
 
       <div
         className="puzzle-board"
         role="group"
         aria-describedby="puzzle-instructions"
-        aria-label="2 × 2 拼圖棋盤"
+        aria-label={t('puzzle.board')}
       >
         {tiles.map((tile, index) => (
           <button
@@ -94,9 +92,7 @@ export default function PuzzleTask({
             onClick={() => handleTileClick(index)}
             disabled={isComplete || disabled}
             aria-pressed={selectedIndex === index}
-            aria-label={`第 ${index + 1} 格，目前是圖片第 ${tile + 1} 塊${
-              selectedIndex === index ? '，已選取' : ''
-            }`}
+            aria-label={t('puzzle.tile', { position: index + 1, tile: tile + 1, selected: selectedIndex === index ? t('puzzle.selected') : '' })}
             style={{
               backgroundImage: `url("${imageUrl}")`,
               backgroundPosition: tileBackgroundPosition(tile),
@@ -107,15 +103,15 @@ export default function PuzzleTask({
 
       <p className="puzzle-task__status" aria-live="polite">
         {isComplete
-          ? '完成！你已成功拼回萬春宮。'
+          ? t('puzzle.complete')
           : selectedIndex === null
-            ? '請先選擇一塊碎片。'
-            : '再選擇另一塊碎片即可交換。'}
+            ? t('puzzle.selectFirst')
+            : t('puzzle.selectSecond')}
       </p>
 
       {isComplete && (
         <button className="puzzle-task__restart" type="button" onClick={handleRestart}>
-          再玩一次
+          {t('puzzle.restart')}
         </button>
       )}
     </section>

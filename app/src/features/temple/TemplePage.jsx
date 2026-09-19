@@ -6,6 +6,7 @@ import { useGame } from '../../state/GameContext.js'
 import { getNextTaskId, getTaskStatus, isTempleComplete } from '../../state/gameRules.js'
 import { formatTaipeiTime } from '../../utils/formatTime.js'
 import TempleArtwork from './TempleArtwork.jsx'
+import { useSettings } from '../../state/SettingsContext.js'
 
 // 萬春宮位於台中市中區；與 MapPage 使用的區碼一致，讓返回地圖時回到同一個區。
 const DEMO_COUNTY = '台中市'
@@ -14,61 +15,55 @@ const backToMap = `${ROUTES.county.replace(':county', encodeURIComponent(DEMO_CO
 
 const TASK_ICONS = { stamp: Stamp, photo: Camera, puzzle: Puzzle }
 // 只描述操作方式，不放文化內容；故事由 STORIES 提供。
-const TASK_HINTS = {
-  stamp: '依畫面說明完成模擬感應，印章會加入集章簿。',
-  photo: '到指定位置拍攝或選圖，對位後補上缺口並保存。',
-  puzzle: '完成拼圖後即可閱讀文化故事。',
-}
-const STATUS_LABELS = { locked: '鎖定', available: '可開始', completed: '已完成' }
-
-function TaskCard({ task, status, completion }) {
+function TaskCard({ task, status, completion, t }) {
   const Icon = TASK_ICONS[task.type]
   return <li className={`task-card is-${status}`}>
     <div className="task-icon" aria-hidden="true">{status === 'completed' ? <Check size={22} /> : status === 'locked' ? <Lock size={20} /> : <Icon size={22} />}</div>
     <div className="task-body">
-      <p className="task-order">任務 {task.order}<span className="task-status">{STATUS_LABELS[status]}</span></p>
-      <h3>{task.title}</h3>
-      <p className="task-hint">{status === 'completed' && completion ? `完成時間：${formatTaipeiTime(completion.completedAt)}` : TASK_HINTS[task.id]}</p>
+      <p className="task-order">{t('task.label', { order: task.order })}<span className="task-status">{t(`task.${status}`)}</span></p>
+      <h3>{t(`task.${task.id}`)}</h3>
+      <p className="task-hint">{status === 'completed' && completion ? t('task.completedAt', { time: formatTaipeiTime(completion.completedAt) }) : t(`temple.hint.${task.id}`)}</p>
     </div>
     <div className="task-action">
-      {status === 'available' && <Link className="task-button" to={ROUTES.mission.replace(':taskId', task.id)}>開始</Link>}
-      {status === 'completed' && <Link className="task-button is-secondary" to={ROUTES.story.replace(':taskId', task.id)}>回顧</Link>}
-      {status === 'locked' && <span className="task-locked">請先完成任務 {task.order - 1}</span>}
+      {status === 'available' && <Link className="task-button" to={ROUTES.mission.replace(':taskId', task.id)}>{t('task.start')}</Link>}
+      {status === 'completed' && <Link className="task-button is-secondary" to={ROUTES.story.replace(':taskId', task.id)}>{t('task.review')}</Link>}
+      {status === 'locked' && <span className="task-locked">{t('task.finishPrevious', { order: task.order - 1 })}</span>}
     </div>
   </li>
 }
 
 export default function TemplePage() {
+  const { t } = useSettings()
   const { progress } = useGame()
   const nextTaskId = getNextTaskId(progress)
   const complete = isTempleComplete(progress)
   const completedCount = TASKS.filter(task => progress.missionCompletions[task.id]).length
 
   return <main className="temple-page">
-    <Link className="detail-back" to={backToMap}><ArrowLeft size={19} />返回地圖</Link>
+    <Link className="detail-back" to={backToMap}><ArrowLeft size={19} />{t('common.backMap')}</Link>
     <article className="temple-detail temple-hero">
       <TempleArtwork />
       <div className="temple-hero-body">
-        <p className="temple-location">{DEMO_COUNTY}中區</p>
+        <p className="temple-location">{t('temple.location')}</p>
         <h1>{TEMPLE.name}</h1>
-        <p className="demo-badge">DEMO 活動路線：{completedCount} / {TASKS.length} 項任務完成</p>
+        <p className="demo-badge">{t('temple.routeProgress', { completed: completedCount, total: TASKS.length })}</p>
       </div>
     </article>
 
     {complete
       ? <section className="temple-complete" role="status">
-        <h2>中區 DEMO 活動路線完成</h2>
-        <p>三項任務都已完成，萬春宮錨點已在地圖上點亮。</p>
+        <h2>{t('temple.completeTitle')}</h2>
+        <p>{t('temple.completeBody')}</p>
         <div className="temple-complete-links">
-          <Link className="task-button" to={ROUTES.stampbook}>查看集章簿</Link>
-          <Link className="task-button is-secondary" to={ROUTES.collection}>查看圖鑑</Link>
+          <Link className="task-button" to={ROUTES.stampbook}>{t('temple.viewStamps')}</Link>
+          <Link className="task-button is-secondary" to={ROUTES.collection}>{t('temple.viewCollection')}</Link>
         </div>
       </section>
-      : <p className="temple-next">請依序完成三項任務{nextTaskId && `，下一步：${TASKS.find(task => task.id === nextTaskId).title}`}</p>}
+      : <p className="temple-next">{nextTaskId && t('temple.next', { task: t(`task.${nextTaskId}`) })}</p>}
 
-    <section aria-label="任務清單">
+    <section aria-label={t('temple.list')}>
       <ol className="task-list">
-        {TASKS.map(task => <TaskCard key={task.id} task={task} status={getTaskStatus(progress, task.id)} completion={progress.missionCompletions[task.id]} />)}
+        {TASKS.map(task => <TaskCard key={task.id} task={task} status={getTaskStatus(progress, task.id)} completion={progress.missionCompletions[task.id]} t={t} />)}
       </ol>
     </section>
   </main>

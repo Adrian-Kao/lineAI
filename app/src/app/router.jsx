@@ -11,6 +11,7 @@ import StoryPage from '../features/story/StoryPage.jsx'
 import CollectionPage from '../features/collection/CollectionPage.jsx'
 import StampBookPage from '../features/collection/StampBookPage.jsx'
 import ProfilePage from '../features/profile/ProfilePage.jsx'
+import SettingsPage from '../features/settings/SettingsPage.jsx'
 import PlaceholderPage from '../components/common/PlaceholderPage.jsx'
 
 export const router = createBrowserRouter([
@@ -24,7 +25,7 @@ export const router = createBrowserRouter([
     { path: ROUTES.journal, element: <PlaceholderPage title="旅程手札" /> },
     { path: ROUTES.points, element: <PlaceholderPage title="點數" /> },
     { path: ROUTES.news, element: <PlaceholderPage title="最新消息" /> },
-    { path: ROUTES.settings, element: <PlaceholderPage title="設定" /> },
+    { path: ROUTES.settings, element: <SettingsPage /> },
     { path: ROUTES.friends, element: <PlaceholderPage title="好友" /> },
   ] },
   { element: <RequireReady><AppLayout><Outlet /></AppLayout></RequireReady>, children: [

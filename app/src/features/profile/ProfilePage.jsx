@@ -3,6 +3,7 @@ import { ArrowLeft, Camera, RotateCcw, Save, UserRound } from 'lucide-react'
 import { Link } from 'react-router'
 import { ROUTES } from '../../config/routes.js'
 import { useGame } from '../../state/GameContext.js'
+import { useSettings } from '../../state/SettingsContext.js'
 
 const MAX_AVATAR_FILE_BYTES = 8 * 1024 * 1024
 const AVATAR_SIZE = 512
@@ -37,6 +38,7 @@ async function createAvatarDataUrl(file) {
 
 export default function ProfilePage() {
   const { session, updateProfile } = useGame()
+  const { t } = useSettings()
   const profile = session.profile
   const [name, setName] = useState(profile.name)
   const [phone, setPhone] = useState(profile.phone ?? '')
@@ -68,7 +70,7 @@ export default function ProfilePage() {
       setPhone(saved.phone)
       setAvatar(saved.avatar)
       setStatus('saved')
-      setMessage('個人資料已儲存在這台裝置。')
+      setMessage(t('profile.saved'))
     } catch (error) {
       setStatus('error')
       setMessage(error instanceof Error ? error.message : '個人資料保存失敗')
@@ -76,34 +78,34 @@ export default function ProfilePage() {
   }
 
   return <main className="profile-page">
-    <Link className="detail-back" to={ROUTES.map}><ArrowLeft size={19} />返回地圖</Link>
+    <Link className="detail-back" to={ROUTES.map}><ArrowLeft size={19} />{t('common.backMap')}</Link>
     <header className="profile-heading">
-      <p>玩家帳戶</p>
-      <h1>個人資料</h1>
-      <p>自訂資料只會保存在目前裝置，LINE 帳號連結維持不變。</p>
+      <p>{t('profile.eyebrow')}</p>
+      <h1>{t('profile.title')}</h1>
+      <p>{t('profile.description')}</p>
     </header>
 
     <form className="profile-card" onSubmit={handleSubmit}>
-      <section className="profile-avatar-section" aria-label="大頭照">
+      <section className="profile-avatar-section" aria-label={t('profile.avatar')}>
         <div className="profile-avatar">
           {avatar ? <img src={avatar} alt="目前的大頭照" /> : <UserRound size={58} />}
         </div>
         <div className="profile-avatar-actions">
-          <button type="button" className="task-button" onClick={() => fileInputRef.current?.click()}><Camera size={18} />替換大頭照</button>
-          {avatar !== profile.lineAvatar && <button type="button" className="task-button is-secondary" onClick={() => setAvatar(profile.lineAvatar)}><RotateCcw size={17} />恢復 LINE 頭像</button>}
+          <button type="button" className="task-button" onClick={() => fileInputRef.current?.click()}><Camera size={18} />{t('profile.replaceAvatar')}</button>
+          {avatar !== profile.lineAvatar && <button type="button" className="task-button is-secondary" onClick={() => setAvatar(profile.lineAvatar)}><RotateCcw size={17} />{t('profile.restoreAvatar')}</button>}
           <input ref={fileInputRef} className="profile-file-input" type="file" accept="image/*" onChange={handleAvatarChange} />
-          <p>圖片會裁切成正方形並縮小後保存。</p>
+          <p>{t('profile.avatarHelp')}</p>
         </div>
       </section>
 
       <div className="profile-fields">
-        <label>姓名<input value={name} onChange={event => setName(event.target.value)} maxLength={40} autoComplete="name" required /></label>
-        <label>LINE 使用者 ID<input value={profile.userId} readOnly aria-describedby="line-id-note" /></label>
-        <p className="profile-field-note" id="line-id-note">由 LINE LIFF 提供，系統無法取得或修改使用者公開設定的 LINE ID。</p>
-        <label>電話<input value={phone} onChange={event => setPhone(event.target.value)} type="text" inputMode="tel" maxLength={24} autoComplete="tel" placeholder="例如：0912-345-678" /></label>
+        <label>{t('profile.name')}<input value={name} onChange={event => setName(event.target.value)} maxLength={40} autoComplete="name" required /></label>
+        <label>{t('profile.lineId')}<input value={profile.userId} readOnly aria-describedby="line-id-note" /></label>
+        <p className="profile-field-note" id="line-id-note">{t('profile.lineIdHelp')}</p>
+        <label>{t('profile.phone')}<input value={phone} onChange={event => setPhone(event.target.value)} type="text" inputMode="tel" maxLength={24} autoComplete="tel" placeholder={t('profile.phonePlaceholder')} /></label>
       </div>
 
-      <button className="task-button profile-save" type="submit" disabled={status === 'saving'}><Save size={18} />{status === 'saving' ? '儲存中…' : '儲存個人資料'}</button>
+      <button className="task-button profile-save" type="submit" disabled={status === 'saving'}><Save size={18} />{t(status === 'saving' ? 'profile.saving' : 'profile.save')}</button>
       {message && <p className={`profile-message is-${status}`} role={status === 'error' ? 'alert' : 'status'}>{message}</p>}
     </form>
   </main>

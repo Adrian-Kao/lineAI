@@ -68,7 +68,7 @@ export default function TaiwanTempleMap({ completedTempleIds, regionProgress, se
   }, [onDistrictSelect, onZoomBack, onTempleSelect, onViewChange, onTemplePositionChange, onMapError, onDistrictError, selectedTempleId, completedTempleIds])
 
   useEffect(() => {
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches || document.documentElement.dataset.reduceMotion === 'true'
     const map = L.map(containerRef.current, {
       zoomControl: false, attributionControl: false, scrollWheelZoom: true, touchZoom: true,
       doubleClickZoom: false,

@@ -10,19 +10,31 @@ import { useGame } from '../../state/GameContext.js'
 import { TASKS } from '../../data/temple.js'
 import { getTaskStatus } from '../../state/gameRules.js'
 import { formatTaipeiTime } from '../../utils/formatTime.js'
+import { useSettings } from '../../state/SettingsContext.js'
+import {
+  localizedValue,
+  localizeDeity,
+  localizeReligion,
+  localizeTempleName,
+} from '../../utils/templeLocalization.js'
 
 // 目前只有萬春宮參與活動，任務紀錄直接對應 progress；多宮廟時需依宮廟 ID 區分。
-function recordLine(temple, progress) {
-  if (!missionEnabledTempleIds.has(temple.id)) return '此宮廟未納入 DEMO 活動'
+function recordLine(temple, progress, t) {
+  if (!missionEnabledTempleIds.has(temple.id)) return t('temple.notInDemo')
   const completed = TASKS.filter(task => getTaskStatus(progress, task.id) === 'completed')
-  if (!completed.length) return '尚無任務紀錄'
+  if (!completed.length) return t('temple.noRecord')
   const latest = progress.missionCompletions[completed.at(-1).id].completedAt
-  return `已完成 ${completed.length}／${TASKS.length} 項任務，最近一次：${formatTaipeiTime(latest)}`
+  return t('temple.record', {
+    completed: completed.length,
+    total: TASKS.length,
+    time: formatTaipeiTime(latest),
+  })
 }
 
 export default function TempleDetailPage() {
   const { county, uuid } = useParams()
   const { progress } = useGame()
+  const { language, t } = useSettings()
   const location = useLocation()
   const [result, setResult] = useState({ key: '', temple: null, error: '' })
   const displayCounty = toDisplayCountyName(county)
@@ -32,34 +44,39 @@ export default function TempleDetailPage() {
   useEffect(() => {
     const controller = new AbortController()
     loadTempleById(displayCounty, uuid, controller.signal)
-      .then(temple => { if (!controller.signal.aborted) setResult({ key, temple, error: temple ? '' : '找不到這間宮廟' }) })
+      .then(temple => { if (!controller.signal.aborted) setResult({ key, temple, error: temple ? '' : t('temple.notFound') }) })
       .catch(error => { if (!controller.signal.aborted) setResult({ key, temple: null, error: error.message }) })
     return () => controller.abort()
-  }, [displayCounty, uuid, key])
+  }, [displayCounty, uuid, key, t])
 
   const temple = result.key === key ? result.temple : null
   const content = temple ? templeContentById[temple.id] : null
+  const templeName = temple ? localizeTempleName(temple, content, language) : ''
+  const history = localizedValue(content?.history, language)
+  const features = localizedValue(content?.features, language)
+  const contentSources = content?.contentSources?.map(source => localizedValue(source, language)).filter(Boolean) ?? []
+  const imageCredit = localizedValue(content?.imageCredit, language)
   const returnPath = temple ? `${backToMap}?${location.state?.returnDistrictId ? `district=${encodeURIComponent(location.state.returnDistrictId)}&` : ''}temple=${encodeURIComponent(temple.id)}` : backToMap
   return <main className="temple-detail-page">
-    <Link className="detail-back" to={returnPath} state={{ returnView: location.state?.returnView }}><ArrowLeft size={19} />返回地圖</Link>
-    {result.key !== key && <p role="status">宮廟資料載入中…</p>}
+    <Link className="detail-back" to={returnPath} state={{ returnView: location.state?.returnView }}><ArrowLeft size={19} />{t('common.backMap')}</Link>
+    {result.key !== key && <p role="status">{t('temple.loading')}</p>}
     {result.key === key && result.error && <p role="alert">{result.error}</p>}
     {temple && <article className="temple-detail">
-      {content?.image && content.imageCredit ? <img src={content.image} alt={temple.name} /> : <TempleArtwork />}
-      <h1>{temple.name}</h1>
+      {content?.image && imageCredit ? <img src={content.image} alt={templeName} /> : <TempleArtwork />}
+      <h1>{templeName}</h1>
       <dl>
-        <div><dt>宗教分類</dt><dd>{temple.religion}</dd></div>
-        {temple.deity && <div><dt>主祀神祇</dt><dd>{temple.deity}</dd></div>}
-        {temple.address && <div><dt>地址</dt><dd>{temple.address}</dd></div>}
-        {temple.phone && <div><dt>電話</dt><dd>{temple.phone}</dd></div>}
+        <div><dt>{t('temple.religion')}</dt><dd>{localizeReligion(temple.religion, language, content)}</dd></div>
+        {temple.deity && <div><dt>{t('temple.deity')}</dt><dd>{localizeDeity(temple.deity, language, content)}</dd></div>}
+        {temple.address && <div><dt>{t('temple.address')}</dt><dd>{temple.address}</dd></div>}
+        {temple.phone && <div><dt>{t('temple.phone')}</dt><dd>{temple.phone}</dd></div>}
       </dl>
-      {content?.history && <section><h2>歷史</h2><p>{content.history}</p></section>}
-      {content?.features && <section><h2>特色</h2><p>{content.features}</p></section>}
-      {content?.contentSources?.length > 0 && <p>補充內容來源：{content.contentSources.join('、')}</p>}
-      {content?.imageCredit && <p>圖片來源：{content.imageCredit}</p>}
-      {temple.sourceUrl.startsWith('https://kiang.github.io/religion/data/poi/') && <p className="source-line">資料來源：<a href={temple.sourceUrl} target="_blank" rel="noreferrer">公開宗教場所資料</a></p>}
-      <p className="record-line">{recordLine(temple, progress)}</p>
-      {missionEnabledTempleIds.has(temple.id) && <Link className="task-button explore-button" to={ROUTES.temple}>探索任務</Link>}
+      {history && <section><h2>{t('temple.history')}</h2><p>{history}</p></section>}
+      {features && <section><h2>{t('temple.features')}</h2><p>{features}</p></section>}
+      {contentSources.length > 0 && <p>{t('temple.additionalSources', { sources: contentSources.join('、') })}</p>}
+      {imageCredit && <p>{t('temple.imageSource', { source: imageCredit })}</p>}
+      {temple.sourceUrl.startsWith('https://kiang.github.io/religion/data/poi/') && <p className="source-line">{t('temple.dataSource')}<a href={temple.sourceUrl} target="_blank" rel="noreferrer">{t('temple.publicData')}</a></p>}
+      <p className="record-line">{recordLine(temple, progress, t)}</p>
+      {missionEnabledTempleIds.has(temple.id) && <Link className="task-button explore-button" to={ROUTES.temple}>{t('temple.explore')}</Link>}
     </article>}
   </main>
 }

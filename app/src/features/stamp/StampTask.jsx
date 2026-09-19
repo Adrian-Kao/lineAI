@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Nfc } from 'lucide-react'
 import { TEMPLE } from '../../data/temple.js'
+import { useSettings } from '../../state/SettingsContext.js'
 
 // 流程：說明 → 模擬感應（DEMO，不連接真實硬體）→ 蓋章動畫 → 交由 MissionPage 保存。
 // 動畫結束後才呼叫 onComplete；保存失敗時父層顯示錯誤，使用者可重新感應。
@@ -9,6 +10,7 @@ const STAMP_MS = 900
 const SAVED_HINT_MS = 700
 
 export default function StampTask({ onComplete, disabled }) {
+  const { t } = useSettings()
   const [step, setStep] = useState('intro') // intro | sensing | stamping | done
   const [handedOff, setHandedOff] = useState(false) // 已呼叫 onComplete；父層若保存失敗可重新感應
   const timerRef = useRef(null)
@@ -40,28 +42,23 @@ export default function StampTask({ onComplete, disabled }) {
   }, [step])
 
   return <div className={`stamp-task is-${step}`}>
-    <p className="demo-badge">DEMO 模擬感應，未連接實體印章或 NFC</p>
+    <p className="demo-badge">{t('stamp.demo')}</p>
     <ol className="stamp-steps">
-      <li>到 {TEMPLE.name} 服務台找到活動印章（示意）。</li>
-      <li>將手機靠近印章感應區，按下「模擬感應」。</li>
-      <li>感應完成後印章會蓋上並加入集章簿。</li>
+      <li>{t('stamp.step1')}</li><li>{t('stamp.step2')}</li><li>{t('stamp.step3')}</li>
     </ol>
     <div className="stamp-pad" aria-live="polite">
       <div className="stamp-mark" aria-hidden="true">
         <img src={TEMPLE.stampImageUrl} alt="" />
       </div>
       <p className="stamp-status">
-        {step === 'intro' && '尚未感應'}
-        {step === 'sensing' && '模擬感應中…'}
-        {step === 'stamping' && '感應完成，蓋章中…'}
-        {step === 'done' && '已蓋章，正在加入集章簿…'}
+        {t(`stamp.${step}`)}
       </p>
     </div>
     <div className="stamp-actions">
       <button type="button" className="task-button stamp-button" onClick={startSensing} disabled={disabled || step !== 'intro'}>
-        <Nfc size={20} />{step === 'intro' ? '模擬感應' : step === 'sensing' ? '感應中…' : '已完成感應'}
+        <Nfc size={20} />{t(step === 'intro' ? 'stamp.start' : step === 'sensing' ? 'stamp.sensingButton' : 'stamp.finishedButton')}
       </button>
-      {step === 'done' && handedOff && !disabled && <button type="button" className="task-button is-secondary" onClick={() => setStep('intro')}>重新感應</button>}
+      {step === 'done' && handedOff && !disabled && <button type="button" className="task-button is-secondary" onClick={() => setStep('intro')}>{t('stamp.retry')}</button>}
     </div>
   </div>
 }

@@ -11,10 +11,12 @@ import { applyMapColorPreview, applyTempleLightPreview, deriveRegionProgress } f
 import { CITY_COORDS } from './mapConfig.js'
 import TaiwanTempleMap from './TaiwanTempleMap.jsx'
 import TemplePreviewCard from '../temple/TemplePreviewCard.jsx'
+import { useSettings } from '../../state/SettingsContext.js'
 
 const COUNTY_OPTIONS = Object.keys(CITY_COORDS)
 
 export default function MapPage() {
+  const { reduceMotion, t } = useSettings()
   const { progress } = useGame()
   const completedTempleIds = useMemo(() => {
     const ids = new Set(progress.completedTempleIds ?? [])
@@ -101,32 +103,32 @@ export default function MapPage() {
 
   return <main className="map-page">
     <div className="map-stage">
-      <TaiwanTempleMap key={mapRetry} completedTempleIds={completedTempleIds} regionProgress={regionProgress} selectedDistrictId={selectedDistrictId} selectedDistrict={selectedDistrict} selectedCounty={selectedCounty} selectedTemple={previewTemple} selectedTempleId={selectedTempleId}
+      <TaiwanTempleMap key={`${mapRetry}:${reduceMotion}`} completedTempleIds={completedTempleIds} regionProgress={regionProgress} selectedDistrictId={selectedDistrictId} selectedDistrict={selectedDistrict} selectedCounty={selectedCounty} selectedTemple={previewTemple} selectedTempleId={selectedTempleId}
         temples={temples} restoreView={location.state?.returnView} onDistrictSelect={handleDistrictSelect} onOverviewSelect={() => navigate(ROUTES.map)} onZoomBack={handleZoomBack}
         onTempleSelect={handleTempleSelect} onViewChange={view => { viewRef.current = view }} onTemplePositionChange={setTemplePosition}
         onMapError={setMapError} onDistrictError={setDistrictError} />
-      {mapError && <div className="map-status" role="alert"><p>地圖載入失敗</p><button type="button" onClick={() => { setMapError(''); setMapRetry(value => value + 1) }}>重試</button></div>}
+      {mapError && <div className="map-status" role="alert"><p>{t('map.loadFailed')}</p><button type="button" onClick={() => { setMapError(''); setMapRetry(value => value + 1) }}>{t('common.retry')}</button></div>}
       {!mapError && <div className="county-tools">
-        <select className="county-select" aria-label="選擇縣市" value={selectedCounty ?? ''}
+        <select className="county-select" aria-label={t('map.countyLabel')} value={selectedCounty ?? ''}
           onChange={event => navigate(event.target.value ? ROUTES.county.replace(':county', encodeURIComponent(event.target.value)) : ROUTES.map)}>
-          <option value="">全台地圖：選擇縣市</option>
+          <option value="">{t('map.selectCounty')}</option>
           {COUNTY_OPTIONS.map(name => <option key={name} value={name}>{name}</option>)}
         </select>
         {selectedCounty && <>
-        <div className="district-heading"><strong>{regionName}</strong><button type="button" onClick={() => navigate(ROUTES.map)}>全台地圖</button></div>
-        <input aria-label="搜尋宮廟" placeholder={`搜尋${regionName}宮廟`} value={query} onChange={event => setSearch({ county: selectedCounty, value: event.target.value })} />
-        {query && <div className="county-results" role="listbox" aria-label="宮廟搜尋結果">
-          {searchResults.length ? searchResults.map(item => <button type="button" key={item.id} role="option" aria-selected={item.id === selectedTempleId} onClick={() => { handleTempleSelect(item.id); setSearch({ county: selectedCounty, value: '' }) }}>{item.name}</button>) : <p>沒有符合的宮廟</p>}
+        <div className="district-heading"><strong>{regionName}</strong><button type="button" onClick={() => navigate(ROUTES.map)}>{t('map.overview')}</button></div>
+        <input aria-label={t('map.searchLabel')} placeholder={t('map.search', { region: regionName })} value={query} onChange={event => setSearch({ county: selectedCounty, value: event.target.value })} />
+        {query && <div className="county-results" role="listbox" aria-label={t('map.results')}>
+          {searchResults.length ? searchResults.map(item => <button type="button" key={item.id} role="option" aria-selected={item.id === selectedTempleId} onClick={() => { handleTempleSelect(item.id); setSearch({ county: selectedCounty, value: '' }) }}>{item.name}</button>) : <p>{t('map.noResults')}</p>}
         </div>}
-        {!activeData && <p className="county-load" role="status">宮廟資料載入中…</p>}
-        {activeData?.error && <p className="county-load" role="alert">載入失敗 <button type="button" onClick={() => setRetryCount(value => value + 1)}>重試</button></p>}
+        {!activeData && <p className="county-load" role="status">{t('map.loading')}</p>}
+        {activeData?.error && <p className="county-load" role="alert">{t('map.loadFailed')} <button type="button" onClick={() => setRetryCount(value => value + 1)}>{t('common.retry')}</button></p>}
         {districtError && <p className="county-load" role="alert">{districtError}</p>}
-        {temples?.length === 0 && <p className="county-load">這個區域目前沒有符合條件的宮廟</p>}
+        {temples?.length === 0 && <p className="county-load">{t('map.noTemples')}</p>}
         </>}
       </div>}
       {previewTemple && templePosition?.id === previewTemple.id && <TemplePreviewCard temple={previewTemple} onClose={closePreview} detailState={{ returnView: templePosition.view, returnDistrictId: selectedDistrictId }}
         style={{ left: templePosition.x, top: templePosition.y }} />}
     </div>
-    {selectedTempleId && temples && !previewTemple && <div className="temple-preview temple-not-found" role="alert"><p>找不到這間宮廟</p><button type="button" onClick={closePreview}>關閉</button></div>}
+    {selectedTempleId && temples && !previewTemple && <div className="temple-preview temple-not-found" role="alert"><p>{t('map.notFound')}</p><button type="button" onClick={closePreview}>{t('common.close')}</button></div>}
   </main>
 }
