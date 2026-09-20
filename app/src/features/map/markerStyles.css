@@ -5,6 +5,12 @@
   touch-action: none;
 }
 .leaflet-map .leaflet-container { background: transparent; }
+.district-tiles-pane {
+  filter: saturate(.38) contrast(.82) brightness(1.1) sepia(.1);
+}
+.selected-district-shape {
+  filter: drop-shadow(0 0 1px #fffdf2) drop-shadow(0 0 4px rgba(176, 151, 91, .48));
+}
 .district-heading { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; padding: 8px 10px; border-radius: 7px; background: rgba(255,255,255,.96); }
 .district-heading button { border: 1px solid #b8bdc4; border-radius: 5px; background: white; padding: 4px 8px; cursor: pointer; white-space: nowrap; }
 .leaflet-map .leaflet-control-attribution {

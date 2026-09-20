@@ -5,8 +5,9 @@
   font-synthesis: none;
 }
 * { box-sizing: border-box; }
-html, body, #root { min-width: 320px; min-height: 100%; }
-body { margin: 0; overflow-x: hidden; }
+html, body, #root { width: 100%; min-width: 0; min-height: 100%; }
+html, body { overflow-x: clip; }
+body { margin: 0; }
 button, input { font: inherit; }
 button, a { -webkit-tap-highlight-color: transparent; }
 button:focus-visible, a:focus-visible { outline: 3px solid #368f62; outline-offset: 3px; }
@@ -22,6 +23,9 @@ button:focus-visible, a:focus-visible { outline: 3px solid #368f62; outline-offs
   border: 0;
 }
 .app-shell {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
   min-height: 100dvh;
   background-color: #f5f2e7;
   background-image: radial-gradient(rgba(117, 108, 73, .09) .45px, transparent .45px);
@@ -507,7 +511,7 @@ button:focus-visible, a:focus-visible { outline: 3px solid #368f62; outline-offs
 .settings-saved { color: #66806a; font-size: 13px; text-align: center; }
 html[data-high-contrast='true'] { --settings-text: #17251d; }
 html[data-high-contrast='true'] body { color: var(--settings-text); }
-html[data-high-contrast='true'] .app-shell { filter: contrast(1.12); }
+html[data-high-contrast='true'] .app-shell > :first-child { filter: contrast(1.12); }
 html[data-reduce-motion='true'] *, html[data-reduce-motion='true'] *::before, html[data-reduce-motion='true'] *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 @media (max-width: 560px) {
   .profile-card { padding: 19px; }
@@ -635,7 +639,7 @@ html[data-reduce-motion='true'] *, html[data-reduce-motion='true'] *::before, ht
   position: fixed;
   z-index: 30;
   top: calc(15px + env(safe-area-inset-top));
-  right: max(18px, calc((100vw - 760px) / 2));
+  right: max(18px, calc((100% - 760px) / 2));
   display: grid;
   place-items: center;
   width: 46px;
@@ -711,7 +715,7 @@ html[data-reduce-motion='true'] *, html[data-reduce-motion='true'] *::before, ht
   flex-direction: column;
   align-items: center;
   gap: 7px;
-  width: min(410px, calc(100vw - 24px));
+  width: min(410px, calc(100% - 24px - env(safe-area-inset-left) - env(safe-area-inset-right)));
   transform: translateX(-50%);
 }
 .nav-toggle {

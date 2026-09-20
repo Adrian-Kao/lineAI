@@ -1,11 +1,11 @@
 export const REGION_STATUS_COLORS = {
-  locked: { fill: [222, 223, 226, 255], line: [69, 73, 78, 255] },
-  inProgress: { fill: [207, 234, 200, 255], line: [69, 73, 78, 255] },
-  unlocked: { fill: [64, 124, 79, 255], line: [45, 86, 55, 255] },
+  locked: { fill: [226, 231, 229, 255], line: [166, 170, 168, 255] },
+  inProgress: { fill: [235, 217, 158, 255], line: [166, 170, 168, 255] },
+  unlocked: { fill: [215, 166, 116, 255], line: [166, 170, 168, 255] },
 }
 
 // 手動測色：npm run dev 時將 enabled 改為 true，儲存後首頁即更新。
-// locked = 未完成（灰）、inProgress = 單區完成（淺綠）、unlocked = 整縣市完成（深綠）。
+// locked = 未完成（淡墨灰）、inProgress = 單區完成（淡赭黃）、unlocked = 整縣市完成（陶土淡彩）。
 // 只覆寫地圖顏色，不修改任務或儲存進度；正式 build 不會啟用。
 // 代碼請使用字串，保留金門、連江的開頭 0。
 // 縣市代碼：5 碼 COUNTYCODE；鄉鎮市區代碼：8 碼 TOWNCODE。
@@ -41,10 +41,10 @@ export function setCountyColorPreview(countyCode, status, enabled = true) {
 }
 
 // 手動測試區：最後一個參數改 true 即可啟用，改 false 即關閉。
-setCountyColorPreview('66000', 'inProgress', false) // 台中市全部完成（將顯示深綠）
-setCountyColorPreview('63000', 'inProgress', false) // 台北市全部完成（將顯示深綠）
-setCountyColorPreview('10014', 'unlocked', false) // 台東縣全部完成（將顯示深綠）
-setCountyColorPreview('10016', 'unlocked', false) // 澎湖縣全部完成（將顯示深綠）
+setCountyColorPreview('66000', 'inProgress', false) // 台中市全部顯示淡金
+setCountyColorPreview('63000', 'inProgress', false) // 台北市全部顯示淡金
+setCountyColorPreview('10014', 'unlocked', false) // 台東縣全部顯示陶橘
+setCountyColorPreview('10016', 'unlocked', false) // 澎湖縣全部顯示陶橘
 
 export function applyMapColorPreview(actualProgress, collection) {
   if (!MAP_COLOR_PREVIEW.enabled) return actualProgress

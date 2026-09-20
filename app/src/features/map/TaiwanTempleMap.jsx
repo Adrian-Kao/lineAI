@@ -11,18 +11,100 @@ import './markerStyles.css'
 
 const countyPadding = [28, 36]
 const overviewFitOptions = { padding: [0, 0] }
+const overviewFillOpacity = 0.38
 const regionAnimationDuration = 0.85
 const templeAnimationDuration = 0.65
-const tileUrl = 'https://wmts.nlsc.gov.tw/wmts/EMAP/default/GoogleMapsCompatible/{z}/{y}/{x}'
+const tileUrl = 'https://wmts.nlsc.gov.tw/wmts/EMAP6/default/GoogleMapsCompatible/{z}/{y}/{x}'
 // Invisible interaction boundary: Taiwan, Penghu, Kinmen and Matsu plus a
 // comfortable sea margin. Leaflet clamps the map center inside this box.
 const interactionBounds = L.latLngBounds([[20.4, 117], [27.2, 124]])
+const landMaskTolerance = 0.001
+
+function segmentDistanceSquared(point, start, end) {
+  let x = start[0]
+  let y = start[1]
+  let dx = end[0] - x
+  let dy = end[1] - y
+  if (dx || dy) {
+    const ratio = ((point[0] - x) * dx + (point[1] - y) * dy) / (dx * dx + dy * dy)
+    if (ratio > 1) {
+      x = end[0]
+      y = end[1]
+    } else if (ratio > 0) {
+      x += dx * ratio
+      y += dy * ratio
+    }
+  }
+  dx = point[0] - x
+  dy = point[1] - y
+  return dx * dx + dy * dy
+}
+
+function simplifyOpenLine(points, toleranceSquared) {
+  if (points.length <= 2) return points
+  const keep = new Uint8Array(points.length)
+  const stack = [[0, points.length - 1]]
+  keep[0] = 1
+  keep[points.length - 1] = 1
+  while (stack.length) {
+    const [start, end] = stack.pop()
+    let furthest = toleranceSquared
+    let furthestIndex = -1
+    for (let index = start + 1; index < end; index += 1) {
+      const distance = segmentDistanceSquared(points[index], points[start], points[end])
+      if (distance > furthest) {
+        furthest = distance
+        furthestIndex = index
+      }
+    }
+    if (furthestIndex > 0) {
+      keep[furthestIndex] = 1
+      stack.push([start, furthestIndex], [furthestIndex, end])
+    }
+  }
+  return points.filter((_, index) => keep[index])
+}
+
+function simplifyClosedRing(ring) {
+  const points = ring.slice(0, -1)
+  if (points.length < 4) return ring
+  let west = 0
+  let east = 0
+  for (let index = 1; index < points.length; index += 1) {
+    if (points[index][0] < points[west][0]) west = index
+    if (points[index][0] > points[east][0]) east = index
+  }
+  if (west > east) [west, east] = [east, west]
+  const toleranceSquared = landMaskTolerance * landMaskTolerance
+  const north = simplifyOpenLine(points.slice(west, east + 1), toleranceSquared)
+  const south = simplifyOpenLine(points.slice(east).concat(points.slice(0, west + 1)), toleranceSquared)
+  const simplified = north.concat(south.slice(1))
+  simplified.push(simplified[0])
+  return simplified.length >= 4 ? simplified : ring
+}
+
+function sketchLine(feature) {
+  const code = String(feature.properties.TOWNCODE ?? '')
+  const seed = [...code].reduce((sum, digit) => sum + Number(digit || 0), 0)
+  return {
+    weight: 0.92 + (seed % 3) * 0.09,
+    opacity: 0.72 + (seed % 2) * 0.08,
+  }
+}
 
 function boundaryStyle(feature, selectedDistrictId, regionProgress) {
   const selected = feature.properties.TOWNCODE === selectedDistrictId
-  const fill = REGION_STATUS_COLORS[getRegionStatus(regionProgress, feature.properties.TOWNCODE)].fill
-  return { color: '#45494e', weight: selected ? 1 : 0.35,
-    fillColor: `rgb(${fill.slice(0, 3).join(',')})`, fillOpacity: selected ? 0 : selectedDistrictId ? 0.68 : 0.95 }
+  const palette = REGION_STATUS_COLORS[getRegionStatus(regionProgress, feature.properties.TOWNCODE)]
+  const sketch = sketchLine(feature)
+  return {
+    color: `rgb(${palette.line.slice(0, 3).join(',')})`,
+    weight: selected ? 1.55 : sketch.weight,
+    opacity: selected ? .78 : sketch.opacity,
+    lineCap: 'round',
+    lineJoin: 'round',
+    fillColor: `rgb(${palette.fill.slice(0, 3).join(',')})`,
+    fillOpacity: selected ? 0 : selectedDistrictId ? 0.64 : overviewFillOpacity,
+  }
 }
 
 function markerIcon(selected = false, completed = false) {
@@ -79,7 +161,11 @@ export default function TaiwanTempleMap({ completedTempleIds, regionProgress, se
     }).setView([23.8, 121], 7)
     mapRef.current = map
     map.attributionControl = L.control.attribution({ position: 'bottomleft', prefix: false }).addTo(map)
-    map.createPane('districtTiles').style.zIndex = 210
+    const districtTilesPane = map.createPane('districtTiles')
+    districtTilesPane.style.zIndex = 210
+    districtTilesPane.classList.add('district-tiles-pane')
+    map.createPane('countyBackdrop').style.zIndex = 445
+    map.getPane('countyBackdrop').style.pointerEvents = 'none'
     map.createPane('countyBorders').style.zIndex = 450
     map.getPane('countyBorders').style.pointerEvents = 'none'
     const cluster = L.markerClusterGroup({
@@ -128,10 +214,17 @@ export default function TaiwanTempleMap({ completedTempleIds, regionProgress, se
     const markerById = markerByIdRef.current
 
     let mounted = true
+    let baseTiles = null
+    let updateLandClip = null
+    let landClipTimer = null
+    let cancelLandClip = null
+    let scheduleLandClip = null
+    const tileError = () => callbacksRef.current.onDistrictError('底圖暫時無法載入，仍可使用區界與宮廟錨點')
     loadDistrictBoundaries().then(collection => {
       if (!mounted) return
       const layers = new Map()
       const boundaries = L.geoJSON(collection, {
+        bubblingMouseEvents: false,
         style: feature => boundaryStyle(feature, null, progressRef.current),
         onEachFeature: (feature, layer) => {
           const name = getCountyName(feature)
@@ -139,8 +232,6 @@ export default function TaiwanTempleMap({ completedTempleIds, regionProgress, se
           const id = feature.properties.TOWNCODE
           layers.set(id, layer)
           layer.bindTooltip(name + feature.properties.TOWNNAME, { sticky: true })
-          layer.on('mouseover', () => layer.setStyle({ weight: 0.75, color: '#45494e' }))
-          layer.on('mouseout', () => layer.setStyle(boundaryStyle(feature, lastSelectionRef.current?.district, progressRef.current)))
           layer.on('click', event => {
             clearTimeout(districtClickTimerRef.current)
             if (event.originalEvent?.detail > 1) return
@@ -150,6 +241,41 @@ export default function TaiwanTempleMap({ completedTempleIds, regionProgress, se
       }).addTo(map)
       const overviewBounds = L.latLngBounds(getMainlandBounds(collection, { includePenghu: true }))
       boundaryRef.current = { boundaries, collection, overviewBounds }
+      const pane = map.getPane('districtTiles')
+      const landPolygons = collection.features.flatMap(feature => {
+        const geometry = feature.geometry
+        const polygons = geometry.type === 'Polygon' ? [geometry.coordinates] : geometry.coordinates
+        return polygons.map(rings => ({
+          rings: rings.map(simplifyClosedRing),
+          bounds: L.latLngBounds(rings[0].map(([lng, lat]) => [lat, lng])),
+        }))
+      })
+      updateLandClip = () => {
+        const visibleBounds = map.getBounds().pad(0.2)
+        const path = landPolygons.filter(polygon => polygon.bounds.intersects(visibleBounds)).flatMap(({ rings }) => rings.map(ring => ring.map(([lng, lat], index) => {
+          const point = map.latLngToLayerPoint([lat, lng])
+          return `${index ? 'L' : 'M'}${point.x} ${point.y}`
+        }).join(' ') + ' Z')).join(' ')
+        pane.style.clipPath = `path(evenodd, "${path}")`
+      }
+      cancelLandClip = () => {
+        clearTimeout(landClipTimer)
+        landClipTimer = null
+      }
+      scheduleLandClip = () => {
+        cancelLandClip()
+        landClipTimer = setTimeout(() => {
+          landClipTimer = null
+          updateLandClip()
+        }, 120)
+      }
+      updateLandClip()
+      baseTiles = L.tileLayer(tileUrl, { pane: 'districtTiles', bounds: boundaries.getBounds(),
+        attribution: '© 國土測繪圖資服務雲', maxZoom: 18, updateWhenIdle: true,
+        keepBuffer: 1, opacity: .78, className: 'district-base-tile' }).addTo(map)
+      baseTiles.on('tileerror', tileError)
+      map.on('moveend resize', scheduleLandClip)
+      map.on('movestart zoomstart', cancelLandClip)
       map.setMinZoom(Math.min(8, map.getBoundsZoom(overviewBounds, false, [0, 0])))
       layersByDistrictRef.current = layers
       lastSelectionRef.current = undefined
@@ -158,8 +284,12 @@ export default function TaiwanTempleMap({ completedTempleIds, regionProgress, se
       setGeometryReady(value => value + 1)
     }).catch(error => { if (mounted) callbacksRef.current.onMapError(error.message || '鄉鎮市區邊界載入失敗') })
     loadCountyBorders().then(collection => {
-      if (mounted) L.geoJSON(collection, { pane: 'countyBorders', interactive: false,
-        style: { color: '#45494e', weight: 1.05, opacity: 1 } }).addTo(map)
+      if (mounted) {
+        L.geoJSON(collection, { pane: 'countyBackdrop', interactive: false,
+          style: { color: '#f7f2e4', weight: 5.2, opacity: .82, lineCap: 'round', lineJoin: 'round' } }).addTo(map)
+        L.geoJSON(collection, { pane: 'countyBorders', interactive: false,
+          style: { color: '#777b78', weight: 2.2, opacity: .82, lineCap: 'round', lineJoin: 'round' } }).addTo(map)
+      }
     }).catch(error => { if (mounted) callbacksRef.current.onMapError(error.message || '縣市界載入失敗') })
 
     return () => {
@@ -170,6 +300,12 @@ export default function TaiwanTempleMap({ completedTempleIds, regionProgress, se
       map.off('moveend', saveView)
       map.off('click', returnFromSea)
       map.off('dblclick', zoomBack)
+      if (updateLandClip) {
+        cancelLandClip()
+        map.off('moveend resize', scheduleLandClip)
+        map.off('movestart zoomstart', cancelLandClip)
+      }
+      if (baseTiles) baseTiles.off('tileerror', tileError)
       map.remove()
       mapRef.current = null
       boundaryRef.current = null
@@ -214,42 +350,17 @@ export default function TaiwanTempleMap({ completedTempleIds, regionProgress, se
 
   useEffect(() => {
     const map = mapRef.current
-    if (!map || !selectedDistrict || !selectedDistrictId) return
+    const boundary = boundaryRef.current
+    if (!map || !boundary || !selectedDistrict || !selectedDistrictId) return
     const overviewLayer = layersByDistrictRef.current.get(selectedDistrictId)
     if (overviewLayer) map.removeLayer(overviewLayer)
-    const outline = L.geoJSON(selectedDistrict, { interactive: false,
-      style: { color: '#45494e', weight: 1, fillOpacity: 0 } }).addTo(map)
-    const pane = map.getPane('districtTiles')
-    // Clip to visible Taiwan land, including neighbouring districts. Cache each
-    // polygon's bounds so distant islands are never projected on every zoom.
-    const landFeatures = boundaryRef.current.collection.features.filter(feature => feature.properties.TOWNCODE !== selectedDistrictId)
-    landFeatures.push(selectedDistrict)
-    const landPolygons = landFeatures.flatMap(feature => {
-      const geometry = feature.geometry
-      const polygons = geometry.type === 'Polygon' ? [geometry.coordinates] : geometry.coordinates
-      return polygons.map(rings => ({ rings, bounds: L.latLngBounds(rings[0].map(([lng, lat]) => [lat, lng])) }))
-    })
-    const updateClip = () => {
-      const visibleBounds = map.getBounds().pad(0.2)
-      const path = landPolygons.filter(polygon => polygon.bounds.intersects(visibleBounds)).flatMap(({ rings }) => rings.map(ring => ring.map(([lng, lat], index) => {
-        const point = map.latLngToLayerPoint([lat, lng])
-        return `${index ? 'L' : 'M'}${point.x} ${point.y}`
-      }).join(' ') + ' Z')).join(' ')
-      pane.style.clipPath = `path(evenodd, "${path}")`
-    }
-    updateClip()
-    const tiles = L.tileLayer(tileUrl, { pane: 'districtTiles', bounds: boundaryRef.current.boundaries.getBounds(),
-      attribution: '© 國土測繪圖資服務雲', maxZoom: 18, updateWhenIdle: true,
-      keepBuffer: 1 }).addTo(map)
-    const tileError = () => callbacksRef.current.onDistrictError('區內底圖暫時無法載入，仍可使用區界與宮廟錨點')
-    tiles.on('tileerror', tileError)
-    map.on('zoomend moveend viewreset resize', updateClip)
+    const selectionRenderer = L.svg({ padding: 0.5 })
+    const outline = L.geoJSON(selectedDistrict, { interactive: false, renderer: selectionRenderer,
+      className: 'selected-district-shape',
+      style: { color: '#666d69', weight: 1.6, opacity: .9,
+        lineCap: 'round', lineJoin: 'round', fillOpacity: 0 } }).addTo(map)
     return () => {
-      map.off('zoomend moveend viewreset resize', updateClip)
-      tiles.off('tileerror', tileError)
-      map.removeLayer(tiles)
       map.removeLayer(outline)
-      pane.style.clipPath = ''
       // Unmount removes the map first; only restore the overview layer while it still exists.
       if (overviewLayer && mapRef.current === map) overviewLayer.addTo(map)
     }
