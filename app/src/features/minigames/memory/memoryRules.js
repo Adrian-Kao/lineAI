@@ -1,6 +1,6 @@
 // 文物翻牌配對純規則：不碰儲存、不導航，供元件與 gameRules 共用。
 // deck 是 pairId 陣列（每個 pairId 出現兩次）；flips 是依序翻開的牌索引。
-import { seedFromString } from './lanternRules.js'
+import { seedFromString } from '../lantern/lanternRules.js'
 
 export const ARTIFACT_IDS = ['censer', 'lantern', 'fortune', 'moonblocks', 'bell', 'drum', 'incense', 'amulet']
 export const DEFAULT_PAIRS = 8

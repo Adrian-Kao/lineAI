@@ -1,6 +1,8 @@
 import { TASKS } from '../data/temple.js'
 import { WANCHUN_TEMPLE_ID } from '../data/templeContent.js'
-import { isSolved } from '../features/puzzle/puzzleRules.js'
+import { isSolved as isPuzzleSolved } from '../features/minigames/puzzle/puzzleRules.js'
+import { GRID_SIZE, isSolved as isLanternSolved } from '../features/minigames/lantern/lanternRules.js'
+import { isMemorySolved } from '../features/minigames/memory/memoryRules.js'
 import { isPublishedTemple } from '../utils/normalizeTemple.js'
 import { makeTempleKey } from '../utils/templeKey.js'
 export function getTask(taskId) { return TASKS.find(task => task.id === taskId) ?? null }
@@ -45,6 +47,13 @@ export function validateTaskResult(state, result) {
   const evidence = result.evidence
   if (task.id === 'stamp' && (evidence?.kind !== 'stamp' || evidence.mockTouchConfirmed !== true)) throw new Error('尚未確認模擬感應')
   if (task.id === 'photo' && (evidence?.kind !== 'photo' || typeof evidence.mediaId !== 'string' || !evidence.mediaId.trim())) throw new Error('尚未保存照片')
-  if (task.id === 'puzzle' && (evidence?.kind !== 'puzzle' || !Array.isArray(evidence.tileOrder) || !isSolved(evidence.tileOrder))) throw new Error('拼圖尚未完成')
+  if (task.id === 'puzzle') {
+    const completed = (
+      (evidence?.kind === 'puzzle' && isPuzzleSolved(evidence.tileOrder)) ||
+      (evidence?.kind === 'lantern' && evidence.size === GRID_SIZE && isLanternSolved(evidence.board, GRID_SIZE)) ||
+      (evidence?.kind === 'memory' && isMemorySolved(evidence.deck, evidence.flips))
+    )
+    if (!completed) throw new Error('小遊戲尚未完成')
+  }
   return task
 }

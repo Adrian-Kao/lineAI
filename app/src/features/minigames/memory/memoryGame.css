@@ -1,4 +1,4 @@
-@import './qianGame.css';
+@import '../minigameShell.css';
 
 .memory-legend {
   display: flex;

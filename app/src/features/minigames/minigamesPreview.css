@@ -1,0 +1,8 @@
+.minigames-preview-page { display: grid; gap: 16px; }
+.minigames-preview-header { text-align: center; }
+.minigames-preview-header h1 { margin: 10px 0 8px; }
+.minigames-preview-header > p:last-child { margin: 0; color: #66806a; line-height: 1.6; }
+.minigames-preview-tabs { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.minigames-preview-result { color: #66806a; font-size: 12px; }
+.minigames-preview-result summary { cursor: pointer; }
+.minigames-preview-result pre { overflow: auto; padding: 12px; border-radius: 8px; background: #fffefa; }

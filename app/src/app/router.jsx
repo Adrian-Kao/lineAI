@@ -16,6 +16,7 @@ import JournalPage from '../features/journal/JournalPage.jsx'
 import ItineraryPage from '../features/itinerary/ItineraryPage.jsx'
 import FriendsPage from '../features/friends/FriendsPage.jsx'
 import PlaceholderPage from '../components/common/PlaceholderPage.jsx'
+import MinigamesPreviewRoute from '../features/minigames/MinigamesPreviewRoute.jsx'
 
 export const router = createBrowserRouter([
   { path: '/', element: <Navigate to={ROUTES.map} replace /> },
@@ -28,6 +29,7 @@ export const router = createBrowserRouter([
     { path: ROUTES.points, element: <PlaceholderPage title="點數" /> },
     { path: ROUTES.news, element: <PlaceholderPage title="最新消息" /> },
     { path: ROUTES.settings, element: <SettingsPage /> },
+    { path: ROUTES.minigamesPreview, element: <MinigamesPreviewRoute /> },
   ] },
   { element: <RequireReady><AppLayout><Outlet /></AppLayout></RequireReady>, children: [
     { path: ROUTES.temple, element: <TemplePage /> },

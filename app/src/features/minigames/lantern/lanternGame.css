@@ -1,4 +1,4 @@
-@import './qianGame.css';
+@import '../minigameShell.css';
 
 .lantern-board { grid-template-columns: repeat(3, 1fr); }
 .lantern {

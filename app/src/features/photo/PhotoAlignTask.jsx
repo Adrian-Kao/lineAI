@@ -193,6 +193,29 @@ export default function PhotoAlignTask({ onComplete, disabled = false, task = DE
     }
   }
 
+  async function completeTaskForTesting() {
+    if (disabled || status === 'completing') return
+    setStatus('completing')
+    setMessage('')
+    let mediaId = ''
+    try {
+      const response = await fetch(task.fullReferenceImage)
+      if (!response.ok) throw new Error('無法載入示範照片')
+      const blob = await response.blob()
+      mediaId = await savePhoto({ ownerId: session.profile.userId, blob })
+      await onComplete?.({
+        taskId: task.taskId,
+        completedAt: new Date().toISOString(),
+        evidence: { kind: 'photo', mediaId, alignmentScore: 1, compareMode: 'test-button' },
+      })
+    } catch (error) {
+      if (mediaId) await deletePhoto({ ownerId: session.profile.userId, mediaId }).catch(() => {})
+      if (!mountedRef.current) return
+      setMessage(error instanceof Error ? error.message : '測試完成失敗，請再試一次。')
+      setStatus('permission')
+    }
+  }
+
   const cameraActive = status === 'aligning' || status === 'checking' || status === 'failed'
   const showHole = cameraActive || status === 'passed' || status === 'completing'
   const isDemo = compareMode === 'mock'
@@ -222,6 +245,9 @@ export default function PhotoAlignTask({ onComplete, disabled = false, task = DE
       </div>
       <button type="button" className="task-button" onClick={startCamera} disabled={disabled || cameraStatus === 'requesting'}>
         <Camera size={19} />{cameraStatus === 'requesting' ? '正在開啟…' : cameraStatus === 'idle' ? '開啟相機' : '重新嘗試'}
+      </button>
+      <button type="button" className="task-button is-secondary photo-test-complete" onClick={completeTaskForTesting} disabled={disabled}>
+        測試：直接完成拍照任務
       </button>
     </section>}
 

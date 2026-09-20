@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { ARTIFACT_IDS, countMoves, createDeck, createState, flipCard, hideMismatch, isMemorySolved, isSolved, isValidDeck, replayFlips } from '../features/minigames/qian/memoryRules.js'
+import { ARTIFACT_IDS, countMoves, createDeck, createState, flipCard, hideMismatch, isMemorySolved, isSolved, isValidDeck, replayFlips } from '../features/minigames/memory/memoryRules.js'
 
 test('createDeck is deterministic per seed and always contains exact pairs', () => {
   const a = createDeck({ seed: 'player-1' })

@@ -5,4 +5,5 @@ export const ROUTES = {
   collection: '/collection', stampbook: '/stampbook', journal: '/journal', itinerary: '/itinerary',
   stamps: '/stamps', points: '/points', news: '/news', settings: '/settings',
   friends: '/friends', profile: '/profile',
+  minigamesPreview: '/dev/minigames',
 }

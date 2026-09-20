@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { createSolvedBoard, createStartingBoard, getNeighbors, isSolved, solveBoard, toggleLantern } from '../features/minigames/qian/lanternRules.js'
+import { createSolvedBoard, createStartingBoard, getNeighbors, isSolved, solveBoard, toggleLantern } from '../features/minigames/lantern/lanternRules.js'
 
 test('toggling flips the lantern and its orthogonal neighbours only', () => {
   const board = createSolvedBoard()

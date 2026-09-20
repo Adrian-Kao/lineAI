@@ -103,6 +103,7 @@
 .camera-permission h3 { margin: 1px 0 4px; font-size: 17px; }
 .camera-permission p { margin: 0; color: #5f7165; font-size: 14px; line-height: 1.55; }
 .camera-permission .task-button { display: inline-flex; grid-column: 1 / -1; align-items: center; justify-content: center; gap: 8px; cursor: pointer; }
+.camera-permission .photo-test-complete { margin-top: -2px; }
 
 .photo-align-actions { display: grid; justify-items: center; gap: 11px; }
 .photo-align-actions p { display: flex; align-items: center; gap: 7px; margin: 0; color: #536d5a; font-size: 14px; }
