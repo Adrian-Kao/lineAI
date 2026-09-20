@@ -5,8 +5,8 @@ import { createTranslator } from './memoryMessages.js'
 import ArtifactIcon from './ArtifactIcon.jsx'
 import './memoryGame.css'
 
-// 暫定 taskId；由整合者決定第三格如何選模板時再對齊。
-export const MEMORY_TASK_ID = 'memory'
+// 方案 A：與拼圖共用主線第三格的 taskId，玩法由 evidence.kind 區分。
+export const MEMORY_TASK_ID = 'puzzle'
 const MISMATCH_MS = 900
 
 /**

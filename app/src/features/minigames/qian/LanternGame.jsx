@@ -6,8 +6,8 @@ import LanternIcon from './LanternIcon.jsx'
 import LanternTutorial from './LanternTutorial.jsx'
 import './lanternGame.css'
 
-// 暫定 taskId；由整合者決定第三格如何選模板時再對齊。
-export const LANTERN_TASK_ID = 'lantern'
+// 方案 A：與拼圖共用主線第三格的 taskId，玩法由 evidence.kind 區分。
+export const LANTERN_TASK_ID = 'puzzle'
 
 
 function initialBoard(seed, round) {
