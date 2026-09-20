@@ -6,8 +6,9 @@ import '../../../styles/global.css'
 import { SettingsProvider } from '../../../state/SettingsProvider.jsx'
 import LanternGame from './LanternGame.jsx'
 import MemoryGame from './MemoryGame.jsx'
+import PuzzleTask from '../../puzzle/PuzzleTask.jsx'
 
-const GAMES = { lantern: { label: '點燈祈福', Component: LanternGame }, memory: { label: '文物翻牌配對', Component: MemoryGame } }
+const GAMES = { lantern: { label: '點燈祈福', Component: LanternGame }, memory: { label: '文物翻牌配對', Component: MemoryGame }, puzzle: { label: '拼圖（姍）', Component: PuzzleTask } }
 
 export default function Preview() {
   const [result, setResult] = useState(null)
