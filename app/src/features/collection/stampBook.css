@@ -1,0 +1,119 @@
+.stamp-book-page {
+  --stamp-bg: #dce8d8;
+  --stamp-green: #6f9277;
+  --stamp-deep-green: #3f6250;
+  --stamp-card: #f7f2e7;
+  --stamp-paper: #ede3d2;
+  --stamp-red: #b65347;
+  --stamp-deep-red: #94443b;
+  min-height: 100dvh;
+  padding: 30px 16px calc(142px + env(safe-area-inset-bottom));
+  background-color: var(--stamp-bg);
+  background-image: radial-gradient(rgba(63, 98, 80, .09) .55px, transparent .6px);
+  background-size: 8px 8px;
+  color: #31463a;
+}
+
+.stamp-book-inner { width: min(1120px, 100%); margin: 0 auto; }
+.stamp-book-header { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; padding-right: 66px; }
+.stamp-book-header p { display: flex; align-items: center; gap: 8px; margin: 0 0 4px; color: #597562; font-size: 12px; font-weight: 760; letter-spacing: .08em; }
+.stamp-book-header p span { padding: 2px 6px; border: 1px solid #9fb7a0; border-radius: 4px; font-size: 9px; letter-spacing: .05em; }
+.stamp-book-header h1 { margin: 0; color: #31463a; font-size: clamp(29px, 5vw, 38px); line-height: 1.1; }
+.stamp-book-header > strong { flex: none; color: var(--stamp-deep-green); font-size: 15px; font-variant-numeric: tabular-nums; }
+.stamp-progress { height: 4px; margin: 18px 0 16px; overflow: hidden; border-radius: 2px; background: rgba(111, 146, 119, .2); }
+.stamp-progress span { display: block; height: 100%; border-radius: inherit; background: var(--stamp-deep-green); transition: width .25s ease; }
+
+.stamp-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 18px; }
+.stamp-segments { display: grid; grid-template-columns: repeat(3, 1fr); min-width: 0; padding: 3px; border: 1px solid rgba(63, 98, 80, .18); border-radius: 8px; background: rgba(247, 242, 231, .7); }
+.stamp-segments button { min-width: 72px; height: 38px; padding: 0 13px; border: 0; border-radius: 6px; background: transparent; color: var(--stamp-deep-green); cursor: pointer; transition: background-color .18s ease, color .18s ease; }
+.stamp-segments button.is-active { background: var(--stamp-deep-green); color: #fffaf0; }
+.stamp-county-filter { position: relative; flex: 0 0 138px; }
+.stamp-county-filter::after { position: absolute; top: 50%; right: 13px; width: 7px; height: 7px; border-right: 2px solid var(--stamp-deep-green); border-bottom: 2px solid var(--stamp-deep-green); content: ''; pointer-events: none; transform: translateY(-68%) rotate(45deg); }
+.stamp-county-filter select { width: 100%; height: 44px; padding: 0 36px 0 14px; border: 1px solid rgba(63, 98, 80, .3); border-radius: 8px; outline-color: #368f62; appearance: none; background: var(--stamp-card); color: #31463a; cursor: pointer; }
+
+.stamp-empty-notice { display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center; margin-bottom: 18px; padding: 13px 15px; border: 1px solid rgba(63, 98, 80, .18); border-radius: 8px; background: rgba(247, 242, 231, .72); color: var(--stamp-deep-green); }
+.stamp-empty-notice p { margin: 3px 0 0; color: #607467; font-size: 12px; line-height: 1.5; }
+.stamp-empty-notice a { display: inline-flex; min-height: 38px; align-items: center; gap: 6px; padding: 0 12px; border-radius: 7px; background: var(--stamp-deep-green); color: #fffaf0; font-size: 13px; font-weight: 700; text-decoration: none; white-space: nowrap; }
+
+.stamp-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.stamp-card { display: flex; min-width: 0; min-height: 238px; flex-direction: column; align-items: center; padding: 14px 10px 13px; border: 1px solid rgba(96, 111, 91, .2); border-radius: 8px; background: var(--stamp-card); box-shadow: 0 4px 12px rgba(52, 72, 57, .08); color: #31463a; text-align: center; cursor: pointer; transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease; }
+.stamp-card:hover, .stamp-card:focus-visible { border-color: rgba(148, 68, 59, .42); box-shadow: 0 8px 18px rgba(52, 72, 57, .13); transform: translateY(-2px) scale(1.01); }
+.stamp-card-image { position: relative; display: grid; width: min(130px, 100%); aspect-ratio: 1; place-items: center; margin-bottom: 7px; }
+.stamp-card-image img { display: block; width: 100%; height: 100%; object-fit: contain; }
+.stamp-card.is-locked .stamp-card-image img { filter: grayscale(1) sepia(.1) hue-rotate(65deg); opacity: .25; }
+.stamp-lock { position: absolute; right: 5px; bottom: 5px; display: grid; width: 30px; height: 30px; place-items: center; border: 1px solid #c8cec4; border-radius: 50%; background: #eef0e9; color: #7d8c7d; }
+.stamp-card > strong { width: 100%; overflow: hidden; color: #31463a; font-size: 16px; line-height: 1.35; text-overflow: ellipsis; white-space: nowrap; }
+.stamp-location { display: inline-flex; align-items: center; justify-content: center; gap: 3px; margin-top: 4px; color: #6b7e70; font-size: 12px; }
+.stamp-status { display: inline-flex; align-items: center; gap: 4px; margin-top: auto; padding-top: 9px; color: #7d8c7d; font-size: 12px; font-weight: 700; }
+.stamp-card.is-collected .stamp-status { color: var(--stamp-deep-red); }
+.stamp-grid-empty { display: grid; min-height: 210px; place-items: center; align-content: center; gap: 5px; padding: 30px; border: 1px dashed rgba(63, 98, 80, .3); border-radius: 8px; color: #607467; text-align: center; }
+.stamp-grid-empty span { font-size: 13px; }
+.stamp-demo-note { margin: 18px 0 0; color: #617567; font-size: 11px; text-align: center; }
+
+.stamp-sheet-layer { position: fixed; z-index: 40; inset: 0; display: grid; align-items: end; background: rgba(29, 46, 35, .38); backdrop-filter: blur(3px); animation: stamp-layer-in .24s ease both; }
+.stamp-sheet { position: relative; display: grid; max-height: min(88dvh, 720px); overflow-y: auto; padding: 28px 22px calc(24px + env(safe-area-inset-bottom)); border-radius: 18px 18px 0 0; background: var(--stamp-card); box-shadow: 0 -12px 38px rgba(36, 52, 40, .24); animation: stamp-sheet-in .26s cubic-bezier(.2, .68, .24, 1) both; }
+.stamp-sheet-handle { position: absolute; top: 9px; left: 50%; width: 44px; height: 4px; border-radius: 2px; background: #c8c7bc; transform: translateX(-50%); }
+.stamp-sheet-close { position: absolute; z-index: 2; top: 15px; right: 16px; display: grid; width: 38px; height: 38px; place-items: center; padding: 0; border: 0; border-radius: 50%; background: #e4eadf; color: var(--stamp-deep-green); cursor: pointer; }
+.stamp-sheet-image { display: grid; width: min(210px, 60vw); aspect-ratio: 1; place-self: center; place-items: center; margin: 4px 0 5px; }
+.stamp-sheet-image img { width: 100%; height: 100%; object-fit: contain; }
+.stamp-sheet-image.is-locked img { filter: grayscale(1) sepia(.1) hue-rotate(65deg); opacity: .28; }
+.stamp-sheet-copy { text-align: center; }
+.stamp-sheet-kicker { margin: 0 0 3px; color: #718477; font-size: 11px; font-weight: 750; letter-spacing: .1em; }
+.stamp-sheet-copy h2 { margin: 0; color: var(--stamp-deep-green); font-size: 27px; }
+.stamp-sheet-location, .stamp-sheet-date, .stamp-sheet-state { display: flex; align-items: center; justify-content: center; gap: 6px; }
+.stamp-sheet-location { margin: 7px 0 0; color: #637669; font-size: 14px; }
+.stamp-sheet-state { width: fit-content; margin: 13px auto 0; padding: 5px 10px; border-radius: 6px; background: #e3e8df; color: #718075; font-size: 13px; font-weight: 750; }
+.stamp-sheet-state.is-collected { background: #f2ddd6; color: var(--stamp-deep-red); }
+.stamp-sheet-date { margin: 13px 0 0; color: #536b5b; font-size: 14px; font-variant-numeric: tabular-nums; }
+.stamp-sheet-description { margin: 10px 0 0; color: #566a5c; font-size: 14px; line-height: 1.65; }
+.stamp-sheet-actions { display: grid; gap: 9px; margin-top: 20px; }
+.stamp-sheet-actions a { display: flex; min-height: 46px; align-items: center; justify-content: center; gap: 7px; border: 1px solid var(--stamp-deep-green); border-radius: 8px; font-weight: 720; text-decoration: none; }
+.stamp-sheet-primary { background: var(--stamp-deep-green); color: #fffaf0; }
+.stamp-sheet-secondary { background: transparent; color: var(--stamp-deep-green); }
+.stamp-book-unavailable { display: grid; min-height: calc(100dvh - 190px); place-items: center; align-content: center; gap: 12px; color: var(--stamp-deep-green); text-align: center; }
+.stamp-book-unavailable h1 { margin: 0; font-size: 21px; }
+.stamp-book-unavailable a { color: inherit; }
+
+@keyframes stamp-layer-in { from { opacity: 0; } }
+@keyframes stamp-sheet-in { from { opacity: 0; transform: translateY(38px); } }
+
+@media (min-width: 620px) {
+  .stamp-book-page { padding-inline: 24px; }
+  .stamp-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+  .stamp-card { min-height: 270px; padding: 18px 14px; }
+  .stamp-card-image { width: 150px; }
+}
+
+@media (min-width: 900px) {
+  .stamp-book-page { padding-top: 46px; }
+  .stamp-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+  .stamp-sheet-layer { align-items: center; justify-items: center; padding: 30px; }
+  .stamp-sheet { width: min(470px, 100%); border-radius: 18px; padding: 31px 30px 28px; }
+}
+
+@media (max-width: 520px) {
+  .stamp-book-header { align-items: flex-start; flex-direction: column; gap: 9px; }
+  .stamp-toolbar { align-items: stretch; flex-direction: column; }
+  .stamp-segments { width: 100%; }
+  .stamp-segments button { min-width: 0; }
+  .stamp-county-filter { flex-basis: auto; width: 100%; }
+  .stamp-empty-notice { grid-template-columns: auto 1fr; }
+  .stamp-empty-notice a { grid-column: 1 / -1; justify-self: stretch; justify-content: center; }
+}
+
+@media (max-width: 350px) {
+  .stamp-book-page { padding-inline: 10px; }
+  .stamp-grid { gap: 7px; }
+  .stamp-card { min-height: 220px; padding-inline: 7px; }
+  .stamp-card-image { width: 112px; }
+  .stamp-card > strong { font-size: 14px; }
+}
+
+html[data-reduce-motion='true'] .stamp-card,
+html[data-reduce-motion='true'] .stamp-progress span,
+html[data-reduce-motion='true'] .stamp-sheet-layer,
+html[data-reduce-motion='true'] .stamp-sheet { transition-duration: .01ms; animation-duration: .01ms; }
+
+@media (prefers-reduced-motion: reduce) {
+  .stamp-card, .stamp-progress span, .stamp-sheet-layer, .stamp-sheet { transition-duration: .01ms; animation-duration: .01ms; }
+}

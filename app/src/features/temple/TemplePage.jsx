@@ -55,7 +55,7 @@ export default function TemplePage() {
         <h2>{t('temple.completeTitle')}</h2>
         <p>{t('temple.completeBody')}</p>
         <div className="temple-complete-links">
-          <Link className="task-button" to={ROUTES.stampbook}>{t('temple.viewStamps')}</Link>
+          <Link className="task-button" to={ROUTES.stamps}>{t('temple.viewStamps')}</Link>
           <Link className="task-button is-secondary" to={ROUTES.collection}>{t('temple.viewCollection')}</Link>
         </div>
       </section>

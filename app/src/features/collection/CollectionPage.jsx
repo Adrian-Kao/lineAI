@@ -76,6 +76,6 @@ export default function CollectionPage() {
       <span className="demo-badge">已收藏 {acquiredCount} 項</span>
     </header>
     <p className="collection-index-intro">任務照片與行政區完成獎勵會依拍攝地點收進對應的縣市及鄉鎮市區。</p>
-    <RegionCollection ariaLabel="依行政區分類的照片收藏" emptyLabel="尚未開放" renderDemoDistrict={() => <CentralDistrictCollection photoRecord={photoRecord} userId={session.profile?.userId ?? ''} complete={complete} />} />
+    <RegionCollection collapsible ariaLabel="依行政區分類的照片收藏" emptyLabel="尚未開放" renderDemoDistrict={() => <CentralDistrictCollection photoRecord={photoRecord} userId={session.profile?.userId ?? ''} complete={complete} />} />
   </main>
 }

@@ -32,7 +32,7 @@ export default function JournalPageCard({ entry }) {
           <p>{entry.personalNote}</p>
         </section>
       </div>
-      <p className="journal-closing-line">把這次相遇，好好收進手札裡。</p>
+      
     </section>
   </article>
 }

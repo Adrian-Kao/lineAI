@@ -7,7 +7,7 @@ import { useSettings } from '../../state/SettingsContext.js'
 
 const items = [
   { to: ROUTES.map, labelKey: 'nav.taiwan', icon: TaiwanIcon },
-  { to: ROUTES.stampbook, labelKey: 'nav.stamps', icon: Stamp },
+  { to: ROUTES.stamps, labelKey: 'nav.stamps', icon: Stamp },
   { to: ROUTES.collection, labelKey: 'nav.collection', icon: Images },
   { to: ROUTES.journal, labelKey: 'nav.journal', icon: BookOpen },
   { to: ROUTES.points, labelKey: 'nav.points', icon: null },
