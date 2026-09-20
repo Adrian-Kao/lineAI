@@ -35,5 +35,5 @@ export default function MissionPage() {
     }
   }
   const TaskComponent = { stamp: StampTask, photo: PhotoTask, puzzle: PuzzleTask }[taskId]
-  return <main className="mission-page"><TaskProgress progress={progress} taskId={taskId} /><section className="mission-panel"><TaskComponent onComplete={handleComplete} disabled={submitting} />{submitting && <p className="mission-status" role="status">{t('mission.saving')}</p>}{error && <p className="mission-error" role="alert">{error}</p>}</section></main>
+  return <main className="mission-page"><TaskProgress progress={progress} taskId={taskId} /><section className={`mission-panel${taskId === 'photo' ? ' is-photo-align' : ''}`}><TaskComponent onComplete={handleComplete} disabled={submitting} />{submitting && <p className="mission-status" role="status">{t('mission.saving')}</p>}{error && <p className="mission-error" role="alert">{error}</p>}</section></main>
 }
