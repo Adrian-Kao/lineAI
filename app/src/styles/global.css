@@ -755,17 +755,6 @@ html[data-reduce-motion='true'] *, html[data-reduce-motion='true'] *::before, ht
 .nav-item:hover { background: #edf7e9; }
 .nav-item.is-active { background: #cfeac8; color: #245735; }
 .nav-label { font-size: 13px; line-height: 1; }
-.points-icon {
-  display: grid;
-  place-items: center;
-  width: 27px;
-  height: 27px;
-  border: 2px solid currentColor;
-  border-radius: 50%;
-  font-size: 15px;
-  font-weight: 750;
-  line-height: 1;
-}
 .bottom-navigation.is-collapsed .nav-toggle { transform: translateY(89px); }
 .bottom-navigation.is-collapsed .nav-items { transform: translateY(105%); opacity: 0; pointer-events: none; }
 .placeholder-page {

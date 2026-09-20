@@ -13,6 +13,7 @@ import StampBookPage from '../features/collection/StampBookPage.jsx'
 import ProfilePage from '../features/profile/ProfilePage.jsx'
 import SettingsPage from '../features/settings/SettingsPage.jsx'
 import JournalPage from '../features/journal/JournalPage.jsx'
+import ItineraryPage from '../features/itinerary/ItineraryPage.jsx'
 import FriendsPage from '../features/friends/FriendsPage.jsx'
 import PlaceholderPage from '../components/common/PlaceholderPage.jsx'
 
@@ -36,6 +37,7 @@ export const router = createBrowserRouter([
     { path: ROUTES.stamps, element: <StampBookPage /> },
     { path: ROUTES.profile, element: <ProfilePage /> },
     { path: ROUTES.journal, element: <JournalPage /> },
+    { path: ROUTES.itinerary, element: <ItineraryPage /> },
     { path: ROUTES.friends, element: <FriendsPage /> },
   ] },
   { path: '*', element: <Navigate to={ROUTES.map} replace /> },

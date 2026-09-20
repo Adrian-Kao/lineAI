@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { NavLink } from 'react-router'
-import { BookOpen, ChevronDown, ChevronUp, Images, Stamp } from 'lucide-react'
+import { BookOpen, ChevronDown, ChevronUp, Images, Route, Stamp } from 'lucide-react'
 import { ROUTES } from '../../config/routes.js'
 import TaiwanIcon from './TaiwanIcon.jsx'
 import { useSettings } from '../../state/SettingsContext.js'
@@ -10,7 +10,7 @@ const items = [
   { to: ROUTES.stamps, labelKey: 'nav.stamps', icon: Stamp },
   { to: ROUTES.collection, labelKey: 'nav.collection', icon: Images },
   { to: ROUTES.journal, labelKey: 'nav.journal', icon: BookOpen },
-  { to: ROUTES.points, labelKey: 'nav.points', icon: null },
+  { to: ROUTES.itinerary, labelKey: 'nav.itinerary', icon: Route },
 ]
 
 export default function BottomNavigation() {
@@ -22,7 +22,7 @@ export default function BottomNavigation() {
     </button>
     <nav className="nav-items" aria-label={t('nav.main')} inert={!navExpanded}>
       {items.map(({ to, labelKey, icon: Icon }) => <NavLink key={to} to={to} className={({ isActive }) => `nav-item${isActive ? ' is-active' : ''}`} aria-label={t(labelKey)} title={t(labelKey)}>
-        {Icon ? <Icon size={27} strokeWidth={1.9} /> : <span className="points-icon" aria-hidden="true">P</span>}
+        <Icon size={27} strokeWidth={1.9} />
         <span className="nav-label">{t(labelKey)}</span>
       </NavLink>)}
     </nav>

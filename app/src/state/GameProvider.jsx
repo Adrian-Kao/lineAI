@@ -1,7 +1,7 @@
 import { useCallback, useReducer, useRef, useState } from 'react'
 import { GameContext } from './GameContext.js'
 import { createInitialState, gameReducer } from './gameReducer.js'
-import { validateTaskResult } from './gameRules.js'
+import { isTempleInItinerary, validateItineraryTemple, validateTaskResult } from './gameRules.js'
 import { loadProgress, saveProgress } from '../services/progressStorage.js'
 import { applyProfilePreferences, loadProfilePreferences, saveProfilePreferences } from '../services/profileStorage.js'
 
@@ -55,20 +55,37 @@ export function GameProvider({ children }) {
     }))
     return preferences
   }
+  function commitProgress(action) {
+    const next = gameReducer(progressRef.current, action)
+    if (next === progressRef.current) return next
+    saveProgress(session.profile.userId, next)
+    progressRef.current = next
+    dispatch({ type: 'HYDRATE', payload: next })
+    return next
+  }
+  function addTempleToItinerary(temple) {
+    if (session.status !== 'ready') throw new Error('請先登入後再加入行程')
+    const identity = validateItineraryTemple(progressRef.current, temple)
+    if (isTempleInItinerary(progressRef.current, identity.templeId)) return progressRef.current
+    return commitProgress({
+      type: 'ADD_ITINERARY_TEMPLE',
+      payload: { ...identity, addedAt: new Date().toISOString() },
+    })
+  }
+  function removeTempleFromItinerary(templeId) {
+    if (session.status !== 'ready') throw new Error('請先登入後再調整行程')
+    return commitProgress({ type: 'REMOVE_ITINERARY_TEMPLE', payload: { templeId } })
+  }
   async function completeTask(result) {
     if (session.status !== 'ready') throw new Error('請先登入')
     if (submittingRef.current) throw new Error('任務正在提交，請稍候')
     submittingRef.current = true
     try {
       validateTaskResult(progressRef.current, result)
-      const next = gameReducer(progressRef.current, { type: 'TASK_COMPLETED', payload: result })
-      saveProgress(session.profile.userId, next)
-      progressRef.current = next
-      dispatch({ type: 'HYDRATE', payload: next })
-      return next
+      return commitProgress({ type: 'TASK_COMPLETED', payload: result })
     } finally {
       submittingRef.current = false
     }
   }
-  return <GameContext.Provider value={{ progress, session, initializeSession, updateProfile, completeTask }}>{children}</GameContext.Provider>
+  return <GameContext.Provider value={{ progress, session, initializeSession, updateProfile, completeTask, addTempleToItinerary, removeTempleFromItinerary }}>{children}</GameContext.Provider>
 }
