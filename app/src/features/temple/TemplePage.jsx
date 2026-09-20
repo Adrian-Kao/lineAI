@@ -1,5 +1,5 @@
 import { Link } from 'react-router'
-import { ArrowLeft, Camera, Check, Lock, Puzzle, Stamp } from 'lucide-react'
+import { ArrowLeft, Camera, Check, Lock, Play, Puzzle, Stamp } from 'lucide-react'
 import { ROUTES } from '../../config/routes.js'
 import { TASKS, TEMPLE } from '../../data/temple.js'
 import { useGame } from '../../state/GameContext.js'
@@ -49,6 +49,8 @@ export default function TemplePage() {
         <p className="demo-badge">{t('temple.routeProgress', { completed: completedCount, total: TASKS.length })}</p>
       </div>
     </article>
+
+    <Link className="task-button mission-demo-entry" to={ROUTES.missionDemo}><Play size={18} />體驗連續探索 DEMO</Link>
 
     {complete
       ? <section className="temple-complete" role="status">

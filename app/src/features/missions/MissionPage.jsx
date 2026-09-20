@@ -8,6 +8,7 @@ import StampTask from '../stamp/StampTask.jsx'
 import PhotoTask from '../photo/PhotoTask.jsx'
 import MinigameTask from '../minigames/MinigameTask.jsx'
 import { useSettings } from '../../state/SettingsContext.js'
+import TempleMissionExperience from './TempleMissionExperience.jsx'
 
 export default function MissionPage() {
   const { taskId } = useParams()
@@ -16,6 +17,7 @@ export default function MissionPage() {
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const navigate = useNavigate()
+  if (taskId === 'demo') return <TempleMissionExperience />
   const task = getTask(taskId)
   if (!task) return <Navigate to={ROUTES.temple} replace />
   const status = getTaskStatus(progress, taskId)

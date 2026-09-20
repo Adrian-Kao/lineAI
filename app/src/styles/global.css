@@ -263,6 +263,7 @@ button:focus-visible, a:focus-visible { outline: 3px solid #368f62; outline-offs
   font-weight: 650;
 }
 .temple-next { margin: 22px 4px 12px; color: #58705c; }
+.mission-demo-entry { display: inline-flex; align-items: center; gap: 8px; margin-top: 18px; }
 .temple-complete {
   margin: 22px 0 12px;
   padding: 20px 22px;

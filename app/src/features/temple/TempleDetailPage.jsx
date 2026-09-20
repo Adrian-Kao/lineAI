@@ -81,7 +81,7 @@ export default function TempleDetailPage() {
       {temple.sourceUrl.startsWith('https://kiang.github.io/religion/data/poi/') && <p className="source-line">{t('temple.dataSource')}<a href={temple.sourceUrl} target="_blank" rel="noreferrer">{t('temple.publicData')}</a></p>}
       <p className="record-line">{recordLine(temple, progress, t)}</p>
       <ItineraryAction temple={temple} completed={isTempleCompleted(progress, temple.id)} />
-      {missionEnabledTempleIds.has(temple.id) && <Link className="task-button explore-button" to={ROUTES.temple}>{t('temple.explore')}</Link>}
+      {missionEnabledTempleIds.has(temple.id) && <Link className="task-button explore-button" to={ROUTES.missionDemo}>{t('temple.explore')}</Link>}
     </article>}
   </main>
 }
