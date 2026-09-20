@@ -1,4 +1,5 @@
 import { ROUTES } from '../../config/routes.js'
+import { loadCountyTemples } from '../../services/templeData.js'
 
 const LIVE_STAMPS = [
   {
@@ -41,11 +42,50 @@ export function getPlayableStampCatalog(includeDemo = false) {
   return includeDemo ? [...LIVE_STAMPS, ...DEMO_STAMPS].map(entry => ({ ...entry, demo: !entry.legacyTaskId })) : LIVE_STAMPS
 }
 
+const DEMO_DISTRICTS = ['中區', '北區', '西區']
+
+export function formatStampTempleName(name) {
+  if (typeof name !== 'string') return ''
+  return name
+    .replace(/^財團法人\s*/, '')
+    .replace(/^(?:(?:臺灣省|台灣省)\s*)?(?:臺中市|台中市|臺中|台中)\s*/, '')
+    .trim()
+}
+
+export async function loadTaichungDemoStampCatalog(signal) {
+  const temples = await loadCountyTemples('台中市', signal)
+  return temples
+    .map(temple => ({
+      temple,
+      district: DEMO_DISTRICTS.find(district => (temple.address ?? '').includes(`臺中市${district}`) || (temple.address ?? '').includes(`台中市${district}`)),
+    }))
+    .filter(({ district }) => district)
+    .map(({ temple, district }) => temple.id === LIVE_STAMPS[0].sourceId
+      ? { ...LIVE_STAMPS[0] }
+      : {
+          templeId: temple.id,
+          sourceId: temple.id,
+          templeName: formatStampTempleName(temple.name),
+          county: '台中市',
+          district,
+          locationLabel: `台中・${district}`,
+          stampImage: null,
+        })
+    .sort((left, right) => {
+      if (left.templeId === 'wanchun') return -1
+      if (right.templeId === 'wanchun') return 1
+      const districtDifference = DEMO_DISTRICTS.indexOf(left.district) - DEMO_DISTRICTS.indexOf(right.district)
+      if (districtDifference) return districtDifference
+      return left.templeName.localeCompare(right.templeName, 'zh-TW')
+    })
+}
+
 export function buildStampEntries(catalog, stampRecords = []) {
   return catalog.map(temple => {
     const record = stampRecords.find(item => item.templeId === temple.templeId || (temple.legacyTaskId && item.taskId === temple.legacyTaskId))
     return {
       ...temple,
+      templeName: formatStampTempleName(temple.templeName),
       templeRoute: templeDetailRoute(temple),
       journalRoute: temple.journalEntryId ? `${ROUTES.journal}?entry=${encodeURIComponent(temple.journalEntryId)}` : null,
       collected: Boolean(record),

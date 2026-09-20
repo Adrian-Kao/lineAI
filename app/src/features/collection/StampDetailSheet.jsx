@@ -22,7 +22,11 @@ export default function StampDetailSheet({ entry, onClose }) {
     <section className="stamp-sheet" role="dialog" aria-modal="true" aria-labelledby="stamp-sheet-title">
       <span className="stamp-sheet-handle" aria-hidden="true" />
       <button ref={closeRef} className="stamp-sheet-close" type="button" onClick={onClose} aria-label="關閉印章詳情" title="關閉"><X size={21} /></button>
-      <div className={`stamp-sheet-image${entry.collected ? '' : ' is-locked'}`}><img src={entry.stampImage} alt={`${entry.templeName}專屬印章`} /></div>
+      <div className={`stamp-sheet-image${entry.collected ? '' : ' is-locked'}`}>
+        {entry.collected && entry.stampImage
+          ? <img src={entry.stampImage} alt={`${entry.templeName}專屬印章`} />
+          : <span className="stamp-sheet-unknown" aria-label="尚未取得的印章">?</span>}
+      </div>
       <div className="stamp-sheet-copy">
         <p className="stamp-sheet-kicker">宮廟專屬印章</p>
         <h2 id="stamp-sheet-title">{entry.templeName}</h2>
