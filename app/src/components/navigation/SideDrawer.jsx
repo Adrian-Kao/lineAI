@@ -9,7 +9,6 @@ import { useSettings } from '../../state/SettingsContext.js'
 
 const links = [
   { to: ROUTES.news, labelKey: 'drawer.news' },
-  { to: ROUTES.settings, labelKey: 'drawer.settings' },
   { to: ROUTES.friends, labelKey: 'drawer.friends' },
   { to: ROUTES.profile, labelKey: 'drawer.profile' },
 ]
@@ -31,7 +30,7 @@ function SessionCard({ onClose }) {
 }
 
 export default function SideDrawer({ open, onClose }) {
-  const { t } = useSettings()
+  const { language, setSetting, t } = useSettings()
   const closeRef = useRef(null)
   useEffect(() => {
     if (!open) return
@@ -47,6 +46,16 @@ export default function SideDrawer({ open, onClose }) {
       <button className="drawer-close" type="button" aria-label={t('drawer.close')} title={t('drawer.close')} onClick={onClose} ref={closeRef}><X size={23} /></button>
       <SessionCard onClose={onClose} />
       <nav aria-label={t('drawer.other')}>{links.map(link => <Link key={link.to} to={link.to} onClick={onClose}>{t(link.labelKey)}</Link>)}</nav>
+      <div className="drawer-language-options" role="radiogroup" aria-label={t('settings.language')}>
+        <label>
+          <input type="radio" name="drawer-language" value="zh-TW" checked={language === 'zh-TW'} onChange={() => setSetting('language', 'zh-TW')} />
+          <span>中文</span>
+        </label>
+        <label>
+          <input type="radio" name="drawer-language" value="en" checked={language === 'en'} onChange={() => setSetting('language', 'en')} />
+          <span>English</span>
+        </label>
+      </div>
     </aside>
   </div>
 }
