@@ -5,6 +5,7 @@ import { ROUTES } from '../config/routes.js'
 export function RequireReady({ children }) {
   const { session } = useGame()
   const location = useLocation()
-  if (session.status !== 'ready') return <Navigate to={`${ROUTES.entry}?next=${encodeURIComponent(location.pathname)}`} replace />
+  const nextPath = `${location.pathname}${location.search}`
+  if (session.status !== 'ready') return <Navigate to={`${ROUTES.entry}?next=${encodeURIComponent(nextPath)}`} replace />
   return children
 }

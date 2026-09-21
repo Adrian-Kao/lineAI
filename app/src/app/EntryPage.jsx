@@ -1,8 +1,9 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Eye, EyeOff, LockKeyhole, Mail, MessageCircleMore, Sprout } from 'lucide-react'
 import { Navigate, useLocation, useNavigate } from 'react-router'
 import { useGame } from '../state/GameContext.js'
 import { ROUTES } from '../config/routes.js'
+import { ensureLineLogin, getLineProfile, initLine, isLineConfigured, isLineMockMode } from '../services/line.js'
 
 function profileName(email) {
   const name = email.trim().split('@')[0]
@@ -15,11 +16,34 @@ export default function EntryPage() {
   const [password, setPassword] = useState('')
   const [passwordVisible, setPasswordVisible] = useState(false)
   const [error, setError] = useState('')
+  const [lineConnecting, setLineConnecting] = useState(false)
   const navigate = useNavigate()
   const location = useLocation()
   const nextPath = new URLSearchParams(location.search).get('next')
   const returnPath = nextPath?.startsWith('/') && !nextPath.startsWith('//') ? nextPath : ROUTES.map
-  const submitting = session.status === 'loading'
+  const submitting = session.status === 'loading' || lineConnecting
+
+  useEffect(() => {
+    if (!isLineConfigured() || isLineMockMode()) return
+    let active = true
+
+    async function restoreSession() {
+      setLineConnecting(true)
+      try {
+        const client = await initLine()
+        if (!client?.isLoggedIn()) return
+        const profile = await getLineProfile()
+        if (active) await initializeSession(profile)
+      } catch (cause) {
+        if (active) setError(cause instanceof Error ? cause.message : 'LINE 連線失敗，請再試一次')
+      } finally {
+        if (active) setLineConnecting(false)
+      }
+    }
+
+    restoreSession()
+    return () => { active = false }
+  }, [initializeSession])
 
   async function signIn(profile) {
     if (submitting) return
@@ -38,8 +62,21 @@ export default function EntryPage() {
     signIn({ userId: `mock-account:${account || 'guest'}`, name: profileName(email), avatar: null })
   }
 
-  function handleLineLogin() {
-    signIn({ userId: 'mock-line-user', name: 'LINE 測試玩家', avatar: null })
+  async function handleLineLogin() {
+    if (submitting) return
+    setError('')
+    setLineConnecting(true)
+    try {
+      await initLine()
+      const redirect = new URL(ROUTES.entry, window.location.origin)
+      redirect.searchParams.set('next', returnPath)
+      if (!ensureLineLogin({ redirectUri: redirect.toString() })) return
+      await signIn(await getLineProfile())
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'LINE 登入失敗，請再試一次')
+    } finally {
+      setLineConnecting(false)
+    }
   }
 
   if (session.status === 'ready') return <Navigate to={returnPath} replace />
@@ -76,7 +113,7 @@ export default function EntryPage() {
 
       <button className="line-login" type="button" onClick={handleLineLogin} disabled={submitting}>
         <MessageCircleMore size={25} fill="currentColor" aria-hidden="true" />
-        使用 LINE 登入
+        {lineConnecting ? '連接 LINE 中…' : '使用 LINE 登入'}
       </button>
 
       {(error || session.error) && <p className="login-error" role="alert">{error || session.error}</p>}
