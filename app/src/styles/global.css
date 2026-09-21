@@ -1090,4 +1090,3 @@ html[data-reduce-motion='true'] *, html[data-reduce-motion='true'] *::before, ht
   .journey-tree-shell.is-playing .journey-node,
   .journey-tree-shell.is-playing .journey-junction { animation-duration: .01ms; animation-delay: 0ms; }
 }
-.directions-button, .temple-detail > .directions-button { display: inline-flex; align-items: center; gap: 5px; }
