@@ -55,6 +55,12 @@ export function GameProvider({ children }) {
     }))
     return preferences
   }
+  const signOut = useCallback(function signOut() {
+    const snapshot = applyDevPuzzlePrerequisites(createInitialState())
+    progressRef.current = snapshot
+    dispatch({ type: 'HYDRATE', payload: snapshot })
+    setSession({ status: 'idle', profile: null, error: null })
+  }, [])
   function commitProgress(action) {
     const next = gameReducer(progressRef.current, action)
     if (next === progressRef.current) return next
@@ -87,5 +93,5 @@ export function GameProvider({ children }) {
       submittingRef.current = false
     }
   }
-  return <GameContext.Provider value={{ progress, session, initializeSession, updateProfile, completeTask, addTempleToItinerary, removeTempleFromItinerary }}>{children}</GameContext.Provider>
+  return <GameContext.Provider value={{ progress, session, initializeSession, updateProfile, signOut, completeTask, addTempleToItinerary, removeTempleFromItinerary }}>{children}</GameContext.Provider>
 }

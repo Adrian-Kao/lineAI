@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import { ArrowLeft, Camera, RotateCcw, Save, UserRound } from 'lucide-react'
+import { ArrowLeft, Camera, LogOut, RotateCcw, Save, UserRound } from 'lucide-react'
 import { Link } from 'react-router'
 import { ROUTES } from '../../config/routes.js'
 import { useGame } from '../../state/GameContext.js'
@@ -37,7 +37,7 @@ async function createAvatarDataUrl(file) {
 }
 
 export default function ProfilePage() {
-  const { session, updateProfile } = useGame()
+  const { session, updateProfile, signOut } = useGame()
   const { t } = useSettings()
   const profile = session.profile
   const [name, setName] = useState(profile.name)
@@ -77,6 +77,11 @@ export default function ProfilePage() {
     }
   }
 
+  function handleLogout() {
+    signOut()
+    window.location.replace(ROUTES.entry)
+  }
+
   return <main className="profile-page">
     <Link className="detail-back" to={ROUTES.map}><ArrowLeft size={19} />{t('common.backMap')}</Link>
     <header className="profile-heading">
@@ -108,5 +113,8 @@ export default function ProfilePage() {
       <button className="task-button profile-save" type="submit" disabled={status === 'saving'}><Save size={18} />{t(status === 'saving' ? 'profile.saving' : 'profile.save')}</button>
       {message && <p className={`profile-message is-${status}`} role={status === 'error' ? 'alert' : 'status'}>{message}</p>}
     </form>
+    <div className="profile-logout-row">
+      <button className="profile-logout" type="button" onClick={handleLogout}><LogOut size={18} />{t('profile.logout')}</button>
+    </div>
   </main>
 }

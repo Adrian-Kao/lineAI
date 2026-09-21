@@ -51,7 +51,7 @@ export default function StoryPage() {
   const imageAlt = localizedValue(story?.imageAlt, language, t('story.imageAlt'))
   const source = localizedValue(story?.source, language, t('story.demoSource'))
   return <main className="story-page">
-    <Link className="detail-back" to={ROUTES.temple}><ArrowLeft size={19} />{t('story.back')}</Link>
+    <Link className="detail-back" to={BACK_TO_MAP}><ArrowLeft size={19} />{t('story.backMap')}</Link>
     <article className="story-card">
       <p className="story-kicker">{t('story.kicker')}</p>
       <h1>{title}</h1>
@@ -60,6 +60,6 @@ export default function StoryPage() {
       <p className="story-content">{content}</p>
       <p className="story-source">{t('story.source')}{story?.sourceUrl ? <a href={story.sourceUrl} target="_blank" rel="noreferrer">{source}</a> : source}</p>
     </article>
-    <Link className="task-button story-map-link" to={BACK_TO_MAP}>{t('story.backMap')}</Link>
+    <Link className="task-button story-map-link" to={ROUTES.temple}>{t('story.back')}</Link>
   </main>
 }

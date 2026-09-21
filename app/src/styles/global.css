@@ -430,6 +430,10 @@ button:focus-visible, a:focus-visible { outline: 3px solid #368f62; outline-offs
 .profile-save { display: inline-flex; justify-self: start; align-items: center; gap: 8px; }
 .profile-message { margin: -8px 0 0; color: #286d50; }
 .profile-message.is-error { color: #b4321f; }
+.profile-logout-row { display: flex; justify-content: flex-end; margin-top: 18px; }
+.profile-logout { display: inline-flex; min-height: 42px; align-items: center; gap: 7px; padding: 9px 16px; border: 1px solid #d9aaa0; border-radius: 8px; background: #fff8f5; color: #9b4939; font: inherit; font-weight: 700; cursor: pointer; }
+.profile-logout:hover { border-color: #c98273; background: #fceae5; color: #813626; }
+.profile-logout:focus-visible { outline: 3px solid rgba(155, 73, 57, .25); outline-offset: 3px; }
 .friends-page { max-width: 820px; min-height: 100dvh; margin: 0 auto; padding: 34px 22px 135px; }
 .friends-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 18px; margin: 18px 0 20px; }
 .friends-heading > div > * { margin: 0 0 7px; }

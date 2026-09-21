@@ -9,15 +9,8 @@ import StampGrid from './StampGrid.jsx'
 import StampDetailSheet from './StampDetailSheet.jsx'
 import './stampBook.css'
 
-const FILTERS = [
-  { id: 'all', label: '全部' },
-  { id: 'collected', label: '已收藏' },
-  { id: 'locked', label: '未收藏' },
-]
-
 export default function StampBookPage() {
   const { progress } = useGame()
-  const [statusFilter, setStatusFilter] = useState('all')
   const [selectedStamp, setSelectedStamp] = useState(null)
   const [catalog, setCatalog] = useState([])
   const [regions, setRegions] = useState([])
@@ -67,19 +60,13 @@ export default function StampBookPage() {
 
       <div className="stamp-progress" aria-hidden="true"><span style={{ width: `${entries.length ? (collectedCount / entries.length) * 100 : 0}%` }} /></div>
 
-      <section className="stamp-toolbar" aria-label="篩選印章">
-        <div className="stamp-segments" role="group" aria-label="收藏狀態">
-          {FILTERS.map(filter => <button key={filter.id} type="button" className={statusFilter === filter.id ? 'is-active' : ''} aria-pressed={statusFilter === filter.id} onClick={() => setStatusFilter(filter.id)}>{filter.label}</button>)}
-        </div>
-      </section>
-
       {collectedCount === 0 && <section className="stamp-empty-notice">
         <Stamp size={25} aria-hidden="true" />
         <div><strong>你的集章簿還是空的</strong><p>完成第一間宮廟探索後，專屬印章就會出現在這裡。</p></div>
         <Link to={ROUTES.map}><Map size={17} />前往地圖</Link>
       </section>}
 
-      <StampGrid entries={entries} regions={regions} statusFilter={statusFilter} onSelect={openStamp} />
+      <StampGrid entries={entries} regions={regions} onSelect={openStamp} />
       {import.meta.env.DEV && <p className="stamp-demo-note">目前開放台中市中區、北區與西區宮廟印章，其餘區域保留收藏欄位。</p>}
     </div>
     {selectedStamp && <StampDetailSheet entry={selectedStamp} onClose={closeStamp} />}
