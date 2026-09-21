@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useLocation, useParams } from 'react-router'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, Navigation } from 'lucide-react'
 import { ROUTES } from '../../config/routes.js'
 import { toDisplayCountyName, toSourceCountyName } from '../../utils/countyNames.js'
 import { loadTempleById } from '../../services/templeData.js'
@@ -11,6 +11,7 @@ import { TASKS } from '../../data/temple.js'
 import { getTaskStatus, isTempleCompleted } from '../../state/gameRules.js'
 import { formatTaipeiTime } from '../../utils/formatTime.js'
 import { useSettings } from '../../state/SettingsContext.js'
+import { buildDirectionsUrl } from '../../utils/googleMapsLink.js'
 import {
   localizedValue,
   localizeDeity,
@@ -81,6 +82,7 @@ export default function TempleDetailPage() {
       {temple.sourceUrl.startsWith('https://kiang.github.io/religion/data/poi/') && <p className="source-line">{t('temple.dataSource')}<a href={temple.sourceUrl} target="_blank" rel="noreferrer">{t('temple.publicData')}</a></p>}
       <p className="record-line">{recordLine(temple, progress, t)}</p>
       <ItineraryAction temple={temple} completed={isTempleCompleted(progress, temple.id)} />
+      {buildDirectionsUrl(temple) && <a className="task-button is-secondary explore-button directions-button" href={buildDirectionsUrl(temple)} target="_blank" rel="noreferrer"><Navigation size={17} />{t('temple.navigate')}</a>}
       {missionEnabledTempleIds.has(temple.id) && <Link className="task-button explore-button" to={ROUTES.missionDemo}>{t('temple.explore')}</Link>}
     </article>}
   </main>
