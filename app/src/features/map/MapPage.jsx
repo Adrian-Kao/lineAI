@@ -7,6 +7,7 @@ import { loadDistrictBoundaries, loadDistrictBoundary } from '../../services/geo
 import { isTempleInDistrict } from '../../utils/districtGeometry.js'
 import { useGame } from '../../state/GameContext.js'
 import { TASKS } from '../../data/temple.js'
+import { WANCHUN_TEMPLE_ID } from '../../data/templeContent.js'
 import { applyMapColorPreview, applyTempleLightPreview, deriveRegionProgress } from './regionStatus.js'
 import { CITY_COORDS } from './mapConfig.js'
 import TaiwanTempleMap from './TaiwanTempleMap.jsx'
@@ -20,7 +21,7 @@ export default function MapPage() {
   const { progress } = useGame()
   const completedTempleIds = useMemo(() => {
     const ids = new Set(progress.completedTempleIds ?? [])
-    if (TASKS.every(task => progress.missionCompletions[task.id])) ids.add('51c2c438-6bf2-4d6b-b10f-749ae1e95948') // 萬春宮
+    if (TASKS.every(task => progress.missionCompletions[task.id])) ids.add(WANCHUN_TEMPLE_ID)
     return import.meta.env.DEV ? applyTempleLightPreview(ids) : ids
   }, [progress])
   const [districts, setDistricts] = useState(null)

@@ -2,7 +2,7 @@ import { useCallback, useRef, useState } from 'react'
 import { createStartingTiles, isSolved, swapTiles } from './puzzleRules.js'
 import templeImageUrl from './wan-chun-temple.jpeg'
 import './puzzleTask.css'
-import { useSettings } from '../../state/SettingsContext.js'
+import { useSettings } from '../../../state/SettingsContext.js'
 
 const DEFAULT_IMAGE_URL = templeImageUrl
 

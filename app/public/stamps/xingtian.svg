@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" role="img" aria-labelledby="title">
+  <title id="title">行天宮專屬印章</title>
+  <g fill="none" stroke="#B65347" stroke-linecap="round" stroke-linejoin="round"><path d="M120 17c58 0 103 46 103 103s-45 103-103 103S17 177 17 120 62 17 120 17Z" stroke-width="7"/><path d="M59 90h122M72 90l48-35 48 35M91 91v28m58-28v28M77 119h86" stroke-width="6"/><path d="M59 41l10 10m112-10-10 10M59 199l10-10m112 10-10-10" stroke-width="3"/></g>
+  <text x="120" y="157" fill="#B65347" font-family="serif" font-size="31" font-weight="700" text-anchor="middle">行天宮</text><text x="120" y="183" fill="#B65347" font-family="sans-serif" font-size="13" font-weight="700" letter-spacing="3" text-anchor="middle">台北・中山</text>
+</svg>

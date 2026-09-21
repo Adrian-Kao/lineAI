@@ -1,41 +1,66 @@
-import { useEffect } from 'react'
-import { ArrowLeft, Flag, Landmark, MapPinned, Sparkles } from 'lucide-react'
-import { Link } from 'react-router'
-import { ROUTES } from '../../config/routes.js'
-import { DEMO_JOURNEY_EVENTS } from '../../data/journeyDemo.js'
-import { useGame } from '../../state/GameContext.js'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useSettings } from '../../state/SettingsContext.js'
-import JourneyTree from './JourneyTree.jsx'
+import { sortJournalEntries, JOURNAL_ENTRIES } from './journalData.js'
+import JournalClosedView from './JournalClosedView.jsx'
+import JournalOpenView from './JournalOpenView.jsx'
+import './journal.css'
 
-const LEGEND = [
-  { type: 'temple', icon: Landmark, label: '大廟參訪' },
-  { type: 'county', icon: MapPinned, label: '縣市完成' },
-  { type: 'event', icon: Sparkles, label: '期間限定活動' },
-  { type: 'final', icon: Flag, label: '全台完成' },
-]
+const ZOOMING_MS = 1600
+const PAGE_TURN_MS = 680
 
 export default function JournalPage() {
-  const { session } = useGame()
   const { reduceMotion } = useSettings()
-  const profile = session.profile
-  const playerName = profile?.name?.trim() || '旅人'
-  const animationKey = `${profile?.userId ?? 'demo-player'}:demo-v3`
+  const entries = useMemo(() => sortJournalEntries(JOURNAL_ENTRIES), [])
+  const [phase, setPhase] = useState('closed')
+  const [pageIndex, setPageIndex] = useState(0)
+  const [turnDirection, setTurnDirection] = useState(null)
+  const timersRef = useRef([])
 
-  useEffect(() => {
-    window.scrollTo({ top: 0, left: 0 })
+  const schedule = useCallback((callback, delay) => {
+    const timer = window.setTimeout(callback, delay)
+    timersRef.current.push(timer)
   }, [])
 
-  return <main className="journey-page">
-    <header className="journey-page-header">
-      <Link className="detail-back" to={ROUTES.map}><ArrowLeft size={19} />返回地圖</Link>
-      <p className="journey-eyebrow">文化足跡</p>
-      <h1>{playerName}的進香旅程</h1>
-      <p className="journey-intro">沿著時間道路回顧拜訪宮廟、完成地區蒐集與參與限定活動的每一段記憶。</p>
-      <div className="journey-legend" aria-label="事件類型">
-        {LEGEND.map(({ type, icon: Icon, label }) => <span key={type} className={`is-${type}`}><Icon size={16} />{label}</span>)}
-      </div>
-    </header>
+  useEffect(() => () => timersRef.current.forEach(window.clearTimeout), [])
 
-    <JourneyTree events={DEMO_JOURNEY_EVENTS} animationKey={animationKey} reduceMotion={reduceMotion} />
+  const openJournal = useCallback(() => {
+    if (phase !== 'closed') return
+    setPhase('zooming')
+    schedule(() => setPhase('open'), reduceMotion ? 20 : ZOOMING_MS)
+  }, [phase, reduceMotion, schedule])
+
+  const closeJournal = useCallback(() => {
+    if (phase !== 'open' || turnDirection) return
+    setPhase('closed')
+  }, [phase, turnDirection])
+
+  const turnPage = useCallback(direction => {
+    if (phase !== 'open' || turnDirection) return
+    const nextIndex = pageIndex + (direction === 'next' ? 1 : -1)
+    if (nextIndex < 0 || nextIndex >= entries.length) return
+    if (reduceMotion) {
+      setPageIndex(nextIndex)
+      return
+    }
+    setTurnDirection(direction)
+    schedule(() => setPageIndex(nextIndex), PAGE_TURN_MS / 2)
+    schedule(() => setTurnDirection(null), PAGE_TURN_MS)
+  }, [entries.length, pageIndex, phase, reduceMotion, schedule, turnDirection])
+
+  useEffect(() => {
+    if (phase !== 'open') return undefined
+    function handleKeyDown(event) {
+      if (event.key === 'ArrowRight') turnPage('next')
+      if (event.key === 'ArrowLeft') turnPage('previous')
+      if (event.key === 'Escape') closeJournal()
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [closeJournal, phase, turnPage])
+
+  return <main className={`journal-page is-${phase}`}>
+    {phase === 'closed' || phase === 'zooming'
+      ? <JournalClosedView phase={phase} onOpen={openJournal} />
+      : <JournalOpenView entries={entries} pageIndex={pageIndex} turnDirection={turnDirection} onTurn={turnPage} onClose={closeJournal} />}
   </main>
 }

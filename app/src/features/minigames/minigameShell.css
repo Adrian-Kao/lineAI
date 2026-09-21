@@ -1,0 +1,48 @@
+/* 小遊戲共用主題：容器、字色、按鈕沿用 app 米底墨綠色系；盤面用廟宇紅金當視覺焦點。 */
+.qian-game {
+  --qian-surface: #fffefa;
+  --qian-border: #d6e1d3;
+  --qian-text: #30443a;
+  --qian-muted: #66806a;
+  --qian-accent: #286d50;
+  --qian-warning: #b4321f;
+  --qian-red: #b8342a;
+  --qian-red-deep: #8f2419;
+  --qian-gold: #d9a441;
+  --qian-gold-bright: #f2c14e;
+  --qian-board: #3b2a22;
+  --qian-board-deep: #24160f;
+  max-width: 28rem;
+  margin: 0 auto;
+  padding: 1.25rem 1.25rem 1.5rem;
+  border: 1px solid var(--qian-border);
+  border-radius: 8px;
+  background: var(--qian-surface);
+  color: var(--qian-text);
+}
+.qian-game__header h2, .qian-game__header p { margin: 0; }
+.qian-game__header h2 { font-size: 1.4rem; line-height: 1.3; }
+.qian-game__eyebrow { margin-bottom: .3rem !important; color: var(--qian-accent); font-size: .8rem; font-weight: 700; letter-spacing: .08em; }
+.qian-game__header p:not(.qian-game__eyebrow):not(.demo-badge) { margin-top: .5rem; color: var(--qian-muted); line-height: 1.55; }
+.qian-game__header .demo-badge { margin-top: .75rem; }
+.qian-board {
+  display: grid;
+  gap: .5rem;
+  width: min(100%, 20rem);
+  margin: 1.25rem auto;
+  padding: .6rem;
+  background: radial-gradient(circle at 50% 25%, var(--qian-board), var(--qian-board-deep) 80%);
+  border: 3px solid var(--qian-gold);
+  border-radius: .9rem;
+  box-shadow: inset 0 0 0 2px var(--qian-red-deep);
+  transition: box-shadow .5s ease;
+}
+.is-complete .qian-board { box-shadow: inset 0 0 0 2px var(--qian-red-deep), 0 0 0 3px var(--qian-gold-bright), 0 0 32px rgba(242, 193, 78, .55); }
+.qian-game__status { margin: 0; min-height: 1.5em; text-align: center; color: var(--qian-muted); }
+.is-complete .qian-game__status { color: var(--qian-accent); font-weight: 700; }
+.qian-game__actions { display: flex; flex-wrap: wrap; justify-content: center; gap: .6rem; margin-top: 1rem; }
+.qian-game .task-button { cursor: pointer; }
+.qian-game .task-button:disabled { opacity: .5; cursor: default; }
+.qian-game__link { display: block; margin: .75rem auto 0; padding: .25rem .5rem; border: 0; background: none; color: var(--qian-accent); font-size: .85rem; text-decoration: underline; cursor: pointer; }
+@media (prefers-reduced-motion: reduce) { .qian-board { transition: none; } }
+:root[data-reduce-motion="true"] .qian-board { transition: none; }

@@ -6,10 +6,8 @@ import { getTask, getTaskStatus } from '../../state/gameRules.js'
 import TaskProgress from '../../components/TaskProgress.jsx'
 import StampTask from '../stamp/StampTask.jsx'
 import PhotoTask from '../photo/PhotoTask.jsx'
-import PuzzleTask from '../puzzle/PuzzleTask.jsx'
+import MinigameTask from '../minigames/MinigameTask.jsx'
 import { useSettings } from '../../state/SettingsContext.js'
-import WanxingMaze from '../games/wanxing/WanxingMaze.jsx'
-import { useGame } from '../../state/GameContext.js'
 
 export default function MissionPage() {
   const { taskId } = useParams()
@@ -18,6 +16,7 @@ export default function MissionPage() {
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const navigate = useNavigate()
+  if (taskId === 'demo') return <TempleMissionExperience />
   const task = getTask(taskId)
   if (!task) return <Navigate to={ROUTES.temple} replace />
   const status = getTaskStatus(progress, taskId)
@@ -36,6 +35,6 @@ export default function MissionPage() {
       setSubmitting(false)
     }
   }
-  const TaskComponent = { stamp: StampTask, photo: PhotoTask, puzzle: PuzzleTask }[taskId]
-  return <main className="mission-page"><TaskProgress progress={progress} taskId={taskId} /><section className="mission-panel"><TaskComponent onComplete={handleComplete} disabled={submitting} />{submitting && <p className="mission-status" role="status">{t('mission.saving')}</p>}{error && <p className="mission-error" role="alert">{error}</p>}</section></main>
+  const TaskComponent = { stamp: StampTask, photo: PhotoTask, puzzle: MinigameTask }[taskId]
+  return <main className="mission-page"><TaskProgress progress={progress} taskId={taskId} /><section className={`mission-panel${taskId === 'photo' ? ' is-photo-align' : ''}`}><TaskComponent onComplete={handleComplete} disabled={submitting} />{submitting && <p className="mission-status" role="status">{t('mission.saving')}</p>}{error && <p className="mission-error" role="alert">{error}</p>}</section></main>
 }

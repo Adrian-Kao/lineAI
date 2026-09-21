@@ -6,16 +6,21 @@ export function makeProgressKey(userId) {
 
 // 修復早期 DEMO 只寫入 missionCompletions、未同步建立集章紀錄的進度。
 export function normalizeProgress(snapshot) {
+  let normalized = snapshot
+  const itineraryItems = Array.isArray(snapshot?.itineraryItems) ? snapshot.itineraryItems : []
+  if (itineraryItems !== snapshot?.itineraryItems) normalized = { ...normalized, itineraryItems }
   const stampCompletion = snapshot?.missionCompletions?.stamp
   const stampRecords = Array.isArray(snapshot?.stampRecords) ? snapshot.stampRecords : []
-  if (!stampCompletion || stampRecords.some(record => record.taskId === 'stamp')) return snapshot
-  return {
-    ...snapshot,
-    stampRecords: [
-      ...stampRecords,
-      { taskId: 'stamp', acquiredAt: stampCompletion.completedAt },
-    ],
+  if (stampCompletion && !stampRecords.some(record => record.taskId === 'stamp')) {
+    normalized = {
+      ...normalized,
+      stampRecords: [
+        ...stampRecords,
+        { taskId: 'stamp', acquiredAt: stampCompletion.completedAt },
+      ],
+    }
   }
+  return normalized
 }
 
 export function loadProgress(userId) {

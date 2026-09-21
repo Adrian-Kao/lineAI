@@ -1,0 +1,257 @@
+.mission-experience {
+  --mission-green: #356a4c;
+  --mission-green-dark: #254d38;
+  --mission-green-soft: #dfeade;
+  --mission-paper: #fffdf7;
+  --mission-cream: #f2eee2;
+  --mission-red: #b65347;
+  width: min(100%, 820px);
+  min-height: 100dvh;
+  margin: 0 auto;
+  padding: 24px 22px 142px;
+  color: #2f4337;
+}
+
+.mission-experience__header {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.mission-experience__back,
+.mission-experience__reset {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: #365f47;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.mission-experience__back { justify-self: start; text-decoration: none; }
+.mission-experience__reset { justify-self: end; padding: 7px 9px; border: 1px solid #c9d5c7; border-radius: 6px; background: #fffdf8; cursor: pointer; }
+.mission-experience__identity { display: flex; align-items: center; gap: 9px; text-align: left; }
+.mission-experience__identity > div { display: flex; flex-direction: column; }
+.mission-experience__identity strong { font-size: 14px; }
+.mission-experience__identity small { margin-top: 1px; color: #738178; font-size: 11px; }
+.mission-experience__demo { padding: 4px 6px; border-radius: 4px; background: #fff0c7; color: #745510; font-size: 10px; font-weight: 800; }
+
+.mission-experience__progress {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+  margin: 0 0 16px;
+  padding: 0;
+  list-style: none;
+}
+
+.mission-experience__progress li { position: relative; display: flex; align-items: center; justify-content: center; gap: 7px; color: #89948c; }
+.mission-experience__progress li:not(:last-child)::after { position: absolute; z-index: 0; top: 15px; left: calc(50% + 25px); width: calc(100% - 50px); height: 1px; background: #cfd7cd; content: ''; }
+.mission-experience__progress li.is-complete:not(:last-child)::after { background: #6d9a78; }
+.mission-experience__progress li > span { position: relative; z-index: 1; display: grid; width: 31px; height: 31px; place-items: center; border: 1px solid #ccd5ca; border-radius: 50%; background: #f7f6ef; }
+.mission-experience__progress li.is-active { color: var(--mission-green-dark); font-weight: 750; }
+.mission-experience__progress li.is-active > span { border-color: #5d8e6c; background: #e1ecdf; box-shadow: 0 0 0 4px rgba(92, 142, 107, .12); }
+.mission-experience__progress li.is-complete > span { border-color: var(--mission-green); background: var(--mission-green); color: #fff; }
+.mission-experience__progress small { font-size: 11px; }
+
+.mission-experience__stage {
+  position: relative;
+  min-height: 650px;
+  overflow: hidden;
+  border: 1px solid #cfdbcd;
+  border-radius: 8px;
+  background: var(--mission-paper);
+  box-shadow: 0 15px 36px rgba(37, 58, 47, .11);
+}
+
+.mission-scene,
+.mission-transition {
+  min-height: 650px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 34px clamp(20px, 6vw, 54px);
+}
+
+.mission-scene__heading { max-width: 560px; margin-bottom: 26px; text-align: center; }
+.mission-scene__heading > * { margin: 0; }
+.mission-scene__heading h1 { margin-top: 7px; font-family: 'Noto Serif TC', 'PMingLiU', serif; font-size: 30px; line-height: 1.35; letter-spacing: 0; }
+.mission-scene__heading p { margin-top: 8px; color: #65756b; line-height: 1.65; }
+.scene-kicker { color: var(--mission-green); font-size: 12px; font-weight: 800; }
+.mission-primary-action,
+.mission-secondary-action {
+  min-height: 46px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: 7px;
+  font-weight: 750;
+  cursor: pointer;
+}
+.mission-primary-action { border: 1px solid var(--mission-green); background: var(--mission-green); color: #fff; }
+.mission-primary-action:hover { border-color: var(--mission-green-dark); background: var(--mission-green-dark); }
+.mission-secondary-action { border: 1px solid #a9bfa9; background: #f0f5ed; color: #315440; }
+.mission-primary-action:disabled { opacity: .58; cursor: wait; }
+.mission-experience__disclaimer { max-width: 650px; margin: 12px auto 0; color: #76837a; font-size: 11px; line-height: 1.55; text-align: center; }
+
+.touch-scene { background: #f8faf5; animation: mission-scene-enter .42s ease-out both; }
+.touch-target { position: relative; width: 210px; height: 210px; display: grid; place-items: center; align-content: center; gap: 9px; margin-bottom: 30px; border: 1px solid #bad0ba; border-radius: 50%; background: #e6f0e2; color: var(--mission-green-dark); transition: background .3s ease, transform .3s ease; }
+.touch-target__icon { position: relative; z-index: 2; display: grid; place-items: center; }
+.touch-target small { position: relative; z-index: 2; font-size: 10px; font-weight: 850; }
+.touch-target.is-detecting { transform: scale(1.06); background: #edf6e8; box-shadow: 0 0 34px rgba(70, 128, 84, .2); }
+.touch-target.is-success { animation: touch-success-pop .4s ease-out both; background: #d9ebd7; color: #27613e; }
+.touch-waves { position: absolute; inset: 0; display: grid; place-items: center; }
+.touch-waves i { position: absolute; width: 100%; height: 100%; border: 2px solid rgba(63, 123, 78, .46); border-radius: 50%; animation: touch-wave 1.05s ease-out infinite; }
+.touch-waves i:nth-child(2) { animation-delay: .28s; }
+.touch-waves i:nth-child(3) { animation-delay: .56s; }
+.touch-scene__status { min-height: 24px; display: flex; align-items: center; gap: 7px; margin: 0; color: #5c6f62; font-size: 13px; }
+.touch-scene__status.is-success { color: #2e6744; font-weight: 700; }
+
+.stamp-scene { background: var(--mission-cream); }
+.stamp-card-wrap { position: relative; width: min(100%, 430px); min-height: 330px; display: grid; place-items: center; }
+.stamp-exploration-card { width: min(100%, 360px); overflow: hidden; border: 1px solid #d4c9af; border-radius: 8px; background: #fffaf0; box-shadow: 0 12px 28px rgba(66, 53, 34, .12); }
+.stamp-exploration-card header { display: flex; align-items: center; justify-content: space-between; padding: 13px 16px; border-bottom: 1px solid #e4dbc6; color: #465b4d; }
+.stamp-exploration-card header span { font-family: 'Noto Serif TC', 'PMingLiU', serif; font-weight: 800; }
+.stamp-exploration-card header small, .stamp-exploration-card footer { color: #95886f; font-size: 9px; font-weight: 750; }
+.stamp-exploration-card__body { display: grid; grid-template-columns: 1fr 150px; grid-template-rows: auto 1fr; align-items: center; min-height: 210px; padding: 20px 18px; }
+.stamp-exploration-card__body > p { align-self: end; margin: 0; color: #807662; font-size: 11px; }
+.stamp-exploration-card__body > h2 { align-self: start; margin: 5px 0 0; font-family: 'Noto Serif TC', 'PMingLiU', serif; font-size: 27px; }
+.stamp-impression-slot { position: relative; grid-column: 2; grid-row: 1 / 3; width: 142px; height: 142px; display: grid; place-items: center; border: 2px dashed #dfd3bd; border-radius: 50%; color: #aa9c83; font-size: 11px; }
+.stamp-impression { position: absolute; inset: 3px; width: calc(100% - 6px); height: calc(100% - 6px); opacity: 0; transform: scale(.85) rotate(-10deg); }
+.is-stampImpact .stamp-impression { animation: stamp-ink-impact .42s .08s ease-out forwards; }
+.is-stampComplete .stamp-impression { opacity: .94; transform: scale(1) rotate(-7deg); }
+.stamp-exploration-card footer { padding: 8px 16px; border-top: 1px solid #e8dfcd; }
+.stamp-tool { position: absolute; z-index: 3; top: 78px; left: calc(50% + 8px); width: 118px; height: 168px; opacity: 0; transform: translate(-50%, -180px) rotate(-8deg) scale(1.1); transform-origin: center bottom; }
+.stamp-tool__handle { position: absolute; top: 0; left: 32px; width: 54px; height: 86px; border: 1px solid #664331; border-radius: 22px 22px 7px 7px; background: #875a3e; box-shadow: inset 8px 0 0 rgba(255, 255, 255, .08); }
+.stamp-tool__base { position: absolute; bottom: 0; left: 7px; width: 104px; height: 78px; border: 1px solid #5e3a2a; border-radius: 8px 8px 4px 4px; background: #784936; box-shadow: inset 0 -12px 0 #583327, 0 10px 14px rgba(55, 34, 24, .18); }
+.is-stampEntering .stamp-tool { animation: stamp-tool-enter .43s ease-out forwards; }
+.is-stampImpact .stamp-tool { animation: stamp-tool-impact .62s cubic-bezier(.38, .02, .3, 1) forwards; }
+.is-stampImpact .stamp-exploration-card { animation: stamp-card-shake .24s .2s ease-out; }
+.stamp-impact-word { position: absolute; z-index: 4; top: 145px; left: calc(50% + 88px); color: var(--mission-red); font-family: 'Noto Serif TC', 'PMingLiU', serif; font-size: 22px; font-weight: 900; animation: stamp-word-pop .36s .18s ease-out both; }
+.stamp-complete-copy { display: flex; align-items: center; gap: 7px; margin: 7px 0 17px; color: #8e3f35; font-size: 14px; font-weight: 800; animation: mission-scene-enter .35s ease-out both; }
+
+.mission-transition { background: #f2eee2; text-align: center; }
+.mission-transition__icon { width: 72px; height: 72px; display: grid; place-items: center; border: 1px solid #b8cbb8; border-radius: 50%; background: #e0ebdc; color: var(--mission-green); }
+.mission-transition h1 { margin: 17px 0 7px; font-family: 'Noto Serif TC', 'PMingLiU', serif; font-size: 27px; }
+.mission-transition p { margin: 0; color: #68766d; }
+.mission-transition__stamp-card { position: absolute; width: 220px; height: 150px; display: grid; place-items: center; border: 1px solid #d4c9af; border-radius: 7px; background: #fffaf0; box-shadow: 0 12px 28px rgba(66, 53, 34, .12); animation: stamp-card-exit .65s ease-in forwards; }
+.mission-transition__stamp-card img { width: 95px; height: 95px; }
+.mission-transition__stamp-card span { font-family: 'Noto Serif TC', 'PMingLiU', serif; font-weight: 800; }
+.to-photo .mission-transition__icon, .to-photo h1, .to-photo p { opacity: 0; animation: transition-content-enter .34s .3s ease-out forwards; }
+.to-game { animation: game-background-exit .68s ease-in-out both; }
+.to-game .mission-transition__icon { animation: puzzle-icon-pop .62s ease-out both; }
+
+.photo-demo-scene { background: #eef2e9; animation: mission-scene-enter .4s ease-out both; }
+.photo-camera-frame { position: relative; width: min(100%, 570px); aspect-ratio: 3 / 2; overflow: hidden; border: 1px solid #9db09f; border-radius: 7px; background: #243129; box-shadow: 0 12px 28px rgba(37, 55, 44, .17); }
+.photo-camera-frame video, .photo-camera-frame > img { width: 100%; height: 100%; object-fit: cover; }
+.photo-camera-frame video { display: none; }
+.photo-camera-frame.is-live video { display: block; }
+.photo-camera-frame.is-live > img { display: none; }
+.photo-camera-frame__veil { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; gap: 7px; background: rgba(31, 47, 37, .48); color: #fff; font-size: 12px; }
+.camera-corner { position: absolute; width: 28px; height: 28px; border-color: rgba(255, 255, 255, .88); border-style: solid; }
+.camera-corner.is-top-left { top: 15px; left: 15px; border-width: 3px 0 0 3px; }
+.camera-corner.is-top-right { top: 15px; right: 15px; border-width: 3px 3px 0 0; }
+.camera-corner.is-bottom-left { bottom: 15px; left: 15px; border-width: 0 0 3px 3px; }
+.camera-corner.is-bottom-right { right: 15px; bottom: 15px; border-width: 0 3px 3px 0; }
+.camera-flash { position: absolute; z-index: 8; inset: 0; background: #fff; animation: camera-flash .13s ease-out both; }
+.photo-demo-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 22px; }
+.photo-demo-message { margin: 13px 0 0; color: #9c3e32; font-size: 13px; text-align: center; }
+.photo-demo-privacy { display: flex; align-items: center; gap: 6px; margin: 15px 0 0; color: #718078; font-size: 11px; }
+.photo-memory-stage { position: relative; width: min(100%, 570px); height: 355px; display: grid; place-items: center; }
+.photo-polaroid { z-index: 2; width: min(82%, 360px); margin: 0; padding: 12px 12px 15px; background: #fff; box-shadow: 0 17px 34px rgba(36, 46, 40, .2); transform: rotate(-2deg); }
+.photo-polaroid img { width: 100%; aspect-ratio: 3 / 2; object-fit: cover; }
+.photo-polaroid figcaption { display: grid; grid-template-columns: 1fr auto; gap: 3px 12px; padding: 11px 4px 0; color: #4f5b54; }
+.photo-polaroid figcaption strong { font-family: 'Noto Serif TC', 'PMingLiU', serif; }
+.photo-polaroid figcaption span { color: #78827c; font-size: 11px; }
+.photo-polaroid figcaption small { grid-column: 1 / -1; color: #9a6a37; font-size: 9px; }
+.is-photoCaptured .photo-polaroid { animation: polaroid-collect 1.72s ease-in-out forwards; }
+.photo-collection-target { position: absolute; right: 20px; top: 10px; display: grid; justify-items: center; gap: 3px; color: #456c52; }
+.photo-collection-target small { font-size: 9px; font-weight: 750; }
+.is-photoCaptured .photo-collection-target { animation: collection-target-pulse .5s 1.18s ease-out both; }
+.photo-captured-status { display: flex; align-items: center; gap: 7px; margin: 2px 0 0; color: #366849; font-size: 13px; font-weight: 750; }
+.photo-complete-panel { display: grid; justify-items: center; gap: 16px; margin-top: 12px; }
+.photo-complete-panel > p { display: flex; align-items: center; gap: 7px; margin: 0; color: #356747; font-weight: 750; }
+
+.game-scene { position: relative; justify-content: flex-start; background: #f5f2e7; animation: game-scene-enter .42s ease-out both; }
+.game-scene .mission-scene__heading { margin-bottom: 12px; }
+.game-scene__icon { position: absolute; top: 24px; right: 24px; width: 42px; height: 42px; display: grid; place-items: center; border-radius: 7px; background: #e0ecdc; color: var(--mission-green); }
+.game-scene__puzzle { width: min(100%, 470px); }
+.game-scene__puzzle .puzzle-task { padding: 16px; border: 1px solid #dddbc9; border-radius: 8px; }
+.game-scene__puzzle .puzzle-board { width: min(100%, 310px); margin: 14px auto; }
+.game-scene__complete { width: min(100%, 440px); display: flex; align-items: flex-start; gap: 10px; margin-top: 14px; padding: 13px 15px; border: 1px solid #a7c5aa; border-radius: 7px; background: #edf5e9; color: #2f6544; animation: touch-success-pop .35s ease-out both; }
+.game-scene__complete div { display: flex; flex-direction: column; gap: 2px; }
+.game-scene__complete span { color: #617265; font-size: 12px; }
+
+@keyframes mission-scene-enter { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes touch-wave { 0% { opacity: .55; transform: scale(.56); } 100% { opacity: 0; transform: scale(1.38); } }
+@keyframes touch-success-pop { 0% { opacity: 0; transform: scale(.8); } 70% { transform: scale(1.04); } 100% { opacity: 1; transform: scale(1); } }
+@keyframes stamp-tool-enter { from { opacity: 0; transform: translate(-50%, -190px) rotate(-8deg) scale(1.1); } to { opacity: 1; transform: translate(-50%, -110px) rotate(-7deg) scale(1.08); } }
+@keyframes stamp-tool-impact {
+  0% { opacity: 1; transform: translate(-50%, -110px) rotate(-7deg) scale(1.08); }
+  38% { opacity: 1; transform: translate(-50%, 0) rotate(0) scale(.92); }
+  50% { opacity: 1; transform: translate(-50%, -4px) rotate(0) scale(1.08); }
+  62% { opacity: 1; transform: translate(-50%, 0) rotate(0) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -82px) rotate(3deg) scale(1); }
+}
+@keyframes stamp-ink-impact { 0% { opacity: .2; transform: scale(.85) rotate(-10deg); } 70% { opacity: 1; transform: scale(1.05) rotate(-7deg); } 100% { opacity: .94; transform: scale(1) rotate(-7deg); } }
+@keyframes stamp-card-shake { 0%, 100% { transform: translateX(0); } 30% { transform: translateX(-3px); } 65% { transform: translateX(3px); } }
+@keyframes stamp-word-pop { from { opacity: 0; transform: scale(.6) rotate(-9deg); } to { opacity: 1; transform: scale(1) rotate(-9deg); } }
+@keyframes stamp-card-exit { 0% { opacity: 1; transform: translateY(0) scale(1); } 28% { transform: translateY(-5px) scale(1.05); } 100% { opacity: 0; transform: translateY(-45px) scale(.85); } }
+@keyframes transition-content-enter { from { opacity: 0; transform: scale(.88); } to { opacity: 1; transform: scale(1); } }
+@keyframes puzzle-icon-pop { 0% { opacity: 0; transform: scale(.6); } 65% { opacity: 1; transform: scale(1.18); } 100% { opacity: 1; transform: scale(1); } }
+@keyframes game-background-exit { 0% { opacity: 0; } 20%, 80% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes camera-flash { 0% { opacity: 0; } 35% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes polaroid-collect {
+  0% { opacity: 0; transform: rotate(0) scale(.92); }
+  22% { opacity: 1; transform: rotate(-2deg) scale(1); }
+  62% { opacity: 1; transform: rotate(-2deg) scale(1); }
+  100% { opacity: 0; transform: translate(180px, -110px) rotate(2deg) scale(.24); }
+}
+@keyframes collection-target-pulse { 0% { transform: scale(1); } 55% { transform: scale(1.18); color: #a95749; } 100% { transform: scale(1); } }
+@keyframes game-scene-enter { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+@media (max-width: 600px) {
+  .mission-experience { padding: 14px 12px 132px; }
+  .mission-experience__header { grid-template-columns: auto 1fr auto; gap: 8px; }
+  .mission-experience__identity { justify-self: center; }
+  .mission-experience__back, .mission-experience__reset { width: 38px; height: 38px; display: grid; place-items: center; padding: 0; border-radius: 6px; }
+  .mission-experience__back span, .mission-experience__reset span { display: none; }
+  .mission-experience__header > a { font-size: 0; }
+  .mission-experience__progress small { display: none; }
+  .mission-experience__stage, .mission-scene, .mission-transition { min-height: 610px; }
+  .mission-scene, .mission-transition { padding: 28px 16px; }
+  .mission-scene__heading h1 { font-size: 25px; }
+  .touch-target { width: 185px; height: 185px; }
+  .stamp-card-wrap { min-height: 305px; }
+  .stamp-exploration-card__body { grid-template-columns: 1fr 125px; min-height: 185px; padding: 16px 14px; }
+  .stamp-impression-slot { width: 120px; height: 120px; }
+  .stamp-tool { top: 64px; transform-origin: center bottom; }
+  .photo-memory-stage { height: 320px; }
+  .photo-polaroid { width: min(88%, 360px); }
+  .photo-collection-target { right: 5px; }
+  .game-scene__icon { display: none; }
+  .game-scene__puzzle .puzzle-task { padding: 13px; }
+}
+
+@media (max-width: 390px) {
+  .mission-experience__identity small { display: none; }
+  .mission-experience__identity strong { font-size: 12px; }
+  .mission-experience__stage, .mission-scene, .mission-transition { min-height: 580px; }
+  .mission-scene__heading { margin-bottom: 20px; }
+  .photo-demo-actions { width: 100%; display: grid; }
+  .photo-demo-actions button { width: 100%; }
+  @keyframes polaroid-collect { 0% { opacity: 0; transform: rotate(0) scale(.92); } 22%, 62% { opacity: 1; transform: rotate(-2deg) scale(1); } 100% { opacity: 0; transform: translate(105px, -100px) rotate(2deg) scale(.24); } }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .touch-waves, .stamp-impact-word { display: none; }
+  .touch-target.is-detecting { transform: none; }
+}
+
+html[data-reduce-motion='true'] .touch-waves,
+html[data-reduce-motion='true'] .stamp-impact-word { display: none; }

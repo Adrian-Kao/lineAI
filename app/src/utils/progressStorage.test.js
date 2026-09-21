@@ -12,6 +12,7 @@ function oldProgress() {
     stampRecords: [],
     photoRecords: [],
     journalEvents: [],
+    itineraryItems: [],
   }
 }
 
@@ -27,4 +28,12 @@ test('does not duplicate an existing stamp-book record', () => {
   progress.stampRecords.push({ taskId: 'stamp', acquiredAt: '2026-09-18T00:00:00.000Z' })
   assert.equal(normalizeProgress(progress), progress)
   assert.equal(progress.stampRecords.length, 1)
+})
+
+test('adds an empty itinerary to legacy progress without clearing other data', () => {
+  const progress = oldProgress()
+  delete progress.itineraryItems
+  const normalized = normalizeProgress(progress)
+  assert.deepEqual(normalized.itineraryItems, [])
+  assert.deepEqual(normalized.missionCompletions, progress.missionCompletions)
 })

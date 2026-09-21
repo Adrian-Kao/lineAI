@@ -1,5 +1,15 @@
 # 萬春宮前端
 
+## Mission Experience DEMO
+
+`/mission/demo` 會把 LINE Touch、宮廟蓋章、拍照與既有 2x2 Puzzle 串成同一個連續動畫流程。此模式預設啟用，也可明確設定：
+
+```env
+VITE_MISSION_DEMO_MODE=true
+```
+
+DEMO 流程只使用記憶體內的照片與本地視覺狀態，不呼叫 `completeTask`，因此不會新增正式印章、照片、點數、造訪或宮廟完成紀錄。
+
 第一階段首頁已可在 `/map` 使用：22 縣市互動地圖、縣市放大、右側導覽與底部導覽。選擇縣市後，按需顯示道路與鄉鎮市區分界、道教／佛教宮廟群聚點位；選中宮廟會置中並在點位上方顯示簡介，可進入完整資料頁。其他第一階段頁面目前為占位頁；LINE 與任務流程仍屬後續階段。
 
 完整設計與分工見 [專案指南](../docs/project-guide.md)，安裝及帳號設定見 [requirement.txt](../requirement.txt)。

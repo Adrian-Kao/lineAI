@@ -8,8 +8,6 @@ import { getTaskStatus } from '../../state/gameRules.js'
 import { useSettings } from '../../state/SettingsContext.js'
 
 const links = [
-  { to: ROUTES.stampbook, labelKey: 'drawer.stampbook' },
-  { to: ROUTES.collection, labelKey: 'drawer.photos' },
   { to: ROUTES.news, labelKey: 'drawer.news' },
   { to: ROUTES.settings, labelKey: 'drawer.settings' },
   { to: ROUTES.friends, labelKey: 'drawer.friends' },

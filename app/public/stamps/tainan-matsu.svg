@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" role="img" aria-labelledby="title">
+  <title id="title">大天后宮專屬印章</title>
+  <g fill="none" stroke="#B65347" stroke-linecap="round" stroke-linejoin="round"><rect x="20" y="20" width="200" height="200" rx="7" stroke-width="7"/><rect x="31" y="31" width="178" height="178" rx="3" stroke-width="2" stroke-dasharray="3 6"/><path d="M58 88h124M70 88l50-34 50 34M84 88v28m72-28v28M70 116h100" stroke-width="6"/><path d="M52 50h20M188 50h-20M52 190h20M188 190h-20" stroke-width="3"/></g>
+  <text x="120" y="154" fill="#B65347" font-family="serif" font-size="29" font-weight="700" text-anchor="middle">大天后宮</text><text x="120" y="182" fill="#B65347" font-family="sans-serif" font-size="13" font-weight="700" letter-spacing="3" text-anchor="middle">台南・中西</text>
+</svg>
