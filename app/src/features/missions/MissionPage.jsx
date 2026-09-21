@@ -7,6 +7,7 @@ import TaskProgress from '../../components/TaskProgress.jsx'
 import StampTask from '../stamp/StampTask.jsx'
 import PhotoTask from '../photo/PhotoTask.jsx'
 import MinigameTask from '../minigames/MinigameTask.jsx'
+import TempleMissionExperience from './TempleMissionExperience.jsx'
 import { useSettings } from '../../state/SettingsContext.js'
 
 export default function MissionPage() {

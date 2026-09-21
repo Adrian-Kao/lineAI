@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import './matchThreeGame.css'
 
 const BOARD_SIZE = 8
@@ -323,14 +323,6 @@ export default function MatchThreeGame({
   const [message, setMessage] = useState('交換相鄰棋子，連成三個以上即可消除。')
   const [isComplete, setIsComplete] = useState(false)
 
-  useEffect(() => {
-    if (isComplete || hasPossibleMove(board)) return
-
-    setBoard(createPlayableBoard())
-    setSelectedIndex(null)
-    setMessage('沒有可交換的棋子，已自動洗牌。')
-  }, [board, isComplete])
-
   function finishGame(nextScore) {
     if (nextScore < targetScore || isComplete) return
 
@@ -381,12 +373,16 @@ export default function MatchThreeGame({
     const result = specialResult ?? normalResult
     const addedScore = result.removed * 100
     const nextScore = score + addedScore
+    // 消除後若已無可交換的棋子且尚未過關，直接在這裡洗牌，不另外用 effect 監看棋盤。
+    const stuck = nextScore < targetScore && !hasPossibleMove(result.board)
 
-    setBoard(result.board)
+    setBoard(stuck ? createPlayableBoard() : result.board)
     setSelectedIndex(null)
     setScore(nextScore)
 
-    if (specialResult) {
+    if (stuck) {
+      setMessage('沒有可交換的棋子，已自動洗牌。')
+    } else if (specialResult) {
       setMessage(`特殊消除成功！消除了 ${result.removed} 個元素。`)
     } else {
       setMessage(`消除了 ${result.removed} 個元素，獲得 ${addedScore} 分。`)
