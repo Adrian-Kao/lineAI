@@ -1,3 +1,5 @@
+import { PHOTO_ALIGN_TASKS } from '../photo/photoTaskConfig.js'
+
 export const MISSION_PHASES = Object.freeze({
   touchWaiting: 'touchWaiting',
   touchDetecting: 'touchDetecting',
@@ -21,6 +23,7 @@ export const demoMissionConfig = Object.freeze({
   location: '台中市中區',
   stampImage: '/stamps/wanchun.svg',
   demoPhoto: '/missions/wanchun/reference-full.jpg',
+  photoTask: PHOTO_ALIGN_TASKS.wanchun,
   demoMode: import.meta.env.VITE_MISSION_DEMO_MODE !== 'false',
   game: { type: 'puzzle', gridSize: 3 },
 })

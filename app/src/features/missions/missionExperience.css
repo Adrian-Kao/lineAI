@@ -147,20 +147,37 @@
 .to-game .mission-transition__icon { animation: puzzle-icon-pop .62s ease-out both; }
 
 .photo-demo-scene { background: #eef2e9; animation: mission-scene-enter .4s ease-out both; }
-.photo-camera-frame { position: relative; width: min(100%, 570px); aspect-ratio: 3 / 2; overflow: hidden; border: 1px solid #9db09f; border-radius: 7px; background: #243129; box-shadow: 0 12px 28px rgba(37, 55, 44, .17); }
-.photo-camera-frame video, .photo-camera-frame > img { width: 100%; height: 100%; object-fit: cover; }
-.photo-camera-frame video { display: none; }
-.photo-camera-frame.is-live video { display: block; }
-.photo-camera-frame.is-live > img { display: none; }
-.photo-camera-frame__veil { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; gap: 7px; background: rgba(31, 47, 37, .48); color: #fff; font-size: 12px; }
-.camera-corner { position: absolute; width: 28px; height: 28px; border-color: rgba(255, 255, 255, .88); border-style: solid; }
-.camera-corner.is-top-left { top: 15px; left: 15px; border-width: 3px 0 0 3px; }
-.camera-corner.is-top-right { top: 15px; right: 15px; border-width: 3px 3px 0 0; }
-.camera-corner.is-bottom-left { bottom: 15px; left: 15px; border-width: 0 0 3px 3px; }
-.camera-corner.is-bottom-right { right: 15px; bottom: 15px; border-width: 0 3px 3px 0; }
-.camera-flash { position: absolute; z-index: 8; inset: 0; background: #fff; animation: camera-flash .13s ease-out both; }
+.mission-photo-align-stage { width: min(100%, 620px); flex: none; }
+.mission-photo-hole-placeholder {
+  position: absolute;
+  z-index: 2;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 5px;
+  background: #25332a;
+  color: rgba(255, 255, 255, .86);
+  font-size: 11px;
+  pointer-events: none;
+}
+.mission-photo-composite {
+  position: absolute;
+  z-index: 5;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  animation: photo-composite-reveal .72s ease-out both;
+}
+.mission-photo-alignment-controls { display: grid; width: min(100%, 420px); justify-items: stretch; gap: 10px; margin-top: 17px; }
+.mission-photo-alignment-controls > p { display: flex; align-items: center; justify-content: center; gap: 7px; margin: 0; color: #536d5a; font-size: 13px; }
+.mission-photo-alignment-controls .mission-primary-action { width: 100%; }
+.mission-photo-score { height: 7px; overflow: hidden; border-radius: 999px; background: #d7dfd4; }
+.mission-photo-score > span { display: block; height: 100%; border-radius: inherit; background: #73a77b; transition: width .32s ease; }
 .photo-demo-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 22px; }
 .photo-demo-message { margin: 13px 0 0; color: #9c3e32; font-size: 13px; text-align: center; }
+.photo-demo-message:not(.is-warning) { color: #526b58; }
 .photo-demo-privacy { display: flex; align-items: center; gap: 6px; margin: 15px 0 0; color: #718078; font-size: 11px; }
 .photo-memory-stage { position: relative; width: min(100%, 570px); height: 355px; display: grid; place-items: center; }
 .photo-polaroid { z-index: 2; width: min(82%, 360px); margin: 0; padding: 12px 12px 15px; background: #fff; box-shadow: 0 17px 34px rgba(36, 46, 40, .2); transform: rotate(-2deg); }
@@ -205,7 +222,7 @@
 @keyframes transition-content-enter { from { opacity: 0; transform: scale(.88); } to { opacity: 1; transform: scale(1); } }
 @keyframes puzzle-icon-pop { 0% { opacity: 0; transform: scale(.6); } 65% { opacity: 1; transform: scale(1.18); } 100% { opacity: 1; transform: scale(1); } }
 @keyframes game-background-exit { 0% { opacity: 0; } 20%, 80% { opacity: 1; } 100% { opacity: 0; } }
-@keyframes camera-flash { 0% { opacity: 0; } 35% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes photo-composite-reveal { from { opacity: 0; filter: brightness(1.12); } to { opacity: 1; filter: brightness(1); } }
 @keyframes polaroid-collect {
   0% { opacity: 0; transform: rotate(0) scale(.92); }
   22% { opacity: 1; transform: rotate(-2deg) scale(1); }
@@ -226,6 +243,8 @@
   .mission-experience__stage, .mission-scene, .mission-transition { min-height: 610px; }
   .mission-scene, .mission-transition { padding: 28px 16px; }
   .mission-scene__heading h1 { font-size: 25px; }
+  .mission-photo-align-stage { width: 100%; }
+  .mission-photo-alignment-controls { width: 100%; }
   .touch-target { width: 185px; height: 185px; }
   .stamp-card-wrap { min-height: 305px; }
   .stamp-exploration-card__body { grid-template-columns: 1fr 125px; min-height: 185px; padding: 16px 14px; }

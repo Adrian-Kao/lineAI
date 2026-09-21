@@ -8,7 +8,7 @@ export const PHOTO_ALIGN_TASKS = {
     expectedPatch: '/missions/wanchun/reference-patch.jpg',
     aspectRatio: 3 / 2,
     hole: { x: 0.36, y: 0.22, width: 0.28, height: 0.25 },
-    similarityThreshold: 0.82,
+    similarityThreshold: 0.62,
   },
 }
 

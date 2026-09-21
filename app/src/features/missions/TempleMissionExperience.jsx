@@ -116,6 +116,6 @@ export default function TempleMissionExperience({ config = demoMissionConfig }) 
       {phase === MISSION_PHASES.gameReady && <GameScene config={config} />}
     </div>
 
-    <p className="mission-experience__disclaimer">此流程為體驗 DEMO，不代表真實 NFC、現場到訪或照片驗證，也不會寫入正式探索進度。</p>
+    <p className="mission-experience__disclaimer">LINE Touch 為體驗模擬；拍照關卡會使用裝置相機在本機進行缺口對位，影像不會自動上傳，也不會寫入正式探索進度。</p>
   </main>
 }
