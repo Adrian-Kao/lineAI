@@ -107,16 +107,20 @@ function boundaryStyle(feature, selectedDistrictId, regionProgress) {
   }
 }
 
+function templeMarkerSvg(count = null) {
+  const countLabel = count === null ? '' : `<text class="temple-cluster-count" x="22" y="31" text-anchor="middle">${count}</text>`
+  return `<svg class="temple-marker" viewBox="0 0 44 58" aria-hidden="true"><ellipse class="temple-shadow" cx="22" cy="53" rx="17" ry="4"/><circle class="temple-halo" cx="22" cy="28" r="20"/><path class="temple-ridge" d="M22 5v6M18 9h8M7 20c5 0 9-3 15-9 6 6 10 9 15 9l-4 5H11Z"/><path class="temple-roof" d="M4 23c7 0 12-3 18-9 6 6 11 9 18 9l-5 7H9Z"/><path class="temple-roof-trim" d="M9 29h26l-2 5H11Z"/><path class="temple-building" d="M12 34h20v15H12Z"/><path class="temple-door" d="M18 37h8v12h-8Z"/><path class="temple-pillars" d="M12 34h4v15h-4ZM28 34h4v15h-4Z"/><path class="temple-base" d="M9 49h26l3 4H6Z"/><path class="temple-detail" d="M20 40h4M22 38v10M8 25h28"/>${countLabel}</svg>`
+}
+
 function markerIcon(selected = false, completed = false) {
-  const html = '<svg class="temple-statue" viewBox="0 0 44 58" aria-hidden="true"><ellipse class="statue-shadow" cx="22" cy="53" rx="17" ry="4"/><path class="statue-aura" d="M22 2 38 17 34 43 22 55 10 43 6 17Z"/><path class="statue-stone" d="M22 7 34 18 30 42 22 50 14 42 10 18Z"/><path class="statue-facet" d="m22 7 12 11-4 24-8 8Z"/><circle class="statue-orb" cx="22" cy="18" r="4"/><path class="statue-figure" d="m18 25-5 6 4 1 1 9h8l1-9 4-1-5-6-4 3Z"/><path class="statue-base" d="M12 43h20l3 6H9Z"/><path class="statue-detail" d="M17 46h10M22 11v2"/></svg>'
   return L.divIcon({ className: 'temple-pin' + (completed ? ' is-lit' : '') + (selected ? ' is-selected' : ''),
-    html, iconSize: [44, 58], iconAnchor: [22, 54] })
+    html: templeMarkerSvg(), iconSize: [54, 70], iconAnchor: [27, 66] })
 }
 
 function clusterIcon(cluster) {
   const lit = cluster.getAllChildMarkers().every(marker => marker.options.completedTemple)
   return L.divIcon({ className: 'temple-cluster' + (lit ? ' is-lit' : ''),
-    html: '<span>' + cluster.getChildCount() + '</span>', iconSize: [48, 48] })
+    html: templeMarkerSvg(cluster.getChildCount()), iconSize: [58, 72], iconAnchor: [29, 68] })
 }
 
 export default function TaiwanTempleMap({ completedTempleIds, regionProgress, selectedCounty, selectedDistrictId, selectedDistrict, selectedTemple, selectedTempleId, temples, restoreView, onDistrictSelect, onOverviewSelect, onZoomBack, onTempleSelect, onViewChange, onTemplePositionChange, onMapError, onDistrictError }) {
