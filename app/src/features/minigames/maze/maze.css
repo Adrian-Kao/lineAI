@@ -1,0 +1,77 @@
+.maze-game {
+  max-width: 34rem;
+  margin: 0 auto;
+  padding: 1.5rem;
+  color: #202020;
+  background: #fffdf7;
+  border-radius: 1.25rem;
+}
+
+.maze-game h2,
+.maze-game p {
+  margin-top: 0;
+}
+
+.maze-game__board {
+  display: grid;
+  grid-template-columns: repeat(13, 1fr);
+  width: min(100%, 30rem);
+  aspect-ratio: 1;
+  margin: 1.25rem auto;
+  background: #fff;
+}
+
+.maze-game__cell {
+  display: grid;
+  place-items: center;
+  box-sizing: border-box;
+  min-width: 0;
+  min-height: 0;
+  background: #fff;
+  font-size: clamp(0.65rem, 3.4vw, 1.25rem);
+}
+
+.maze-game__cell.is-goal {
+  background: #f6d875;
+}
+
+.maze-game__status {
+  min-height: 1.5rem;
+  text-align: center;
+}
+
+.maze-game__controls {
+  display: grid;
+  justify-content: center;
+  gap: 0.4rem;
+}
+
+.maze-game__controls > button {
+  justify-self: center;
+}
+
+.maze-game__controls div {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.maze-game__controls button,
+.maze-game__restart {
+  min-width: 2.8rem;
+  min-height: 2.8rem;
+  border: 0;
+  border-radius: 0.6rem;
+  color: #fff;
+  background: #315c43;
+  cursor: pointer;
+  font: inherit;
+  font-size: 1.25rem;
+}
+
+.maze-game__restart {
+  display: block;
+  width: auto;
+  margin: 1rem auto 0;
+  padding: 0.6rem 1rem;
+  font-size: 1rem;
+}

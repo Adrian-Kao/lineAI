@@ -8,7 +8,6 @@ import StampTask from '../stamp/StampTask.jsx'
 import PhotoTask from '../photo/PhotoTask.jsx'
 import MinigameTask from '../minigames/MinigameTask.jsx'
 import { useSettings } from '../../state/SettingsContext.js'
-import TempleMissionExperience from './TempleMissionExperience.jsx'
 
 export default function MissionPage() {
   const { taskId } = useParams()
