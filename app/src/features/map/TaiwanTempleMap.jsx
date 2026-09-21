@@ -14,6 +14,8 @@ const overviewFitOptions = { padding: [0, 0] }
 const overviewFillOpacity = 0.38
 const regionAnimationDuration = 0.85
 const templeAnimationDuration = 0.65
+// 地圖放大到這個 zoom 以上時，在宮廟圖示上方顯示名稱；更遠時只留圖示避免互相遮蓋。
+const templeLabelZoom = 14
 const tileUrl = 'https://wmts.nlsc.gov.tw/wmts/EMAP6/default/GoogleMapsCompatible/{z}/{y}/{x}'
 // Invisible interaction boundary: Taiwan, Penghu, Kinmen and Matsu plus a
 // comfortable sea margin. Leaflet clamps the map center inside this box.
@@ -114,7 +116,21 @@ function templeMarkerSvg(count = null) {
 
 function markerIcon(selected = false, completed = false) {
   return L.divIcon({ className: 'temple-pin' + (completed ? ' is-lit' : '') + (selected ? ' is-selected' : ''),
-    html: templeMarkerSvg(), iconSize: [54, 70], iconAnchor: [27, 66] })
+    html: templeMarkerSvg(), iconSize: [54, 70], iconAnchor: [27, 66], tooltipAnchor: [0, -60] })
+}
+
+// 名稱標籤只在放大到 templeLabelZoom 後綁定，遠景不建立多餘的 DOM；
+// 被選取的宮廟由預覽卡顯示名稱，不再重複標籤。
+function syncTempleLabels(map, markerById, selectedTempleId) {
+  const showLabels = map.getZoom() >= templeLabelZoom
+  markerById.forEach((marker, id) => {
+    const wantLabel = showLabels && id !== selectedTempleId
+    if (wantLabel && !marker.getTooltip()) {
+      marker.bindTooltip(marker.options.title, { permanent: true, direction: 'top', interactive: false, className: 'temple-label' })
+    } else if (!wantLabel && marker.getTooltip()) {
+      marker.unbindTooltip()
+    }
+  })
 }
 
 function clusterIcon(cluster) {
@@ -181,6 +197,8 @@ export default function TaiwanTempleMap({ completedTempleIds, regionProgress, se
     clusterRef.current = cluster
     const saveView = () => callbacksRef.current.onViewChange({ center: [map.getCenter().lat, map.getCenter().lng], zoom: map.getZoom() })
     map.on('moveend', saveView)
+    const syncLabels = () => syncTempleLabels(map, markerByIdRef.current, selectedTempleRef.current)
+    map.on('zoomend', syncLabels)
     const returnFromSea = event => {
       if (!boundaryRef.current) return
       if (event.originalEvent?.target?.closest?.('.temple-pin, .temple-cluster, .temple-preview')) return
@@ -302,6 +320,7 @@ export default function TaiwanTempleMap({ completedTempleIds, regionProgress, se
       clearTimeout(districtClickTimerRef.current)
       observer.disconnect()
       map.off('moveend', saveView)
+      map.off('zoomend', syncLabels)
       map.off('click', returnFromSea)
       map.off('dblclick', zoomBack)
       if (updateLandClip) {
@@ -435,6 +454,7 @@ export default function TaiwanTempleMap({ completedTempleIds, regionProgress, se
       if (batch.length) cluster.addLayers(batch)
       index += batch.length
       if (index < temples.length) batchTimerRef.current = setTimeout(appendBatch, 0)
+      else if (mapRef.current) syncTempleLabels(mapRef.current, markerByIdRef.current, selectedTempleRef.current)
     }
     appendBatch()
     return () => { cancelled = true; clearTimeout(batchTimerRef.current); cluster.clearLayers() }
@@ -446,6 +466,7 @@ export default function TaiwanTempleMap({ completedTempleIds, regionProgress, se
       marker.setIcon(markerIcon(id === selectedTempleId, completedTempleIds.has(id)))
     })
     clusterRef.current?.refreshClusters()
+    if (mapRef.current) syncTempleLabels(mapRef.current, markerByIdRef.current, selectedTempleId)
   }, [selectedTempleId, temples, completedTempleIds])
 
   return <div className="leaflet-map" ref={containerRef} aria-label="台灣鄉鎮市區與宮廟地圖" />

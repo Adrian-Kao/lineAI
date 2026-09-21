@@ -10,6 +10,7 @@ import { TASKS } from '../../data/temple.js'
 import { WANCHUN_TEMPLE_ID } from '../../data/templeContent.js'
 import { applyMapColorPreview, applyTempleLightPreview, deriveRegionProgress } from './regionStatus.js'
 import { CITY_COORDS } from './mapConfig.js'
+import { getCountyName } from './geoLoader.js'
 import TaiwanTempleMap from './TaiwanTempleMap.jsx'
 import TemplePreviewCard from '../temple/TemplePreviewCard.jsx'
 import { useSettings } from '../../state/SettingsContext.js'
@@ -52,6 +53,10 @@ export default function MapPage() {
   const countyTemples = activeData?.temples ?? null
   const temples = useMemo(() => selectedDistrictId ? (selectedDistrict && countyTemples ? countyTemples.filter(item => isTempleInDistrict(item, selectedDistrict)) : null) : countyTemples, [selectedDistrictId, selectedDistrict, countyTemples])
   const previewTemple = temples?.find(item => item.id === selectedTempleId) ?? null
+  const districtOptions = useMemo(() => selectedCounty && districts
+    ? districts.features.filter(feature => getCountyName(feature) === selectedCounty)
+      .map(feature => ({ id: feature.properties.TOWNCODE, name: feature.properties.TOWNNAME }))
+    : [], [districts, selectedCounty])
   const query = search.county === selectedCounty ? search.value.trim() : ''
   const searchResults = query && temples ? temples.filter(item => item.name.includes(query)).slice(0, 8) : []
 
@@ -116,6 +121,11 @@ export default function MapPage() {
           {COUNTY_OPTIONS.map(name => <option key={name} value={name}>{name}</option>)}
         </select>
         {selectedCounty && <>
+        <select className="county-select" aria-label={t('map.districtLabel')} value={selectedDistrictId ?? ''}
+          onChange={event => event.target.value ? handleDistrictSelect(selectedCounty, event.target.value) : navigate(ROUTES.county.replace(':county', encodeURIComponent(selectedCounty)))}>
+          <option value="">{t('map.selectDistrict', { county: selectedCounty })}</option>
+          {districtOptions.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}
+        </select>
         <div className="district-heading"><strong>{regionName}</strong><button type="button" onClick={() => navigate(ROUTES.map)}>{t('map.overview')}</button></div>
         <input aria-label={t('map.searchLabel')} placeholder={t('map.search', { region: regionName })} value={query} onChange={event => setSearch({ county: selectedCounty, value: event.target.value })} />
         {query && <div className="county-results" role="listbox" aria-label={t('map.results')}>
