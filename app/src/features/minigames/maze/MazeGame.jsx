@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import './wanxingMaze.css'
+import './maze.css'
 
 const SIZE = 13
 const START = { row: 12, column: 6 }
@@ -14,14 +14,18 @@ function createSeededRandom(seed) {
   }
 }
 
-// 以固定亂數種子產生迷宮：每次進入都是同一個可通關迷宮。
 function createMaze(size) {
   const random = createSeededRandom(20260921)
 
   const cells = Array.from({ length: size }, () =>
     Array.from({ length: size }, () => ({
       visited: false,
-      walls: { top: true, right: true, bottom: true, left: true },
+      walls: {
+        top: true,
+        right: true,
+        bottom: true,
+        left: true,
+      },
     })),
   )
 
@@ -94,7 +98,7 @@ function canMove(player, rowChange, columnChange) {
   return false
 }
 
-export default function WanxingMaze({ onComplete, entranceImageUrl }) {
+export default function MazeGame({ onComplete }) {
   const [player, setPlayer] = useState(START)
   const [moves, setMoves] = useState(0)
   const [isComplete, setIsComplete] = useState(false)
@@ -122,12 +126,12 @@ export default function WanxingMaze({ onComplete, entranceImageUrl }) {
           hasCompleted.current = true
 
           onComplete?.({
-            taskId: 'wanxing-maze',
+            taskId: 'maze',
             completedAt: new Date().toISOString(),
             evidence: {
-              kind: 'wanxing-maze',
+              kind: 'maze',
               moves: moves + 1,
-              reachedEntrance: true,
+              reachedGoal: true,
             },
           })
         }
@@ -163,18 +167,13 @@ export default function WanxingMaze({ onComplete, entranceImageUrl }) {
   }
 
   return (
-    <section className="wanxing-maze" aria-labelledby="wanxing-maze-title">
+    <section className="maze-game" aria-labelledby="maze-title">
       <header>
-        <p className="wanxing-maze__eyebrow">台中社口萬興宮</p>
-        <h2 id="wanxing-maze-title">尋找公廟入口</h2>
-        <p>迷宮較複雜，請使用方向鍵或按鈕帶小旅人抵達入口。</p>
+        <h2 id="maze-title">迷宮挑戰</h2>
+        <p>使用方向鍵或按鈕，帶小旅人走到終點。</p>
       </header>
 
-      <div
-        className="wanxing-maze__board"
-        role="grid"
-        aria-label="社口萬興宮迷宮"
-      >
+      <div className="maze-game__board" role="grid" aria-label="迷宮">
         {MAZE.map((row, rowIndex) =>
           row.map((cell, columnIndex) => {
             const isPlayer =
@@ -184,10 +183,7 @@ export default function WanxingMaze({ onComplete, entranceImageUrl }) {
 
             return (
               <div
-                className={[
-                  'wanxing-maze__cell',
-                  isGoal ? 'is-goal' : '',
-                ].join(' ')}
+                className={`maze-game__cell${isGoal ? ' is-goal' : ''}`}
                 key={`${rowIndex}-${columnIndex}`}
                 role="gridcell"
                 style={{
@@ -195,29 +191,23 @@ export default function WanxingMaze({ onComplete, entranceImageUrl }) {
                   borderRight: cell.walls.right ? '3px solid #111' : '0',
                   borderBottom: cell.walls.bottom ? '3px solid #111' : '0',
                   borderLeft: cell.walls.left ? '3px solid #111' : '0',
-                  backgroundImage:
-                    isGoal && entranceImageUrl
-                      ? `url("${entranceImageUrl}")`
-                      : undefined,
                 }}
               >
                 {isPlayer && <span aria-label="小旅人">🚶</span>}
-                {isGoal && !isPlayer && (
-                  <span aria-label="萬興宮入口">⛩️</span>
-                )}
+                {isGoal && !isPlayer && <span aria-label="終點">🏁</span>}
               </div>
             )
           }),
         )}
       </div>
 
-      <p className="wanxing-maze__status" aria-live="polite">
+      <p className="maze-game__status" aria-live="polite">
         {isComplete
-          ? `成功抵達萬興宮入口！共走了 ${moves} 步。`
+          ? `成功抵達終點！共走了 ${moves} 步。`
           : `目前已走 ${moves} 步。`}
       </p>
 
-      <div className="wanxing-maze__controls" aria-label="移動控制">
+      <div className="maze-game__controls" aria-label="移動控制">
         <button type="button" onClick={() => movePlayer(-1, 0)} aria-label="向上走">
           ↑
         </button>
@@ -236,7 +226,7 @@ export default function WanxingMaze({ onComplete, entranceImageUrl }) {
       </div>
 
       {isComplete && (
-        <button className="wanxing-maze__restart" type="button" onClick={handleRestart}>
+        <button className="maze-game__restart" type="button" onClick={handleRestart}>
           再玩一次
         </button>
       )}

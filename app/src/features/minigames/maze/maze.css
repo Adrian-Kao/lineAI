@@ -1,4 +1,4 @@
-.wanxing-maze {
+.maze-game {
   max-width: 34rem;
   margin: 0 auto;
   padding: 1.5rem;
@@ -7,18 +7,12 @@
   border-radius: 1.25rem;
 }
 
-.wanxing-maze h2,
-.wanxing-maze p {
+.maze-game h2,
+.maze-game p {
   margin-top: 0;
 }
 
-.wanxing-maze__eyebrow {
-  margin-bottom: 0.35rem;
-  color: #a9522f;
-  font-weight: 700;
-}
-
-.wanxing-maze__board {
+.maze-game__board {
   display: grid;
   grid-template-columns: repeat(13, 1fr);
   width: min(100%, 30rem);
@@ -27,43 +21,42 @@
   background: #fff;
 }
 
-.wanxing-maze__cell {
+.maze-game__cell {
   display: grid;
   place-items: center;
   box-sizing: border-box;
   min-width: 0;
   min-height: 0;
-  background-position: center;
-  background-size: cover;
+  background: #fff;
   font-size: clamp(0.65rem, 3.4vw, 1.25rem);
 }
 
-.wanxing-maze__cell.is-goal {
-  background-color: #f6d875;
+.maze-game__cell.is-goal {
+  background: #f6d875;
 }
 
-.wanxing-maze__status {
+.maze-game__status {
   min-height: 1.5rem;
   text-align: center;
 }
 
-.wanxing-maze__controls {
+.maze-game__controls {
   display: grid;
   justify-content: center;
   gap: 0.4rem;
 }
 
-.wanxing-maze__controls > button {
+.maze-game__controls > button {
   justify-self: center;
 }
 
-.wanxing-maze__controls div {
+.maze-game__controls div {
   display: flex;
   gap: 0.4rem;
 }
 
-.wanxing-maze__controls button,
-.wanxing-maze__restart {
+.maze-game__controls button,
+.maze-game__restart {
   min-width: 2.8rem;
   min-height: 2.8rem;
   border: 0;
@@ -75,7 +68,7 @@
   font-size: 1.25rem;
 }
 
-.wanxing-maze__restart {
+.maze-game__restart {
   display: block;
   width: auto;
   margin: 1rem auto 0;
