@@ -1,11 +1,10 @@
 import { useEffect } from 'react'
 import { Link } from 'react-router'
-import { Navigation, X } from 'lucide-react'
+import { X } from 'lucide-react'
 import { ROUTES } from '../../config/routes.js'
 import { missionEnabledTempleIds, templeContentById } from '../../data/templeContent.js'
 import TempleArtwork from './TempleArtwork.jsx'
 import { useSettings } from '../../state/SettingsContext.js'
-import { buildDirectionsUrl } from '../../utils/googleMapsLink.js'
 import { buildTempleDescription, localizeReligion, localizeTempleName } from '../../utils/templeLocalization.js'
 
 export default function TemplePreviewCard({ temple, onClose, style, detailState }) {
@@ -19,7 +18,6 @@ export default function TemplePreviewCard({ temple, onClose, style, detailState 
   const content = templeContentById[temple.id]
   const name = localizeTempleName(temple, content, language)
   const description = buildTempleDescription(temple, language, content)
-  const directionsUrl = buildDirectionsUrl(temple)
   return <section className="temple-preview" aria-label={t('temple.preview')} style={style}>
     <button type="button" className="preview-close" aria-label={t('temple.closePreview')} title={t('common.close')} onClick={onClose}><X size={19} /></button>
     <TempleArtwork />
@@ -31,7 +29,6 @@ export default function TemplePreviewCard({ temple, onClose, style, detailState 
       <div className="preview-links">
         <Link className="task-button is-secondary" to={ROUTES.templeDetail.replace(':county', encodeURIComponent(temple.county)).replace(':uuid', temple.id)} state={detailState}>{t('temple.details')}</Link>
         {missionEnabledTempleIds.has(temple.id) && <Link className="task-button" to={ROUTES.temple}>{t('temple.explore')}</Link>}
-        {directionsUrl && <a className="task-button is-secondary directions-button" href={directionsUrl} target="_blank" rel="noreferrer"><Navigation size={15} />{t('temple.navigate')}</a>}
       </div>
     </div>
   </section>
