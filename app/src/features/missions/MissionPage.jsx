@@ -8,6 +8,8 @@ import StampTask from '../stamp/StampTask.jsx'
 import PhotoTask from '../photo/PhotoTask.jsx'
 import PuzzleTask from '../puzzle/PuzzleTask.jsx'
 import { useSettings } from '../../state/SettingsContext.js'
+import WanxingMaze from '../games/wanxing/WanxingMaze.jsx'
+import { useGame } from '../../state/GameContext.js'
 
 export default function MissionPage() {
   const { taskId } = useParams()
