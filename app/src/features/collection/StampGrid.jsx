@@ -14,7 +14,7 @@ function orderDistricts(county, districts) {
   })
 }
 
-export default function StampGrid({ entries, regions, statusFilter, onSelect }) {
+export default function StampGrid({ entries, regions, onSelect }) {
   const groups = regions.map(region => ({
     county: region.name,
     districts: orderDistricts(region.name, region.districts).map(district => {
@@ -22,7 +22,6 @@ export default function StampGrid({ entries, regions, statusFilter, onSelect }) 
       return {
         ...district,
         stamps,
-        visibleStamps: stamps.filter(entry => statusFilter === 'all' || (statusFilter === 'collected' ? entry.collected : !entry.collected)),
       }
     }),
   }))
@@ -39,9 +38,7 @@ export default function StampGrid({ entries, regions, statusFilter, onSelect }) 
         <div className="stamp-district-list">
           {group.districts.map(district => <section className={`stamp-district${district.stamps.length ? '' : ' is-empty'}`} key={`${group.county}-${district.name}`}>
             <header><h2>{district.name}</h2><span>{district.stamps.length ? `${district.stamps.length} 間宮廟` : '尚未開放'}</span></header>
-            {district.visibleStamps.length
-              ? <div className="stamp-grid">{district.visibleStamps.map(entry => <StampCard key={entry.templeId} entry={entry} onSelect={onSelect} />)}</div>
-              : district.stamps.length > 0 && <p className="stamp-district-filter-empty">此區沒有符合篩選條件的印章</p>}
+            {district.stamps.length > 0 && <div className="stamp-grid">{district.stamps.map(entry => <StampCard key={entry.templeId} entry={entry} onSelect={onSelect} />)}</div>}
           </section>)}
         </div>
       </details>

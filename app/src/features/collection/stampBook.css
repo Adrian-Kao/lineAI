@@ -23,10 +23,6 @@
 .stamp-progress { height: 4px; margin: 18px 0 16px; overflow: hidden; border-radius: 2px; background: rgba(111, 146, 119, .2); }
 .stamp-progress span { display: block; height: 100%; border-radius: inherit; background: var(--stamp-deep-green); transition: width .25s ease; }
 
-.stamp-toolbar { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; }
-.stamp-segments { display: grid; grid-template-columns: repeat(3, 1fr); min-width: 0; padding: 3px; border: 1px solid rgba(63, 98, 80, .18); border-radius: 8px; background: rgba(247, 242, 231, .7); }
-.stamp-segments button { min-width: 72px; height: 38px; padding: 0 13px; border: 0; border-radius: 6px; background: transparent; color: var(--stamp-deep-green); cursor: pointer; transition: background-color .18s ease, color .18s ease; }
-.stamp-segments button.is-active { background: var(--stamp-deep-green); color: #fffaf0; }
 .stamp-empty-notice { display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center; margin-bottom: 18px; padding: 13px 15px; border: 1px solid rgba(63, 98, 80, .18); border-radius: 8px; background: rgba(247, 242, 231, .72); color: var(--stamp-deep-green); }
 .stamp-empty-notice p { margin: 3px 0 0; color: #607467; font-size: 12px; line-height: 1.5; }
 .stamp-empty-notice a { display: inline-flex; min-height: 38px; align-items: center; gap: 6px; padding: 0 12px; border-radius: 7px; background: var(--stamp-deep-green); color: #fffaf0; font-size: 13px; font-weight: 700; text-decoration: none; white-space: nowrap; }
@@ -50,7 +46,6 @@
 .stamp-district > header span { color: #748478; font-size: 11px; }
 .stamp-district.is-empty { padding-block: 10px; background: rgba(255, 254, 250, .48); }
 .stamp-district.is-empty > header { margin: 0; padding: 0; border: 0; }
-.stamp-district-filter-empty { margin: 4px 0 0; color: #7b897e; font-size: 11px; }
 .stamp-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; }
 .stamp-card { display: flex; min-width: 0; min-height: 104px; flex-direction: column; align-items: center; padding: 7px 3px 6px; border: 1px solid rgba(96, 111, 91, .2); border-radius: 8px; background: var(--stamp-card); box-shadow: 0 3px 8px rgba(52, 72, 57, .06); color: #31463a; text-align: center; cursor: pointer; transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease; }
 .stamp-card:hover, .stamp-card:focus-visible { border-color: rgba(148, 68, 59, .42); box-shadow: 0 8px 18px rgba(52, 72, 57, .13); transform: translateY(-2px) scale(1.01); }
@@ -107,9 +102,6 @@
 
 @media (max-width: 520px) {
   .stamp-book-header { align-items: flex-start; flex-direction: column; gap: 9px; }
-  .stamp-toolbar { align-items: stretch; flex-direction: column; }
-  .stamp-segments { width: 100%; }
-  .stamp-segments button { min-width: 0; }
   .stamp-empty-notice { grid-template-columns: auto 1fr; }
   .stamp-empty-notice a { grid-column: 1 / -1; justify-self: stretch; justify-content: center; }
 }
