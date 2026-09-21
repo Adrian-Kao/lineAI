@@ -1,5 +1,5 @@
 import { useCallback, useRef, useState } from 'react'
-import { createStartingTiles, isSolved, swapTiles } from './puzzleRules.js'
+import { createStartingTiles, isSolved, PUZZLE_GRID_SIZE, swapTiles } from './puzzleRules.js'
 import templeImageUrl from './wan-chun-temple.jpeg'
 import './puzzleTask.css'
 import { useSettings } from '../../../state/SettingsContext.js'
@@ -7,13 +7,14 @@ import { useSettings } from '../../../state/SettingsContext.js'
 const DEFAULT_IMAGE_URL = templeImageUrl
 
 function tileBackgroundPosition(tile) {
-  const column = tile % 2
-  const row = Math.floor(tile / 2)
-  return `${column * 100}% ${row * 100}%`
+  const column = tile % PUZZLE_GRID_SIZE
+  const row = Math.floor(tile / PUZZLE_GRID_SIZE)
+  const step = 100 / (PUZZLE_GRID_SIZE - 1)
+  return `${column * step}% ${row * step}%`
 }
 
 /**
- * A small, position-based 2 × 2 image puzzle.
+ * A small, position-based 3 × 3 image puzzle.
  *
  * @param {{ imageUrl?: string, onComplete?: (result: object) => void, disabled?: boolean }} props
  */

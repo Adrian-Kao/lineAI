@@ -22,7 +22,7 @@ export const demoMissionConfig = Object.freeze({
   stampImage: '/stamps/wanchun.svg',
   demoPhoto: '/missions/wanchun/reference-full.jpg',
   demoMode: import.meta.env.VITE_MISSION_DEMO_MODE !== 'false',
-  game: { type: 'puzzle', gridSize: 2 },
+  game: { type: 'puzzle', gridSize: 3 },
 })
 
 export function delay(ms, signal) {

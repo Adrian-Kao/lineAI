@@ -1,4 +1,4 @@
-import { ArrowLeft, Camera, Check, Nfc, Puzzle, RotateCcw, Stamp } from 'lucide-react'
+import { ArrowLeft, Camera, Check, Gamepad2, Nfc, RotateCcw, Stamp } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router'
 import { ROUTES } from '../../config/routes.js'
@@ -100,7 +100,7 @@ export default function TempleMissionExperience({ config = demoMissionConfig }) 
       {[
         { label: 'LINE Touch', Icon: Nfc },
         { label: '拍照探索', Icon: Camera },
-        { label: '文化拼圖', Icon: Puzzle },
+        { label: '互動遊戲', Icon: Gamepad2 },
       ].map(({ label, Icon }, index) => <li key={label} className={`${index === step ? 'is-active' : ''}${index < step ? ' is-complete' : ''}`} aria-current={index === step ? 'step' : undefined}>
         <span>{index < step ? <Check size={15} /> : index === 0 && STAMP_PHASES.has(phase) ? <Stamp size={15} /> : <Icon size={15} />}</span>
         <small>{label}</small>

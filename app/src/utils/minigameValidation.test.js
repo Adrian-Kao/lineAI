@@ -16,7 +16,7 @@ function result(evidence) {
 }
 
 test('third mission accepts each selectable minigame result', () => {
-  assert.equal(validateTaskResult(readyForMinigame, result({ kind: 'puzzle', tileOrder: [0, 1, 2, 3] })).id, 'puzzle')
+  assert.equal(validateTaskResult(readyForMinigame, result({ kind: 'puzzle', tileOrder: [0, 1, 2, 3, 4, 5, 6, 7, 8] })).id, 'puzzle')
   assert.equal(validateTaskResult(readyForMinigame, result({ kind: 'lantern', size: 3, board: Array(9).fill(true) })).id, 'puzzle')
   assert.equal(validateTaskResult(readyForMinigame, result({ kind: 'memory', deck: ['censer', 'censer'], flips: [0, 1] })).id, 'puzzle')
 })
