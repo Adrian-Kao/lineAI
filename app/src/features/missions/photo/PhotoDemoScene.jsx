@@ -1,4 +1,4 @@
-import { Camera, Check, Images, ScanLine, ShieldCheck } from 'lucide-react'
+import { Camera, Check, Image, Images, ScanLine, ShieldCheck } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { compareTemplePatch, getImageSimilarityMode } from '../../../services/imageSimilarity.js'
 import { captureHoleRegion, composeReferenceWithPatch } from '../../../utils/mediaCrop.js'
@@ -56,6 +56,7 @@ export default function PhotoDemoScene({ config, phase, onPhaseChange, onContinu
   const [score, setScore] = useState(null)
   const [photoUrl, setPhotoUrl] = useState('')
   const [frozenPatchUrl, setFrozenPatchUrl] = useState('')
+  const [completionSource, setCompletionSource] = useState('camera')
   const streamRef = useRef(null)
   const videoRef = useRef(null)
   const stageRef = useRef(null)
@@ -99,6 +100,7 @@ export default function PhotoDemoScene({ config, phase, onPhaseChange, onContinu
     setPhotoUrl('')
     setMessage('')
     setScore(null)
+    setCompletionSource('camera')
     setAlignmentStatus('idle')
     setCameraStatus('requesting')
     if (!window.isSecureContext || !navigator.mediaDevices?.getUserMedia) {
@@ -212,6 +214,41 @@ export default function PhotoDemoScene({ config, phase, onPhaseChange, onContinu
     return () => window.clearTimeout(autoCheckTimerRef.current)
   }, [cameraStatus, checkAlignment, phase, reducedMotion])
 
+  async function completeWithDemoPhoto() {
+    if (checkingRef.current) return
+    window.clearTimeout(autoCheckTimerRef.current)
+    compareAbortRef.current?.abort()
+    stopCamera()
+    revokeObjectUrl(patchUrlRef)
+    revokeObjectUrl(photoUrlRef)
+
+    const controller = new AbortController()
+    compareAbortRef.current = controller
+    checkingRef.current = true
+    setCameraStatus('idle')
+    setCompletionSource('demo')
+    setScore(1)
+    setFrozenPatchUrl(task.expectedPatch)
+    setPhotoUrl(task.referenceImage)
+    setAlignmentStatus('matched')
+    setMessage('DEMO 預設照片已對位，正在補上照片缺口。')
+    onPhaseChange(MISSION_PHASES.photoCapturing)
+
+    try {
+      await delay(reducedMotion ? 80 : 720, controller.signal)
+      if (!mountedRef.current) return
+      onPhaseChange(MISSION_PHASES.photoCaptured)
+      await delay(reducedMotion ? 100 : 1450, controller.signal)
+      if (!mountedRef.current) return
+      onPhaseChange(MISSION_PHASES.photoComplete)
+    } catch (error) {
+      if (error?.name !== 'AbortError') throw error
+    } finally {
+      checkingRef.current = false
+      if (compareAbortRef.current === controller) compareAbortRef.current = null
+    }
+  }
+
   const captured = phase === MISSION_PHASES.photoCaptured
   const complete = phase === MISSION_PHASES.photoComplete
   const cameraReady = phase === MISSION_PHASES.photoReady
@@ -249,13 +286,14 @@ export default function PhotoDemoScene({ config, phase, onPhaseChange, onContinu
     {(captured || complete) && <div className="photo-memory-stage">
       <figure className="photo-polaroid">
         <img src={photoUrl || task.referenceImage} alt={`${config.templeName}實景對位完成照片`} />
-        <figcaption><strong>{config.templeName}</strong><span>{dateLabel}</span><small>實景缺口已完成</small></figcaption>
+        <figcaption><strong>{config.templeName}</strong><span>{dateLabel}</span><small>{completionSource === 'demo' ? 'DEMO 預設照片' : '實景缺口已完成'}</small></figcaption>
       </figure>
       <span className="photo-collection-target"><Images size={22} /><small>旅程紀錄</small></span>
     </div>}
 
     {phase === MISSION_PHASES.photoIntro && <div className="photo-demo-actions">
       <button type="button" className="mission-primary-action" onClick={startCamera} disabled={cameraStatus === 'requesting'}><Camera size={20} />{cameraStatus === 'requesting' ? '正在開啟…' : cameraStatus === 'error' ? '重新開啟相機' : '開啟相機並開始對位'}</button>
+      <button type="button" className="mission-secondary-action" onClick={completeWithDemoPhoto} disabled={cameraStatus === 'requesting'}><Image size={20} />使用預設照片完成 DEMO</button>
     </div>}
 
     {(cameraReady || checking) && <div className="mission-photo-alignment-controls">
@@ -267,8 +305,8 @@ export default function PhotoDemoScene({ config, phase, onPhaseChange, onContinu
     </div>}
 
     {message && showAlignmentStage && <p className={`photo-demo-message${alignmentStatus === 'failed' ? ' is-warning' : ''}`} role="status">{message}</p>}
-    {captured && <p className="photo-captured-status" role="status"><Check size={18} />缺口已補齊，照片正在加入旅程紀錄</p>}
-    {complete && <div className="photo-complete-panel"><p><Check size={18} />實景照片已解鎖</p><button type="button" className="mission-primary-action" onClick={onContinue}><span>進入小遊戲</span></button></div>}
-    {!captured && !complete && <p className="photo-demo-privacy"><ShieldCheck size={16} />鏡頭缺口只在裝置上進行比對；通過前不會解鎖或保存照片。</p>}
+    {captured && <p className="photo-captured-status" role="status"><Check size={18} />{completionSource === 'demo' ? '預設照片已補齊，正在加入 DEMO 旅程紀錄' : '缺口已補齊，照片正在加入旅程紀錄'}</p>}
+    {complete && <div className="photo-complete-panel"><p><Check size={18} />{completionSource === 'demo' ? 'DEMO 預設照片已解鎖' : '實景照片已解鎖'}</p><button type="button" className="mission-primary-action" onClick={onContinue}><span>進入小遊戲</span></button></div>}
+    {!captured && !complete && <p className="photo-demo-privacy"><ShieldCheck size={16} />相機缺口只在裝置上比對；預設照片按鈕僅用於 DEMO 展示。</p>}
   </section>
 }
