@@ -199,7 +199,6 @@
   align-items: center;
   justify-content: space-between;
   margin-bottom: 12px;
-  padding-right: 58px;
   color: #fff;
   text-shadow: 0 2px 12px rgba(35, 24, 14, .5);
 }
@@ -421,7 +420,7 @@
   .journal-book-object { top: 52%; width: min(124vw, 520px); }
   .journal-cover-title { top: 24px; left: 20px; font-size: 28px; }
   .journal-open-view { padding: 14px 12px 126px; }
-  .journal-reader-header { padding: 0 58px 0 2px; }
+  .journal-reader-header { padding-inline: 2px; }
   .journal-book-stage { width: 100%; }
   .journal-book { height: min(69dvh, 620px); min-height: 430px; overflow-y: auto; border-width: 7px; border-radius: 13px; }
   .journal-entry { display: block; height: auto; }

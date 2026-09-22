@@ -6,7 +6,7 @@ import JournalOpenView from './JournalOpenView.jsx'
 import './journal.css'
 
 const ZOOMING_MS = 1600
-const PAGE_TURN_FALLBACK_MS = 800
+const PAGE_TURN_FALLBACK_MS = 720
 
 export default function JournalPage() {
   const { reduceMotion } = useSettings()
@@ -14,6 +14,8 @@ export default function JournalPage() {
   const [phase, setPhase] = useState('closed')
   const [pageIndex, setPageIndex] = useState(0)
   const [pageTurn, setPageTurn] = useState(null)
+  const pageTurnRef = useRef(null)
+  const pageTurnSequenceRef = useRef(0)
   const timersRef = useRef([])
 
   const schedule = useCallback((callback, delay) => {
@@ -43,26 +45,36 @@ export default function JournalPage() {
     setPhase('closed')
   }, [pageTurn, phase])
 
-  const finishPageTurn = useCallback(() => {
-    if (!pageTurn) return
-    setPageIndex(pageTurn.nextIndex)
+  const finishPageTurn = useCallback(sequence => {
+    const currentTurn = pageTurnRef.current
+    if (!currentTurn || (sequence != null && sequence !== currentTurn.sequence)) return
+    pageTurnRef.current = null
+    setPageIndex(currentTurn.nextIndex)
     setPageTurn(null)
-  }, [pageTurn])
+  }, [])
 
   const turnPage = useCallback(direction => {
-    if (phase !== 'open' || pageTurn) return
-    const nextIndex = pageIndex + (direction === 'next' ? 1 : -1)
+    if (phase !== 'open') return
+    const activeIndex = pageTurn?.nextIndex ?? pageIndex
+    const nextIndex = activeIndex + (direction === 'next' ? 1 : -1)
     if (nextIndex < 0 || nextIndex >= entries.length) return
     if (reduceMotion) {
+      pageTurnRef.current = null
       setPageIndex(nextIndex)
+      setPageTurn(null)
       return
     }
-    setPageTurn({ direction, nextIndex })
+    if (pageTurn) setPageIndex(activeIndex)
+    pageTurnSequenceRef.current += 1
+    const nextTurn = { direction, nextIndex, sequence: pageTurnSequenceRef.current }
+    pageTurnRef.current = nextTurn
+    setPageTurn(nextTurn)
   }, [entries.length, pageIndex, pageTurn, phase, reduceMotion])
 
   useEffect(() => {
     if (!pageTurn) return undefined
-    const fallback = window.setTimeout(finishPageTurn, PAGE_TURN_FALLBACK_MS)
+    const sequence = pageTurn.sequence
+    const fallback = window.setTimeout(() => finishPageTurn(sequence), PAGE_TURN_FALLBACK_MS)
     return () => window.clearTimeout(fallback)
   }, [finishPageTurn, pageTurn])
 
@@ -80,6 +92,6 @@ export default function JournalPage() {
   return <main className={`journal-page is-${phase}`}>
     {phase === 'closed' || phase === 'zooming'
       ? <JournalClosedView phase={phase} onOpen={openJournal} />
-      : <JournalOpenView entries={entries} pageIndex={pageIndex} turnDirection={pageTurn?.direction ?? null} onTurn={turnPage} onTurnComplete={finishPageTurn} onClose={closeJournal} />}
+      : <JournalOpenView entries={entries} pageIndex={pageIndex} navigationIndex={pageTurn?.nextIndex ?? pageIndex} turn={pageTurn} onTurn={turnPage} onTurnComplete={finishPageTurn} onClose={closeJournal} />}
   </main>
 }

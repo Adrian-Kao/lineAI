@@ -1,7 +1,7 @@
 import { ChevronLeft, ChevronRight, X } from 'lucide-react'
 import JournalBook from './JournalBook.jsx'
 
-export default function JournalOpenView({ entries, pageIndex, turnDirection, onTurn, onTurnComplete, onClose }) {
+export default function JournalOpenView({ entries, pageIndex, navigationIndex, turn, onTurn, onTurnComplete, onClose }) {
   const entry = entries[pageIndex]
   return <section className="journal-open-view" aria-label="打開的旅行手札">
     <header className="journal-reader-header">
@@ -10,15 +10,15 @@ export default function JournalOpenView({ entries, pageIndex, turnDirection, onT
     </header>
 
     {entry
-      ? <JournalBook entry={entry} turnDirection={turnDirection} onTurnComplete={onTurnComplete} />
+      ? <JournalBook entry={entry} turn={turn} onTurnComplete={onTurnComplete} />
       : <div className="journal-empty"><h2>手札還是空白的</h2><p>完成第一間宮廟參訪後，旅程會寫進這裡。</p></div>}
 
     {entry && <nav className="journal-page-controls" aria-label="手札翻頁">
-      <button type="button" className="journal-icon-button" onClick={() => onTurn('previous')} disabled={pageIndex === 0 || Boolean(turnDirection)} aria-label="上一間寺廟"><ChevronLeft size={24} /></button>
+      <button type="button" className="journal-icon-button" onClick={() => onTurn('previous')} disabled={navigationIndex === 0} aria-label="上一間寺廟"><ChevronLeft size={24} /></button>
       <div className="journal-page-dots" aria-label={`目前第 ${pageIndex + 1} 頁，共 ${entries.length} 頁`}>
         {entries.map((item, index) => <span key={item.id} className={index === pageIndex ? 'is-current' : ''} />)}
       </div>
-      <button type="button" className="journal-icon-button" onClick={() => onTurn('next')} disabled={pageIndex === entries.length - 1 || Boolean(turnDirection)} aria-label="下一間寺廟"><ChevronRight size={24} /></button>
+      <button type="button" className="journal-icon-button" onClick={() => onTurn('next')} disabled={navigationIndex === entries.length - 1} aria-label="下一間寺廟"><ChevronRight size={24} /></button>
     </nav>}
   </section>
 }

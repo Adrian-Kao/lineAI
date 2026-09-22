@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router'
-import { ArrowLeft, Camera } from 'lucide-react'
+import { Camera } from 'lucide-react'
 import { ROUTES } from '../../config/routes.js'
 import { useGame } from '../../state/GameContext.js'
 import { isTempleComplete } from '../../state/gameRules.js'
@@ -70,7 +70,6 @@ export default function CollectionPage() {
   const complete = isTempleComplete(progress)
   const acquiredCount = (photoRecord ? 1 : 0) + (complete ? 1 : 0)
   return <main className="collection-page collection-index-page">
-    <Link className="detail-back" to={ROUTES.map}><ArrowLeft size={19} />返回地圖</Link>
     <header className="collection-index-header">
       <div><p>旅程回憶</p><h1>照片圖鑑</h1></div>
       <span className="demo-badge">已收藏 {acquiredCount} 項</span>

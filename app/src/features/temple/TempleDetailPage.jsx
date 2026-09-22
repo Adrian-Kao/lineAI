@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useLocation, useParams } from 'react-router'
 import { ArrowLeft } from 'lucide-react'
 import { ROUTES } from '../../config/routes.js'
-import { toDisplayCountyName, toSourceCountyName } from '../../utils/countyNames.js'
+import { toDisplayCountyName } from '../../utils/countyNames.js'
 import { loadTempleById } from '../../services/templeData.js'
 import { templeContentById, missionEnabledTempleIds } from '../../data/templeContent.js'
 import TempleArtwork from './TempleArtwork.jsx'
@@ -40,7 +40,6 @@ export default function TempleDetailPage() {
   const [result, setResult] = useState({ key: '', temple: null, error: '' })
   const displayCounty = toDisplayCountyName(county)
   const key = `${displayCounty}:${uuid}`
-  const backToMap = toSourceCountyName(displayCounty) ? ROUTES.county.replace(':county', encodeURIComponent(displayCounty)) : ROUTES.map
 
   useEffect(() => {
     const controller = new AbortController()
@@ -58,11 +57,8 @@ export default function TempleDetailPage() {
   const contentSources = content?.contentSources?.map(source => localizedValue(source, language)).filter(Boolean) ?? []
   const imageCredit = localizedValue(content?.imageCredit, language)
   const returningToItinerary = Boolean(location.state?.fromItinerary)
-  const returnPath = returningToItinerary
-    ? ROUTES.itinerary
-    : temple ? `${backToMap}?${location.state?.returnDistrictId ? `district=${encodeURIComponent(location.state.returnDistrictId)}&` : ''}temple=${encodeURIComponent(temple.id)}` : backToMap
   return <main className="temple-detail-page">
-    <Link className="detail-back" to={returnPath} state={{ returnView: location.state?.returnView }}><ArrowLeft size={19} />{t(returningToItinerary ? 'itinerary.back' : 'common.backMap')}</Link>
+    {returningToItinerary && <Link className="detail-back" to={ROUTES.itinerary}><ArrowLeft size={19} />{t('itinerary.back')}</Link>}
     {result.key !== key && <p role="status">{t('temple.loading')}</p>}
     {result.key === key && result.error && <p role="alert">{result.error}</p>}
     {temple && <article className="temple-detail">

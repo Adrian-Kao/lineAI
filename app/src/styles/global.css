@@ -126,8 +126,8 @@ button:focus-visible, a:focus-visible { outline: 3px solid #368f62; outline-offs
 .county-tools {
   position: absolute;
   z-index: 800;
-  top: 4px;
-  left: 12px;
+  top: calc(12px + env(safe-area-inset-top));
+  left: 18px;
   width: min(290px, calc(100% - 90px));
 }
 .county-select {
@@ -685,8 +685,9 @@ html[data-reduce-motion='true'] *, html[data-reduce-motion='true'] *::before, ht
 .app-brand__mark { display: block; width: 30px; height: 30px; }
 .app-brand__word { font-size: 18px; font-weight: 640; letter-spacing: .01em; }
 /* 地圖是滿版的，頂欄在它上面維持浮動，不佔版面高度；標誌讓位給地圖上的縣市選單。 */
-.app-shell:has(.map-page) .app-topbar { position: fixed; right: 0; left: 0; background: none; border-bottom: 0; }
+.app-shell:has(.map-page) .app-topbar { position: fixed; right: 0; left: 0; background: none; border-bottom: 0; pointer-events: none; }
 .app-shell:has(.map-page) .app-brand { display: none; }
+.app-shell:has(.map-page) .hamburger-button { pointer-events: auto; }
 .hamburger-button {
   display: grid;
   place-items: center;

@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { Link, Navigate, useParams } from 'react-router'
-import { ArrowLeft } from 'lucide-react'
 import { ROUTES } from '../../config/routes.js'
 import { STORIES, TASKS } from '../../data/temple.js'
 import { useGame } from '../../state/GameContext.js'
@@ -9,10 +8,6 @@ import { getPhoto } from '../../services/mediaStorage.js'
 import { getTaskStatus } from '../../state/gameRules.js'
 import { localizedValue } from '../../utils/templeLocalization.js'
 import TempleArtwork from '../temple/TempleArtwork.jsx'
-
-const DEMO_COUNTY = '台中市'
-const DEMO_DISTRICT_CODE = '66000010'
-const BACK_TO_MAP = `${ROUTES.county.replace(':county', encodeURIComponent(DEMO_COUNTY))}?district=${DEMO_DISTRICT_CODE}`
 
 export default function StoryPage() {
   const { taskId } = useParams()
@@ -51,7 +46,6 @@ export default function StoryPage() {
   const imageAlt = localizedValue(story?.imageAlt, language, t('story.imageAlt'))
   const source = localizedValue(story?.source, language, t('story.demoSource'))
   return <main className="story-page">
-    <Link className="detail-back" to={BACK_TO_MAP}><ArrowLeft size={19} />{t('story.backMap')}</Link>
     <article className="story-card">
       <p className="story-kicker">{t('story.kicker')}</p>
       <h1>{title}</h1>
