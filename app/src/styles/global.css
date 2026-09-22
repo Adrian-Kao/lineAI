@@ -23,6 +23,7 @@ button:focus-visible, a:focus-visible { outline: 3px solid #368f62; outline-offs
   border: 0;
 }
 .app-shell {
+  --app-topbar-height: calc(71px + env(safe-area-inset-top));
   width: 100%;
   min-width: 0;
   max-width: 100%;
@@ -662,11 +663,32 @@ html[data-reduce-motion='true'] *, html[data-reduce-motion='true'] *::before, ht
   cursor: pointer;
 }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
-.hamburger-button {
-  position: fixed;
+/* 頂欄：漢堡鈕不再浮在內容上方，改成頁面捲動時從不透明的頂欄底下通過。 */
+.app-topbar {
+  position: sticky;
   z-index: 30;
-  top: calc(15px + env(safe-area-inset-top));
-  right: max(18px, calc((100% - 760px) / 2));
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: calc(12px + env(safe-area-inset-top)) max(18px, calc((100% - 760px) / 2)) 12px;
+  border-bottom: 1px solid rgba(94, 122, 95, .16);
+  background-color: #f5f2e7;
+  background-image: radial-gradient(rgba(117, 108, 73, .09) .45px, transparent .45px);
+  background-size: 7px 7px;
+}
+.app-shell > .app-content > *:not(.map-page) {
+  min-height: calc(100dvh - var(--app-topbar-height));
+  padding-top: 14px;
+}
+.app-brand { display: flex; align-items: center; gap: 8px; color: #375e47; text-decoration: none; }
+.app-brand__mark { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 8px; background: #e2f0dc; color: #5f8f70; }
+.app-brand__word { font-size: 18px; font-weight: 640; letter-spacing: .01em; }
+/* 地圖是滿版的，頂欄在它上面維持浮動，不佔版面高度；標誌讓位給地圖上的縣市選單。 */
+.app-shell:has(.map-page) .app-topbar { position: fixed; right: 0; left: 0; background: none; border-bottom: 0; }
+.app-shell:has(.map-page) .app-brand { display: none; }
+.hamburger-button {
   display: grid;
   place-items: center;
   width: 46px;

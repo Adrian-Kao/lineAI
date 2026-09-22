@@ -132,7 +132,7 @@
 .is-stampEntering .stamp-tool { animation: stamp-tool-enter .43s ease-out forwards; }
 .is-stampImpact .stamp-tool { animation: stamp-tool-impact .62s cubic-bezier(.38, .02, .3, 1) forwards; }
 .is-stampImpact .stamp-exploration-card { animation: stamp-card-shake .24s .2s ease-out; }
-.stamp-impact-word { position: absolute; z-index: 4; top: 145px; left: calc(50% + 88px); color: var(--mission-red); font-family: 'Noto Serif TC', 'PMingLiU', serif; font-size: 22px; font-weight: 900; animation: stamp-word-pop .36s .18s ease-out both; }
+.stamp-impact-word { position: absolute; z-index: 4; right: 0; bottom: calc(100% + 6px); white-space: nowrap; color: var(--mission-red); font-family: 'Noto Serif TC', 'PMingLiU', serif; font-size: 22px; font-weight: 900; animation: stamp-word-pop .36s .18s ease-out both; }
 .stamp-complete-copy { display: flex; align-items: center; gap: 7px; margin: 7px 0 17px; color: #8e3f35; font-size: 14px; font-weight: 800; animation: mission-scene-enter .35s ease-out both; }
 
 .mission-transition { background: #f2eee2; text-align: center; }
@@ -249,6 +249,7 @@
   .stamp-card-wrap { min-height: 305px; }
   .stamp-exploration-card__body { grid-template-columns: 1fr 125px; min-height: 185px; padding: 16px 14px; }
   .stamp-impression-slot { width: 120px; height: 120px; }
+  .stamp-impact-word { bottom: calc(100% + 3px); font-size: 19px; }
   .stamp-tool { top: 64px; transform-origin: center bottom; }
   .photo-memory-stage { height: 320px; }
   .photo-polaroid { width: min(88%, 360px); }

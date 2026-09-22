@@ -21,13 +21,13 @@ export default function StampScene({ config, phase, onContinue }) {
           <div className="stamp-impression-slot">
             <span>探索章位</span>
             {impacted && <img className="stamp-impression" src={config.stampImage} alt={`${config.templeName}朱紅印章`} />}
+            {phase === MISSION_PHASES.stampImpact && <span className="stamp-impact-word" aria-hidden="true">啪！</span>}
           </div>
         </div>
         <footer>NO. DEMO-001</footer>
       </article>
 
       <div className="stamp-tool" aria-hidden="true"><span className="stamp-tool__handle" /><span className="stamp-tool__base" /></div>
-      {phase === MISSION_PHASES.stampImpact && <span className="stamp-impact-word" aria-hidden="true">啪！</span>}
     </div>
 
     {complete && <div className="stamp-complete-copy"><Check size={18} /><span>{config.templeName}探索印章已取得</span></div>}
