@@ -26,7 +26,11 @@ export default function JournalPageCard({ entry }) {
       <h3>寺廟簡介</h3>
       <p className="journal-summary">{entry.summary}</p>
       <div className="journal-memory-row">
-        <div className="journal-stamp" aria-label={`${entry.templeName}紀念印章`}><span>{entry.stamp.title}</span><strong>{entry.stamp.place}</strong></div>
+        <div className={`journal-stamp${entry.stamp.image ? ' is-image' : ''}`} aria-label={`${entry.templeName}紀念印章`}>
+          {entry.stamp.image
+            ? <img src={entry.stamp.image} alt="" aria-hidden="true" />
+            : <><span>{entry.stamp.title}</span><strong>{entry.stamp.place}</strong></>}
+        </div>
         <section className="journal-personal-note">
           <h3><PenLine size={18} />我的小記錄</h3>
           <p>{entry.personalNote}</p>

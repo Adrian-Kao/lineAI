@@ -321,6 +321,9 @@
 .journal-stamp::before { width: 46px; height: 18px; border: 2px solid currentColor; border-radius: 50% 50% 5px 5px; content: ''; }
 .journal-stamp span { font-family: 'DFKai-SB', 'KaiTi', serif; font-size: clamp(14px, 1.8vw, 20px); font-weight: 780; line-height: 1.1; }
 .journal-stamp strong { font-size: 10px; }
+.journal-stamp.is-image { padding: 0; border: 0; border-radius: 0; transform: none; }
+.journal-stamp.is-image::before { display: none; }
+.journal-stamp.is-image img { display: block; width: 100%; height: 100%; object-fit: contain; }
 
 .journal-personal-note {
   padding: 17px 18px;

@@ -4,7 +4,7 @@ export const JOURNAL_ENTRIES = [
     photo: '/journal/wanchun-temple.jpeg', photoPosition: 'center 44%', photoSize: 'cover', visitedAt: '2026-09-19T10:30:00+08:00',
     summary: '萬春宮座落於台中舊城區，香火與街區生活彼此交織。走進廟埕，也像走進城市長久保存的日常記憶。',
     personalNote: '午後的光落在廟門上，紅色燈籠輕輕晃著。完成任務後，我特別想把這份安定感留下來。',
-    stamp: { title: '萬春宮', place: '台中・中區' },
+    stamp: { title: '萬春宮', place: '台中・中區', image: '/stamps/wanchun.svg' },
   },
   {
     id: 'xia-hai', visitOrder: 2, templeName: '台北霞海城隍廟', location: '台北・大稻埕', subtitle: '老城信仰・街町緣分',
