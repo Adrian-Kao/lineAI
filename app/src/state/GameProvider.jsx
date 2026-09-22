@@ -4,6 +4,7 @@ import { createInitialState, gameReducer } from './gameReducer.js'
 import { isTempleInItinerary, validateItineraryTemple, validateTaskResult } from './gameRules.js'
 import { loadProgress, saveProgress } from '../services/progressStorage.js'
 import { applyProfilePreferences, loadProfilePreferences, saveProfilePreferences } from '../services/profileStorage.js'
+import { buildRewardNotifications } from '../features/rewards/rewardNotifications.js'
 
 const DEV_PUZZLE_PREREQUISITES = {
   stamp: {
@@ -30,6 +31,7 @@ function applyDevPuzzlePrerequisites(snapshot) {
 export function GameProvider({ children }) {
   const [progress, dispatch] = useReducer(gameReducer, undefined, () => applyDevPuzzlePrerequisites(createInitialState()))
   const [session, setSession] = useState({ status: 'idle', profile: null, error: null })
+  const [rewardQueue, setRewardQueue] = useState([])
   const progressRef = useRef(progress)
   const submittingRef = useRef(false)
   const initializeSession = useCallback(async function initializeSession(profile) {
@@ -40,6 +42,7 @@ export function GameProvider({ children }) {
       const editableProfile = applyProfilePreferences(profile, loadProfilePreferences(profile.userId))
       progressRef.current = snapshot
       dispatch({ type: 'HYDRATE', payload: snapshot })
+      setRewardQueue([])
       setSession({ status: 'ready', profile: editableProfile, error: null })
     } catch (error) {
       setSession({ status: 'error', profile: null, error: error.message })
@@ -59,14 +62,18 @@ export function GameProvider({ children }) {
     const snapshot = applyDevPuzzlePrerequisites(createInitialState())
     progressRef.current = snapshot
     dispatch({ type: 'HYDRATE', payload: snapshot })
+    setRewardQueue([])
     setSession({ status: 'idle', profile: null, error: null })
   }, [])
   function commitProgress(action) {
-    const next = gameReducer(progressRef.current, action)
-    if (next === progressRef.current) return next
+    const previous = progressRef.current
+    const next = gameReducer(previous, action)
+    if (next === previous) return next
     saveProgress(session.profile.userId, next)
     progressRef.current = next
     dispatch({ type: 'HYDRATE', payload: next })
+    const rewards = buildRewardNotifications(previous, next)
+    if (rewards.length) setRewardQueue(current => [...current, ...rewards])
     return next
   }
   function addTempleToItinerary(temple) {
@@ -93,5 +100,10 @@ export function GameProvider({ children }) {
       submittingRef.current = false
     }
   }
-  return <GameContext.Provider value={{ progress, session, initializeSession, updateProfile, signOut, completeTask, addTempleToItinerary, removeTempleFromItinerary }}>{children}</GameContext.Provider>
+  function completeCollectionMilestone(milestone) {
+    if (session.status !== 'ready') throw new Error('請先登入')
+    return commitProgress({ type: 'COLLECTION_MILESTONE_COMPLETED', payload: milestone })
+  }
+  const confirmReward = useCallback(() => setRewardQueue(current => current.slice(1)), [])
+  return <GameContext.Provider value={{ progress, session, rewardQueue, initializeSession, updateProfile, signOut, completeTask, completeCollectionMilestone, confirmReward, addTempleToItinerary, removeTempleFromItinerary }}>{children}</GameContext.Provider>
 }

@@ -15,6 +15,12 @@ export function normalizeProgress(snapshot) {
   if (itineraryItems !== snapshot?.itineraryItems) normalized = { ...normalized, itineraryItems }
   const completedDistrictIds = Array.isArray(snapshot?.completedDistrictIds) ? snapshot.completedDistrictIds : []
   if (completedDistrictIds !== snapshot?.completedDistrictIds) normalized = { ...normalized, completedDistrictIds }
+  const completedCountyIds = Array.isArray(snapshot?.completedCountyIds) ? snapshot.completedCountyIds : []
+  if (completedCountyIds !== snapshot?.completedCountyIds) normalized = { ...normalized, completedCountyIds }
+  const taiwanCompleted = snapshot?.taiwanCompleted === true
+  if (taiwanCompleted !== snapshot?.taiwanCompleted) normalized = { ...normalized, taiwanCompleted }
+  const linePoints = Number.isFinite(snapshot?.linePoints) && snapshot.linePoints >= 0 ? snapshot.linePoints : 0
+  if (linePoints !== snapshot?.linePoints) normalized = { ...normalized, linePoints }
   const stampRecords = Array.isArray(snapshot?.stampRecords) ? snapshot.stampRecords : []
   const templeComplete = TASKS.every(task => snapshot?.missionCompletions?.[task.id])
   const completedAt = snapshot?.missionCompletions?.[TASKS.at(-1).id]?.completedAt

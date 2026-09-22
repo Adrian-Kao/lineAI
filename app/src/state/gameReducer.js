@@ -2,7 +2,7 @@ import { DEMO_CONTENT_VERSION, TASKS } from '../data/temple.js'
 import { WANCHUN_TEMPLE_ID } from '../data/templeContent.js'
 import { makeTempleKey } from '../utils/templeKey.js'
 export function createInitialState() {
-  return { schemaVersion: 1, contentVersion: DEMO_CONTENT_VERSION, missionCompletions: {}, stampRecords: [], photoRecords: [], journalEvents: [], itineraryItems: [], completedDistrictIds: [] }
+  return { schemaVersion: 1, contentVersion: DEMO_CONTENT_VERSION, missionCompletions: {}, stampRecords: [], photoRecords: [], journalEvents: [], itineraryItems: [], completedDistrictIds: [], completedCountyIds: [], taiwanCompleted: false, linePoints: 0 }
 }
 export function gameReducer(state, action) {
   if (action.type === 'HYDRATE') return action.payload
@@ -19,6 +19,20 @@ export function gameReducer(state, action) {
     const key = makeTempleKey(action.payload?.templeId ?? action.payload)
     if (!key || !(state.itineraryItems ?? []).some(item => makeTempleKey(item) === key)) return state
     return { ...state, itineraryItems: state.itineraryItems.filter(item => makeTempleKey(item) !== key) }
+  }
+  if (action.type === 'COLLECTION_MILESTONE_COMPLETED') {
+    const { districtId, countyId, taiwanCompleted = false } = action.payload ?? {}
+    const districtIsNew = typeof districtId === 'string' && districtId && !(state.completedDistrictIds ?? []).includes(districtId)
+    const countyIsNew = typeof countyId === 'string' && countyId && !(state.completedCountyIds ?? []).includes(countyId)
+    const taiwanIsNew = taiwanCompleted === true && state.taiwanCompleted !== true
+    if (!districtIsNew && !countyIsNew && !taiwanIsNew) return state
+    return {
+      ...state,
+      completedDistrictIds: districtIsNew ? [...(state.completedDistrictIds ?? []), districtId] : (state.completedDistrictIds ?? []),
+      completedCountyIds: countyIsNew ? [...(state.completedCountyIds ?? []), countyId] : (state.completedCountyIds ?? []),
+      taiwanCompleted: state.taiwanCompleted === true || taiwanIsNew,
+      linePoints: (state.linePoints ?? 0) + (districtIsNew ? 50 : 0) + (countyIsNew ? 200 : 0) + (taiwanIsNew ? 1000 : 0),
+    }
   }
   if (action.type === 'TASK_COMPLETED') {
     const { taskId, completedAt, evidence } = action.payload

@@ -5,8 +5,11 @@ import BrandMark from '../components/common/BrandMark.jsx'
 import BottomNavigation from '../components/navigation/BottomNavigation.jsx'
 import HamburgerButton from '../components/navigation/HamburgerButton.jsx'
 import SideDrawer from '../components/navigation/SideDrawer.jsx'
+import RewardDialog from '../features/rewards/RewardDialog.jsx'
+import { useGame } from '../state/GameContext.js'
 
 export default function AppLayout({ children }) {
+  const { rewardQueue, confirmReward } = useGame()
   const [drawerOpen, setDrawerOpen] = useState(false)
   const closeDrawer = useCallback(() => setDrawerOpen(false), [])
   return <div className="app-shell">
@@ -20,5 +23,6 @@ export default function AppLayout({ children }) {
     <div className="app-content">{children}</div>
     <SideDrawer open={drawerOpen} onClose={closeDrawer} />
     <BottomNavigation />
+    <RewardDialog reward={rewardQueue[0] ?? null} remaining={rewardQueue.length} onConfirm={confirmReward} />
   </div>
 }
