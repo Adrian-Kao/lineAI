@@ -1,10 +1,11 @@
 @import '../minigameShell.css';
 
-.lantern-board { grid-template-columns: repeat(3, 1fr); }
+.lantern-board { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .lantern {
   display: grid;
   place-items: center;
   aspect-ratio: 1;
+  min-width: 0;
   padding: .4rem;
   border: 0;
   border-radius: .6rem;
@@ -36,8 +37,9 @@
 .lantern.is-tapped { transform: scale(.9); }
 .tutorial-pointer {
   position: absolute;
-  left: calc(.6rem + (100% - 1.2rem) / 3 * var(--col) + (100% - 1.2rem) / 6);
-  top: calc(.6rem + (100% - 1.2rem) / 3 * var(--row) + (100% - 1.2rem) / 6);
+  --cell: calc((100% - 1.2rem - 1rem) / 3);
+  left: calc(.6rem + (var(--cell) + .5rem) * var(--col) + var(--cell) / 2);
+  top: calc(.6rem + (var(--cell) + .5rem) * var(--row) + var(--cell) / 2);
   font-size: 2.2rem;
   line-height: 1;
   transform: translate(-30%, 10%);
