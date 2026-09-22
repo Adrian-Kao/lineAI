@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" width="640" height="640" role="img" aria-label="Templore">
+  <defs><linearGradient id="bg" x1="0" y1="0" x2="0.65" y2="1"><stop offset="0" stop-color="#4CB87A"/><stop offset="1" stop-color="#2E8B57"/></linearGradient></defs>
+  <circle cx="320" cy="320" r="320" fill="url(#bg)"/>
+  <mask id="cut"><rect width="640" height="640" fill="#fff"/><path d="M 320 318 C 286 318 266 344 266 380 L 266 430 L 374 430 L 374 380 C 374 344 354 318 320 318 Z" fill="#000"/></mask>
+  <g fill="#F7F9F8" mask="url(#cut)">
+    <path d="M 100 246 C 190 210 450 210 540 246 L 484 306 C 436 278 204 278 156 306 Z"/>
+    <rect x="212" y="272" width="216" height="158" rx="16"/>
+    <rect x="196" y="422" width="248" height="46" rx="20"/>
+  </g>
+</svg>

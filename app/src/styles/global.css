@@ -42,7 +42,7 @@ button:focus-visible, a:focus-visible { outline: 3px solid #368f62; outline-offs
 }
 .login-panel { width: min(100%, 430px); }
 .login-brand { display: grid; justify-items: center; gap: 8px; margin-bottom: 46px; color: #375e47; }
-.login-brand-mark { display: grid; width: 70px; height: 70px; place-items: center; color: #5f8f70; }
+.login-brand-mark { display: block; width: 70px; height: 70px; }
 .login-brand p { margin: 0; color: #30323d; font-size: 22px; font-weight: 560; }
 .login-panel h1 { margin: 0 0 34px; text-align: center; font-size: 34px; line-height: 1.25; letter-spacing: 0; }
 .login-form { display: grid; gap: 18px; }
@@ -99,7 +99,6 @@ button:focus-visible, a:focus-visible { outline: 3px solid #368f62; outline-offs
   .login-page { align-items: start; padding-top: 20px; padding-bottom: 20px; }
   .login-brand { gap: 4px; margin-bottom: 18px; }
   .login-brand-mark { width: 54px; height: 54px; }
-  .login-brand-mark svg { width: 44px; height: 44px; }
   .login-brand p { font-size: 18px; }
   .login-panel h1 { margin-bottom: 20px; font-size: 28px; }
   .login-form { gap: 12px; }
@@ -215,7 +214,7 @@ button:focus-visible, a:focus-visible { outline: 3px solid #368f62; outline-offs
   bottom: calc(115px + env(safe-area-inset-bottom));
   left: 50%;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: 12px;
   padding: 12px 16px;
   transform: translateX(-50%);
@@ -670,7 +669,7 @@ html[data-reduce-motion='true'] *, html[data-reduce-motion='true'] *::before, ht
   top: 0;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: 12px;
   padding: calc(12px + env(safe-area-inset-top)) max(18px, calc((100% - 760px) / 2)) 12px;
   border-bottom: 1px solid rgba(94, 122, 95, .16);
@@ -682,8 +681,8 @@ html[data-reduce-motion='true'] *, html[data-reduce-motion='true'] *::before, ht
   min-height: calc(100dvh - var(--app-topbar-height));
   padding-top: 14px;
 }
-.app-brand { display: flex; align-items: center; gap: 8px; color: #375e47; text-decoration: none; }
-.app-brand__mark { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 8px; background: #e2f0dc; color: #5f8f70; }
+.app-brand { display: flex; align-items: center; gap: 8px; margin-right: auto; color: #375e47; text-decoration: none; }
+.app-brand__mark { display: block; width: 30px; height: 30px; }
 .app-brand__word { font-size: 18px; font-weight: 640; letter-spacing: .01em; }
 /* 地圖是滿版的，頂欄在它上面維持浮動，不佔版面高度；標誌讓位給地圖上的縣市選單。 */
 .app-shell:has(.map-page) .app-topbar { position: fixed; right: 0; left: 0; background: none; border-bottom: 0; }

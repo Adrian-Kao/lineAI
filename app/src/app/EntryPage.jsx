@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
-import { Eye, EyeOff, LockKeyhole, Mail, MessageCircleMore, Sprout } from 'lucide-react'
+import { Eye, EyeOff, LockKeyhole, Mail, MessageCircleMore } from 'lucide-react'
 import { Navigate, useLocation, useNavigate } from 'react-router'
 import { useGame } from '../state/GameContext.js'
 import { ROUTES } from '../config/routes.js'
 import { ensureLineLogin, getLineProfile, initLine, isLineConfigured, isLineMockMode } from '../services/line.js'
+import BrandMark from '../components/common/BrandMark.jsx'
 
 function profileName(email) {
   const name = email.trim().split('@')[0]
@@ -84,7 +85,7 @@ export default function EntryPage() {
   return <main className="login-page">
     <section className="login-panel" aria-labelledby="login-title">
       <div className="login-brand" aria-label="Templore">
-        <span className="login-brand-mark" aria-hidden="true"><Sprout size={54} strokeWidth={1.65} /></span>
+        <BrandMark size={70} className="login-brand-mark" />
         <p>Templore</p>
       </div>
 
