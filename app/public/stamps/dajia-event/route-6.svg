@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" role="img" aria-labelledby="title">
+  <title id="title">回程紀念印章</title>
+  <g fill="none" stroke="#B84937" stroke-linecap="round" stroke-linejoin="round"><circle cx="120" cy="120" r="101" stroke-width="7"/><circle cx="120" cy="120" r="91" stroke-width="2" stroke-dasharray="3 6"/><path d="M65 88h110M76 88l44-30 44 30M88 88v30m64-30v30M73 118h94" stroke-width="6"/></g>
+  <text x="120" y="157" fill="#B84937" font-family="serif" font-size="31" font-weight="700" text-anchor="middle">回程</text><text x="120" y="183" fill="#B84937" font-family="sans-serif" font-size="13" font-weight="700" letter-spacing="3" text-anchor="middle">遶境・6/7</text>
+</svg>

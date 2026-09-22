@@ -1,7 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { ArrowLeft, BookImage, BookMarked, Check, MessageCircleMore, Search, Send, Trash2, UserPlus, UsersRound, X } from 'lucide-react'
-import { Link } from 'react-router'
-import { ROUTES } from '../../config/routes.js'
+import { BookImage, BookMarked, Check, MessageCircleMore, Search, Send, Trash2, UserPlus, UsersRound, X } from 'lucide-react'
 import { DEMO_FRIEND_DIRECTORY } from '../../data/friendDemo.js'
 import { loadFriendInvitations, loadFriends, saveFriendInvitations, saveFriends } from '../../services/friendStorage.js'
 import { useGame } from '../../state/GameContext.js'
@@ -167,7 +165,6 @@ export default function FriendsPage() {
   }
 
   return <main className="friends-page">
-    <Link className="detail-back" to={ROUTES.map}><ArrowLeft size={19} />{t('common.backMap')}</Link>
     <header className="friends-heading">
       <div><p>{t('friends.eyebrow')}</p><h1>{t('friends.title')}</h1><p>{t('friends.description')}</p></div>
       <button className="task-button friends-add" type="button" onClick={() => { setNotice(''); setIsAdding(true) }}><UserPlus size={18} />{t('friends.add')}</button>

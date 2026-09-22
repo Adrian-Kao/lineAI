@@ -49,6 +49,7 @@
   border-radius: 7px;
   background: #e7e9e3;
   color: #858d84;
+  padding: 0;
   text-decoration: none;
 }
 .news-event-memory-frame img { display: block; width: 100%; height: 100%; object-fit: cover; }
@@ -84,6 +85,9 @@
   font-weight: 800;
   line-height: 1;
 }
+.news-event-stamp { display: grid; width: min(42px, 100%); aspect-ratio: 1; padding: 0; place-self: center; place-items: center; overflow: hidden; border: 0; border-radius: 50%; background: #fff9e9; cursor: pointer; }
+.news-event-stamp img { display: block; width: 100%; height: 100%; object-fit: contain; }
+.news-event-stamp:hover, .news-event-stamp:focus-visible { box-shadow: 0 0 0 2px #b96851; transform: translateY(-1px); }
 
 @media (max-width: 480px) {
   .news-page { padding-inline: 15px; }

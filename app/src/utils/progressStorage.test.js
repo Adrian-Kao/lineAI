@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { normalizeProgress } from '../services/progressStorage.js'
+import { clearProgress, makeProgressKey, normalizeProgress } from '../services/progressStorage.js'
 
 function oldProgress() {
   return {
@@ -44,4 +44,10 @@ test('adds an empty itinerary to legacy progress without clearing other data', (
   const normalized = normalizeProgress(progress)
   assert.deepEqual(normalized.itineraryItems, [])
   assert.deepEqual(normalized.missionCompletions, progress.missionCompletions)
+})
+
+test('clears only the selected account progress key', () => {
+  const removed = []
+  clearProgress('U123', { removeItem: key => removed.push(key) })
+  assert.deepEqual(removed, [makeProgressKey('U123')])
 })

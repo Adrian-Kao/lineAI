@@ -8,7 +8,7 @@ import { isTempleInDistrict } from '../../utils/districtGeometry.js'
 import { useGame } from '../../state/GameContext.js'
 import { TASKS } from '../../data/temple.js'
 import { WANCHUN_TEMPLE_ID } from '../../data/templeContent.js'
-import { applyMapColorPreview, applyTempleLightPreview, deriveRegionProgress } from './regionStatus.js'
+import { applyDemoMapColoring, applyMapColorPreview, applyTempleLightPreview, deriveRegionProgress } from './regionStatus.js'
 import { CITY_COORDS } from './mapConfig.js'
 import { getCountyName } from './geoLoader.js'
 import TaiwanTempleMap from './TaiwanTempleMap.jsx'
@@ -19,19 +19,18 @@ const COUNTY_OPTIONS = Object.keys(CITY_COORDS)
 
 export default function MapPage() {
   const { reduceMotion, t } = useSettings()
-  const { progress } = useGame()
-  const completedTempleIds = useMemo(() => {
-    const ids = new Set(progress.completedTempleIds ?? [])
-    if (TASKS.every(task => progress.missionCompletions[task.id])) ids.add(WANCHUN_TEMPLE_ID)
-    return import.meta.env.DEV ? applyTempleLightPreview(ids) : ids
-  }, [progress])
+  const { progress, demoControls } = useGame()
   const [districts, setDistricts] = useState(null)
   const regionProgress = useMemo(() => {
     const completed = TASKS.filter(task => progress.missionCompletions[task.id]).length
-    const actual = { ...progress.regionProgress, '66000010': completed === TASKS.length ? 'inProgress' : 'locked' }
-    const previewed = import.meta.env.DEV ? applyMapColorPreview(actual, districts) : actual
-    return deriveRegionProgress(previewed, districts)
-  }, [progress, districts])
+    const actual = {
+      ...progress.regionProgress,
+      '66000010': demoControls.centralComplete || completed === TASKS.length ? 'inProgress' : 'locked',
+    }
+    const derived = deriveRegionProgress(actual, districts)
+    const demoColored = applyDemoMapColoring(derived, districts, demoControls.mapColoring)
+    return import.meta.env.DEV ? applyMapColorPreview(demoColored, districts) : demoColored
+  }, [progress, districts, demoControls.centralComplete, demoControls.mapColoring])
   const { county } = useParams()
   const navigate = useNavigate()
   const location = useLocation()
@@ -52,6 +51,17 @@ export default function MapPage() {
   const activeData = dataState.county === selectedCounty ? dataState : null
   const countyTemples = activeData?.temples ?? null
   const temples = useMemo(() => selectedDistrictId ? (selectedDistrict && countyTemples ? countyTemples.filter(item => isTempleInDistrict(item, selectedDistrict)) : null) : countyTemples, [selectedDistrictId, selectedDistrict, countyTemples])
+  const completedTempleIds = useMemo(() => {
+    const ids = new Set(progress.completedTempleIds ?? [])
+    if (TASKS.every(task => progress.missionCompletions[task.id])) ids.add(WANCHUN_TEMPLE_ID)
+    if (demoControls.centralComplete) {
+      const centralDistrict = districts?.features.find(feature => feature.properties.TOWNCODE === '66000010')
+      for (const temple of countyTemples ?? []) {
+        if (centralDistrict && isTempleInDistrict(temple, centralDistrict) && temple.id !== WANCHUN_TEMPLE_ID) ids.add(temple.id)
+      }
+    }
+    return import.meta.env.DEV ? applyTempleLightPreview(ids) : ids
+  }, [progress, countyTemples, districts, demoControls.centralComplete])
   const previewTemple = temples?.find(item => item.id === selectedTempleId) ?? null
   const districtOptions = useMemo(() => selectedCounty && districts
     ? districts.features.filter(feature => getCountyName(feature) === selectedCounty)

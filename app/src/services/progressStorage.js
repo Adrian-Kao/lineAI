@@ -51,3 +51,4 @@ export function loadProgress(userId) {
   return normalized
 }
 export function saveProgress(userId, snapshot) { localStorage.setItem(makeProgressKey(userId), JSON.stringify(snapshot)) }
+export function clearProgress(userId, storage = globalThis.localStorage) { storage?.removeItem(makeProgressKey(userId)) }

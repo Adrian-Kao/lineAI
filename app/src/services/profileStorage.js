@@ -41,3 +41,7 @@ export function saveProfilePreferences(userId, input) {
   localStorage.setItem(makeProfileKey(userId), JSON.stringify(preferences))
   return preferences
 }
+
+export function clearProfilePreferences(userId, storage = globalThis.localStorage) {
+  storage?.removeItem(makeProfileKey(userId))
+}

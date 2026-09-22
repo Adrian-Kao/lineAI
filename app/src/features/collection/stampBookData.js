@@ -64,7 +64,7 @@ export async function loadTaichungDemoStampCatalog(signal) {
           county: '台中市',
           district,
           locationLabel: `台中・${district}`,
-          stampImage: null,
+          stampImage: district === '中區' ? `/stamps/taichung-central/${temple.id}.svg` : null,
         })
     .sort((left, right) => {
       if (left.templeId === 'wanchun') return -1

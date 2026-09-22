@@ -106,3 +106,16 @@ export function buildRewardNotifications(previous = {}, next = {}) {
     ...taiwanRewards(previous, next),
   ]
 }
+
+export function buildDemoRewardNotifications() {
+  const previous = {
+    stampRecords: [], completedDistrictIds: [], completedCountyIds: [], taiwanCompleted: false,
+  }
+  const next = {
+    stampRecords: [{ templeId: 'wanchun', acquiredAt: 'demo' }],
+    completedDistrictIds: ['66000010'],
+    completedCountyIds: ['台中市'],
+    taiwanCompleted: true,
+  }
+  return buildRewardNotifications(previous, next)
+}

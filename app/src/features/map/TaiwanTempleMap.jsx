@@ -12,7 +12,7 @@ import './markerStyles.css'
 
 const countyPadding = [28, 36]
 const overviewFitOptions = { padding: [0, 0] }
-const overviewFillOpacity = 0.38
+const overviewFillOpacity = 0.58
 const regionAnimationDuration = 0.85
 const templeAnimationDuration = 0.65
 // 地圖放大到這個 zoom 以上時，在宮廟圖示上方顯示名稱；更遠時只留圖示避免互相遮蓋。
@@ -106,7 +106,7 @@ function boundaryStyle(feature, selectedDistrictId, regionProgress) {
     lineCap: 'round',
     lineJoin: 'round',
     fillColor: `rgb(${palette.fill.slice(0, 3).join(',')})`,
-    fillOpacity: selected ? 0 : selectedDistrictId ? 0.64 : overviewFillOpacity,
+    fillOpacity: selected ? 0 : selectedDistrictId ? 0.7 : overviewFillOpacity,
   }
 }
 

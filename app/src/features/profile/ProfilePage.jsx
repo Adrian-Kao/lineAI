@@ -1,6 +1,5 @@
 import { useRef, useState } from 'react'
-import { ArrowLeft, Camera, LogOut, RotateCcw, Save, UserRound } from 'lucide-react'
-import { Link } from 'react-router'
+import { Camera, LogOut, RotateCcw, Save, UserRound } from 'lucide-react'
 import { ROUTES } from '../../config/routes.js'
 import { useGame } from '../../state/GameContext.js'
 import { useSettings } from '../../state/SettingsContext.js'
@@ -83,7 +82,6 @@ export default function ProfilePage() {
   }
 
   return <main className="profile-page">
-    <Link className="detail-back" to={ROUTES.map}><ArrowLeft size={19} />{t('common.backMap')}</Link>
     <header className="profile-heading">
       <p>{t('profile.eyebrow')}</p>
       <h1>{t('profile.title')}</h1>

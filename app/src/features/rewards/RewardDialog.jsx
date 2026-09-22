@@ -33,7 +33,7 @@ export default function RewardDialog({ reward, remaining, onConfirm }) {
       <h2 id="reward-dialog-title">{reward.title}</h2>
       <p id="reward-dialog-description" className="reward-dialog-description">{reward.description}</p>
       {remaining > 1 && <p className="reward-dialog-remaining">確認後還有 {remaining - 1} 項獎勵</p>}
-      <button ref={confirmRef} className="reward-dialog-confirm" type="button" onClick={onConfirm}>{remaining > 1 ? '確認並查看下一項' : '確認'}</button>
+      <button ref={confirmRef} className="reward-dialog-confirm" type="button" onClick={onConfirm}>確認</button>
     </section>
   </div>, document.body)
 }

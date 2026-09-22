@@ -11,14 +11,22 @@ import StampDetailSheet from './StampDetailSheet.jsx'
 import './stampBook.css'
 
 export default function StampBookPage() {
-  const { progress } = useGame()
+  const { progress, demoControls } = useGame()
   const [selectedStamp, setSelectedStamp] = useState(null)
   const [catalog, setCatalog] = useState([])
   const [regions, setRegions] = useState([])
   const [totalTempleCount, setTotalTempleCount] = useState(0)
   const [catalogStatus, setCatalogStatus] = useState('loading')
   const returnFocusRef = useRef(null)
-  const entries = useMemo(() => buildStampEntries(catalog, progress.stampRecords), [catalog, progress.stampRecords])
+  const displayStampRecords = useMemo(() => {
+    if (!demoControls.centralComplete) return progress.stampRecords
+    const realKeys = new Set(progress.stampRecords.map(record => record.templeId ?? record.taskId))
+    const demoRecords = catalog
+      .filter(entry => entry.district === '中區' && entry.templeId !== 'wanchun' && !realKeys.has(entry.templeId))
+      .map(entry => ({ templeId: entry.templeId, acquiredAt: '2026-09-23T00:00:00.000Z', demo: true }))
+    return [...progress.stampRecords, ...demoRecords]
+  }, [catalog, progress.stampRecords, demoControls.centralComplete])
+  const entries = useMemo(() => buildStampEntries(catalog, displayStampRecords), [catalog, displayStampRecords])
   const collectedCount = entries.filter(entry => entry.collected).length
 
   useEffect(() => {

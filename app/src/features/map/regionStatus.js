@@ -1,6 +1,6 @@
 export const REGION_STATUS_COLORS = {
   locked: { fill: [226, 231, 229, 255], line: [166, 170, 168, 255] },
-  inProgress: { fill: [235, 217, 158, 255], line: [166, 170, 168, 255] },
+  inProgress: { fill: [244, 193, 66, 255], line: [158, 155, 143, 255] },
   unlocked: { fill: [215, 166, 116, 255], line: [166, 170, 168, 255] },
 }
 
@@ -53,6 +53,108 @@ export function applyMapColorPreview(actualProgress, collection) {
     const { COUNTYCODE, TOWNCODE } = feature.properties
     const county = MAP_COLOR_PREVIEW.counties[COUNTYCODE]
     if (county?.enabled) result[TOWNCODE] = county.status
+  }
+  return result
+}
+
+const DEMO_ORANGE_COUNTIES = new Set([
+  '63000', // 台北市
+  '67000', // 台南市
+  '10007', // 彰化縣
+  '10002', // 宜蘭縣
+  '10016', // 澎湖縣
+  '09020', // 金門縣
+])
+const DEMO_ALWAYS_LOCKED_COUNTIES = new Set(['09007']) // 連江縣
+const DEMO_EASTERN_COUNTIES = new Set(['10014', '10015']) // 台東縣、花蓮縣降低選取順位
+const DEMO_COLOR_COVERAGE = 0.7
+const TAIWAN_CENTER = [120.98, 23.7]
+
+function outerRings(geometry) {
+  if (geometry?.type === 'Polygon') return geometry.coordinates.slice(0, 1)
+  if (geometry?.type === 'MultiPolygon') return geometry.coordinates.map(polygon => polygon[0])
+  return []
+}
+
+function segmentKey(start, end) {
+  const a = `${start[0].toFixed(5)},${start[1].toFixed(5)}`
+  const b = `${end[0].toFixed(5)},${end[1].toFixed(5)}`
+  return a < b ? `${a}|${b}` : `${b}|${a}`
+}
+
+function getFeatureMetrics(features) {
+  const segmentCounts = new Map()
+  for (const feature of features) {
+    for (const ring of outerRings(feature.geometry)) {
+      for (let index = 1; index < ring.length; index += 1) {
+        const key = segmentKey(ring[index - 1], ring[index])
+        segmentCounts.set(key, (segmentCounts.get(key) ?? 0) + 1)
+      }
+    }
+  }
+
+  return features.map(feature => {
+    const rings = outerRings(feature.geometry)
+    const points = rings.flat()
+    if (!points.length) return { feature, area: Number.MAX_VALUE, longitude: TAIWAN_CENTER[0], latitude: TAIWAN_CENTER[1], coastal: false }
+    const longitudes = points.map(point => point[0])
+    const latitudes = points.map(point => point[1])
+    const minLongitude = Math.min(...longitudes)
+    const maxLongitude = Math.max(...longitudes)
+    const minLatitude = Math.min(...latitudes)
+    const maxLatitude = Math.max(...latitudes)
+    const area = Math.max((maxLongitude - minLongitude) * (maxLatitude - minLatitude), Number.EPSILON)
+    const longitude = (minLongitude + maxLongitude) / 2
+    const latitude = (minLatitude + maxLatitude) / 2
+    const coastal = rings.some(ring => ring.some((point, index) => index > 0 && segmentCounts.get(segmentKey(ring[index - 1], point)) === 1))
+    return { feature, area, longitude, latitude, coastal }
+  })
+}
+
+function selectDemoYellowDistricts(features, orangeCount) {
+  const candidates = getFeatureMetrics(features).filter(({ feature }) => {
+    const countyCode = feature.properties?.COUNTYCODE
+    return countyCode && !DEMO_ORANGE_COUNTIES.has(countyCode) && !DEMO_ALWAYS_LOCKED_COUNTIES.has(countyCode)
+  })
+  const logAreas = candidates.map(item => Math.log(item.area))
+  const longitudes = candidates.map(item => item.longitude)
+  const northSouthDistances = candidates.map(item => Math.abs(item.latitude - TAIWAN_CENTER[1]))
+  const minArea = Math.min(...logAreas)
+  const maxArea = Math.max(...logAreas)
+  const minLongitude = Math.min(...longitudes)
+  const maxLongitude = Math.max(...longitudes)
+  const minNorthSouth = Math.min(...northSouthDistances)
+  const maxNorthSouth = Math.max(...northSouthDistances)
+  const normalize = (value, min, max) => max === min ? 0 : (value - min) / (max - min)
+
+  candidates.sort((left, right) => {
+    const score = item => (
+      (1 - normalize(Math.log(item.area), minArea, maxArea)) * 1.4
+      + (item.coastal ? 1.2 : 0)
+      + (1 - normalize(item.longitude, minLongitude, maxLongitude)) * 1.1
+      + normalize(Math.abs(item.latitude - TAIWAN_CENTER[1]), minNorthSouth, maxNorthSouth) * 0.8
+      - (DEMO_EASTERN_COUNTIES.has(item.feature.properties.COUNTYCODE) ? 1.5 : 0)
+    )
+    const leftScore = score(left)
+    const rightScore = score(right)
+    return rightScore - leftScore || left.feature.properties.TOWNCODE.localeCompare(right.feature.properties.TOWNCODE)
+  })
+
+  const coloredTarget = Math.round(features.length * DEMO_COLOR_COVERAGE)
+  return new Set(candidates.slice(0, Math.max(0, coloredTarget - orangeCount)).map(item => item.feature.properties.TOWNCODE))
+}
+
+export function applyDemoMapColoring(actualProgress, collection, enabled) {
+  if (!enabled || !collection?.features) return actualProgress
+  const result = { ...actualProgress }
+  const orangeCount = collection.features.filter(feature => DEMO_ORANGE_COUNTIES.has(feature.properties?.COUNTYCODE)).length
+  const yellowDistricts = selectDemoYellowDistricts(collection.features, orangeCount)
+  for (const feature of collection.features) {
+    const { COUNTYCODE, TOWNCODE } = feature.properties
+    if (!TOWNCODE) continue
+    if (DEMO_ORANGE_COUNTIES.has(COUNTYCODE)) result[TOWNCODE] = 'unlocked'
+    else if (yellowDistricts.has(TOWNCODE)) result[TOWNCODE] = 'inProgress'
+    else result[TOWNCODE] = 'locked'
   }
   return result
 }

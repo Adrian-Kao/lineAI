@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { applyProfilePreferences, validateProfileInput } from '../services/profileStorage.js'
+import { applyProfilePreferences, clearProfilePreferences, makeProfileKey, validateProfileInput } from '../services/profileStorage.js'
 
 test('applies editable profile fields while preserving LINE identity', () => {
   const result = applyProfilePreferences(
@@ -19,4 +19,10 @@ test('trims fields and rejects invalid phone characters', () => {
     name: '測試玩家', phone: '0912-345-678', avatar: null,
   })
   assert.throws(() => validateProfileInput({ name: '測試玩家', phone: 'call me', avatar: null }), /電話格式/)
+})
+
+test('clears only the selected account profile preferences', () => {
+  const removed = []
+  clearProfilePreferences('U123', { removeItem: key => removed.push(key) })
+  assert.deepEqual(removed, [makeProfileKey('U123')])
 })

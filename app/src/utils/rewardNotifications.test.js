@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { buildRewardNotifications } from '../features/rewards/rewardNotifications.js'
+import { buildDemoRewardNotifications, buildRewardNotifications } from '../features/rewards/rewardNotifications.js'
 import { createInitialState, gameReducer } from '../state/gameReducer.js'
 
 test('queues simultaneous rewards from smallest scope to largest scope', () => {
@@ -26,4 +26,10 @@ test('milestones award LINE points once and persist completion levels', () => {
   assert.deepEqual(completed.completedCountyIds, ['台中市'])
   assert.equal(completed.taiwanCompleted, true)
   assert.equal(gameReducer(completed, { type: 'COLLECTION_MILESTONE_COMPLETED', payload: milestone }), completed)
+})
+
+test('demo reward sequence contains all six notifications in presentation order', () => {
+  const rewards = buildDemoRewardNotifications()
+  assert.deepEqual(rewards.map(reward => reward.kind), ['stamp', 'memory', 'points', 'points', 'points', 'sticker'])
+  assert.deepEqual(rewards.filter(reward => reward.kind === 'points').map(reward => reward.amount), [50, 200, 1000])
 })

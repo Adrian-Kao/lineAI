@@ -13,6 +13,7 @@
     "lint": "eslint .",
     "test": "node --test src/utils/*.test.js",
     "data:temples": "node scripts/import-temples.mjs",
+    "data:demo-stamps": "node scripts/generate-demo-stamps.mjs",
     "preview": "vite preview"
   },
   "dependencies": {

@@ -33,8 +33,8 @@ function CentralDistrictCollection({ complete }) {
 }
 
 export default function CollectionPage() {
-  const { progress } = useGame()
-  const centralDistrictComplete = isCentralDistrictComplete(progress)
+  const { progress, demoControls } = useGame()
+  const centralDistrictComplete = isCentralDistrictComplete(progress) || demoControls.centralComplete
   const acquiredCount = centralDistrictComplete ? 1 : 0
   const [totalDistricts, setTotalDistricts] = useState(null)
 

@@ -2,9 +2,10 @@ import { useCallback, useReducer, useRef, useState } from 'react'
 import { GameContext } from './GameContext.js'
 import { createInitialState, gameReducer } from './gameReducer.js'
 import { isTempleInItinerary, validateItineraryTemple, validateTaskResult } from './gameRules.js'
-import { loadProgress, saveProgress } from '../services/progressStorage.js'
-import { applyProfilePreferences, loadProfilePreferences, saveProfilePreferences } from '../services/profileStorage.js'
-import { buildRewardNotifications } from '../features/rewards/rewardNotifications.js'
+import { clearProgress, loadProgress, saveProgress } from '../services/progressStorage.js'
+import { applyProfilePreferences, clearProfilePreferences, loadProfilePreferences, saveProfilePreferences } from '../services/profileStorage.js'
+import { buildDemoRewardNotifications, buildRewardNotifications } from '../features/rewards/rewardNotifications.js'
+import { loadDemoControls, saveDemoControls } from '../services/demoControls.js'
 
 const DEV_PUZZLE_PREREQUISITES = {
   stamp: {
@@ -32,6 +33,7 @@ export function GameProvider({ children }) {
   const [progress, dispatch] = useReducer(gameReducer, undefined, () => applyDevPuzzlePrerequisites(createInitialState()))
   const [session, setSession] = useState({ status: 'idle', profile: null, error: null })
   const [rewardQueue, setRewardQueue] = useState([])
+  const [demoControls, setDemoControls] = useState(loadDemoControls)
   const progressRef = useRef(progress)
   const submittingRef = useRef(false)
   const initializeSession = useCallback(async function initializeSession(profile) {
@@ -105,5 +107,30 @@ export function GameProvider({ children }) {
     return commitProgress({ type: 'COLLECTION_MILESTONE_COMPLETED', payload: milestone })
   }
   const confirmReward = useCallback(() => setRewardQueue(current => current.slice(1)), [])
-  return <GameContext.Provider value={{ progress, session, rewardQueue, initializeSession, updateProfile, signOut, completeTask, completeCollectionMilestone, confirmReward, addTempleToItinerary, removeTempleFromItinerary }}>{children}</GameContext.Provider>
+  const setDemoControl = useCallback((name, enabled) => {
+    setDemoControls(current => saveDemoControls({ ...current, [name]: enabled }))
+  }, [])
+  const showDemoRewardSequence = useCallback(() => {
+    setRewardQueue(buildDemoRewardNotifications())
+  }, [])
+  const resetCurrentAccount = useCallback(() => {
+    if (session.status !== 'ready' || !session.profile?.userId) throw new Error('請先登入要重製的帳號')
+    const userId = session.profile.userId
+    clearProgress(userId)
+    clearProfilePreferences(userId)
+    const snapshot = createInitialState()
+    progressRef.current = snapshot
+    dispatch({ type: 'HYDRATE', payload: snapshot })
+    setRewardQueue([])
+    setSession(current => ({
+      ...current,
+      profile: applyProfilePreferences({
+        ...current.profile,
+        name: current.profile.lineName ?? current.profile.name,
+        avatar: current.profile.lineAvatar ?? null,
+      }),
+    }))
+    return snapshot
+  }, [session])
+  return <GameContext.Provider value={{ progress, session, rewardQueue, demoControls, initializeSession, updateProfile, signOut, completeTask, completeCollectionMilestone, confirmReward, setDemoControl, showDemoRewardSequence, resetCurrentAccount, addTempleToItinerary, removeTempleFromItinerary }}>{children}</GameContext.Provider>
 }
