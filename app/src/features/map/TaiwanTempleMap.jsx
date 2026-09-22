@@ -6,6 +6,7 @@ import 'leaflet.markercluster/dist/MarkerCluster.css'
 import { loadDistrictBoundaries, loadCountyBorders, getMainlandBounds } from '../../services/geoData.js'
 import { getCountyName, getCollectionBounds } from './geoLoader.js'
 import { isTempleInDistrict } from '../../utils/districtGeometry.js'
+import { formatTempleName } from '../../utils/formatTempleName.js'
 import { getRegionStatus, REGION_STATUS_COLORS } from './regionStatus.js'
 import './markerStyles.css'
 
@@ -443,7 +444,7 @@ export default function TaiwanTempleMap({ completedTempleIds, regionProgress, se
     function appendBatch() {
       if (cancelled) return
       const batch = temples.slice(index, index + 80).map(temple => {
-        const marker = L.marker([temple.latitude, temple.longitude], { icon: markerIcon(temple.id === selectedTempleRef.current, completedTempleRef.current.has(temple.id)), completedTemple: completedTempleRef.current.has(temple.id), title: temple.name })
+        const marker = L.marker([temple.latitude, temple.longitude], { icon: markerIcon(temple.id === selectedTempleRef.current, completedTempleRef.current.has(temple.id)), completedTemple: completedTempleRef.current.has(temple.id), title: formatTempleName(temple.name) || temple.name })
         marker.on('click', event => {
           L.DomEvent.stopPropagation(event)
           callbacksRef.current.onTempleSelect(temple.id)

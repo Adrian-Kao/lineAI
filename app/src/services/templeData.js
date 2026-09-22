@@ -14,6 +14,14 @@ async function getManifest() {
   return manifestPromise
 }
 
+export async function loadPublishedTempleCount() {
+  const manifest = await getManifest()
+  return (manifest.files ?? []).reduce((total, entry) =>
+    entry.status === 'success' && Number.isInteger(entry.importedCount)
+      ? total + entry.importedCount
+      : total, 0)
+}
+
 export async function loadCountyTemples(county, signal) {
   const sourceCounty = toSourceCountyName(county)
   if (!sourceCounty) throw new Error('未知縣市')

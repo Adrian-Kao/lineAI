@@ -7,7 +7,7 @@ import { useSettings } from '../../state/SettingsContext.js'
 import { getPhoto } from '../../services/mediaStorage.js'
 import { getTaskStatus } from '../../state/gameRules.js'
 import { localizedValue } from '../../utils/templeLocalization.js'
-import TempleArtwork from '../temple/TempleArtwork.jsx'
+import { WANCHUN_REFERENCE_IMAGE } from '../../data/templeContent.js'
 
 export default function StoryPage() {
   const { taskId } = useParams()
@@ -17,6 +17,8 @@ export default function StoryPage() {
   const task = TASKS.find(item => item.id === taskId)
   const completion = progress.missionCompletions[taskId]
   const story = task ? STORIES[task.storyId] : null
+  const taskIndex = TASKS.findIndex(item => item.id === taskId)
+  const nextTask = taskIndex >= 0 ? TASKS[taskIndex + 1] : null
 
   useEffect(() => {
     if (!task || completion?.evidence?.kind !== 'photo' || !session.profile?.userId) return undefined
@@ -40,7 +42,12 @@ export default function StoryPage() {
   if (getTaskStatus(progress, task.id) !== 'completed') return <Navigate to={ROUTES.mission.replace(':taskId', task.id)} replace />
 
   const taskTitle = t(`task.${task.id}`)
-  const image = story?.image || photoUrl
+  const image = story?.image || photoUrl || WANCHUN_REFERENCE_IMAGE
+  const nextTaskRoute = nextTask
+    ? getTaskStatus(progress, nextTask.id) === 'completed'
+      ? ROUTES.story.replace(':taskId', nextTask.id)
+      : ROUTES.mission.replace(':taskId', nextTask.id)
+    : null
   const title = localizedValue(story?.title, language, t('story.title', { task: taskTitle }))
   const content = localizedValue(story?.content, language, t('story.fallback', { task: taskTitle }))
   const imageAlt = localizedValue(story?.imageAlt, language, t('story.imageAlt'))
@@ -49,11 +56,13 @@ export default function StoryPage() {
     <article className="story-card">
       <p className="story-kicker">{t('story.kicker')}</p>
       <h1>{title}</h1>
-      {image ? <img className="story-image" src={image} alt={imageAlt} /> : <TempleArtwork />}
-      {!image && <p className="story-image-note">{t('story.imagePending')}</p>}
+      <img className="story-image" src={image} alt={imageAlt} />
       <p className="story-content">{content}</p>
       <p className="story-source">{t('story.source')}{story?.sourceUrl ? <a href={story.sourceUrl} target="_blank" rel="noreferrer">{source}</a> : source}</p>
     </article>
-    <Link className="task-button story-map-link" to={ROUTES.temple}>{t('story.back')}</Link>
+    <div className="story-actions">
+      {nextTaskRoute && <Link className="task-button story-next-link" to={nextTaskRoute}>{t('story.next')}</Link>}
+      <Link className={`task-button story-map-link${nextTask ? ' is-secondary' : ''}`} to={ROUTES.temple}>{t('story.back')}</Link>
+    </div>
   </main>
 }

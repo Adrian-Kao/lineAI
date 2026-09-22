@@ -90,7 +90,6 @@ export default function TempleMissionExperience({ config = demoMissionConfig }) 
     <header className="mission-experience__header">
       <Link className="mission-experience__back" to={ROUTES.temple}><ArrowLeft size={18} />返回萬春宮</Link>
       <div className="mission-experience__identity">
-        <span className="mission-experience__demo">DEMO</span>
         <div><strong>{config.templeName}探索任務</strong><small>{config.location}</small></div>
       </div>
       <button className="mission-experience__reset" type="button" onClick={resetExperience} title="重新開始流程"><RotateCcw size={18} /><span>重新開始</span></button>
@@ -116,6 +115,6 @@ export default function TempleMissionExperience({ config = demoMissionConfig }) 
       {phase === MISSION_PHASES.gameReady && <GameScene config={config} />}
     </div>
 
-    <p className="mission-experience__disclaimer">LINE Touch 為體驗模擬；拍照可使用裝置相機在本機對位，或使用明確標示的預設圖片完成 DEMO。影像不會自動上傳，也不會寫入正式探索進度。</p>
+    <p className="mission-experience__disclaimer">LINE Touch 採感應體驗；拍照可使用裝置相機在本機對位，或使用預設圖片完成。影像不會自動上傳。</p>
   </main>
 }

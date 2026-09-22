@@ -16,18 +16,26 @@ function oldProgress() {
   }
 }
 
-test('repairs a completed stamp task that has no stamp-book record', () => {
+test('adds the Wanchun memorial stamp only after all three missions are complete', () => {
   const repaired = normalizeProgress(oldProgress())
   assert.deepEqual(repaired.stampRecords, [
-    { taskId: 'stamp', acquiredAt: '2026-09-19T00:00:00.000Z' },
+    { templeId: 'wanchun', acquiredAt: '2026-09-19T00:02:00.000Z' },
   ])
 })
 
-test('does not duplicate an existing stamp-book record', () => {
+test('replaces an early legacy stamp with the temple completion reward', () => {
   const progress = oldProgress()
   progress.stampRecords.push({ taskId: 'stamp', acquiredAt: '2026-09-18T00:00:00.000Z' })
-  assert.equal(normalizeProgress(progress), progress)
-  assert.equal(progress.stampRecords.length, 1)
+  assert.deepEqual(normalizeProgress(progress).stampRecords, [
+    { templeId: 'wanchun', acquiredAt: '2026-09-19T00:02:00.000Z' },
+  ])
+})
+
+test('removes a Wanchun stamp when the temple is not complete', () => {
+  const progress = oldProgress()
+  delete progress.missionCompletions.puzzle
+  progress.stampRecords.push({ taskId: 'stamp', acquiredAt: '2026-09-19T00:00:00.000Z' })
+  assert.deepEqual(normalizeProgress(progress).stampRecords, [])
 })
 
 test('adds an empty itinerary to legacy progress without clearing other data', () => {

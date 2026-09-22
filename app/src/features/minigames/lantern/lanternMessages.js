@@ -22,7 +22,6 @@ const MESSAGES = {
     undo: '復原上一步',
     tip: '訣竅：盤面是從全亮狀態亂點幾下變成的，把那幾格再點一次就會全亮。每點一下看看步數有沒有變少。',
     restart: '再玩一次',
-    demo: 'DEMO 小遊戲：完成判定由燈籠狀態決定',
     tutorialIntro: '第一次玩？先看一次示範，看懂再開始。',
     tutorial1: '一開始，廟前的燈籠全部亮著。',
     tutorial2: '點一盞燈籠……',
@@ -57,8 +56,7 @@ const MESSAGES = {
     undo: 'Undo',
     tip: 'Tip: the board was scrambled from all-lit by a few taps. Tap those same cells again to restore it. Watch whether the step count drops after each tap.',
     restart: 'Play again',
-    demo: 'DEMO mini-game: completion is decided by the lantern state',
-    tutorialIntro: 'First time? Watch the demo, then start.',
+    tutorialIntro: 'First time? View the tutorial, then start.',
     tutorial1: 'At the start, every lantern in front of the temple is lit.',
     tutorial2: 'Tap a lantern…',
     tutorial3: 'It flips together with its neighbours above, below, left and right. Tap the same lantern again and it flips back.',
@@ -70,7 +68,7 @@ const MESSAGES = {
     tutorialPrev: 'Previous',
     tutorialNext: 'Next',
     startChallenge: 'Start the challenge',
-    reviewTutorial: 'Watch the demo again',
+    reviewTutorial: 'View the tutorial again',
   },
 }
 

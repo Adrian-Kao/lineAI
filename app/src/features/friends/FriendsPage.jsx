@@ -122,7 +122,6 @@ function AddFriendDialog({ currentFriends, invitations, onInvite, onCancel, onCl
           })}
         </ul>
       </section>}
-      <p className="friend-demo-note">{t('friends.demoNote')}</p>
     </section>
   </div>
 }

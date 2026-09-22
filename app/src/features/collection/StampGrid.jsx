@@ -37,7 +37,7 @@ export default function StampGrid({ entries, regions, onSelect }) {
         </summary>
         <div className="stamp-district-list">
           {group.districts.map(district => <section className={`stamp-district${district.stamps.length ? '' : ' is-empty'}`} key={`${group.county}-${district.name}`}>
-            <header><h2>{district.name}</h2><span>{district.stamps.length ? `${district.stamps.length} 間宮廟` : '尚未開放'}</span></header>
+            <header><h2>{district.name}</h2><span>{district.stamps.length ? `${district.stamps.length} 間宮廟` : '尚未收藏'}</span></header>
             {district.stamps.length > 0 && <div className="stamp-grid">{district.stamps.map(entry => <StampCard key={entry.templeId} entry={entry} onSelect={onSelect} />)}</div>}
           </section>)}
         </div>

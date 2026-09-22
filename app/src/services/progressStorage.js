@@ -1,22 +1,33 @@
-import { DEMO_CONTENT_VERSION } from '../data/temple.js'
+import { DEMO_CONTENT_VERSION, TASKS } from '../data/temple.js'
 export function makeProgressKey(userId) {
   if (!userId) throw new Error('缺少使用者 ID')
   return `wanchun-demo:v1:${userId}`
 }
 
-// 修復早期 DEMO 只寫入 missionCompletions、未同步建立集章紀錄的進度。
+function isWanchunStamp(record) {
+  return record?.templeId === 'wanchun' || record?.taskId === 'stamp'
+}
+
+// 將早期「第一關即取得印章」的資料修正為完成萬春宮三關後才取得。
 export function normalizeProgress(snapshot) {
   let normalized = snapshot
   const itineraryItems = Array.isArray(snapshot?.itineraryItems) ? snapshot.itineraryItems : []
   if (itineraryItems !== snapshot?.itineraryItems) normalized = { ...normalized, itineraryItems }
-  const stampCompletion = snapshot?.missionCompletions?.stamp
+  const completedDistrictIds = Array.isArray(snapshot?.completedDistrictIds) ? snapshot.completedDistrictIds : []
+  if (completedDistrictIds !== snapshot?.completedDistrictIds) normalized = { ...normalized, completedDistrictIds }
   const stampRecords = Array.isArray(snapshot?.stampRecords) ? snapshot.stampRecords : []
-  if (stampCompletion && !stampRecords.some(record => record.taskId === 'stamp')) {
+  const templeComplete = TASKS.every(task => snapshot?.missionCompletions?.[task.id])
+  const completedAt = snapshot?.missionCompletions?.[TASKS.at(-1).id]?.completedAt
+  const existingWanchunStamps = stampRecords.filter(isWanchunStamp)
+  const correctWanchunStamp = existingWanchunStamps.length === 1 &&
+    existingWanchunStamps[0].templeId === 'wanchun' &&
+    existingWanchunStamps[0].acquiredAt === completedAt
+  if ((!templeComplete && existingWanchunStamps.length) || (templeComplete && !correctWanchunStamp)) {
     normalized = {
       ...normalized,
       stampRecords: [
-        ...stampRecords,
-        { taskId: 'stamp', acquiredAt: stampCompletion.completedAt },
+        ...stampRecords.filter(record => !isWanchunStamp(record)),
+        ...(templeComplete ? [{ templeId: 'wanchun', acquiredAt: completedAt }] : []),
       ],
     }
   }

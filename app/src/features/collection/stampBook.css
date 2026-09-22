@@ -7,19 +7,17 @@
   --stamp-red: #b65347;
   --stamp-deep-red: #94443b;
   min-height: 100dvh;
-  padding: 30px 16px calc(142px + env(safe-area-inset-bottom));
-  background-color: var(--stamp-bg);
-  background-image: radial-gradient(rgba(63, 98, 80, .09) .55px, transparent .6px);
-  background-size: 8px 8px;
+  padding: 34px 22px calc(135px + env(safe-area-inset-bottom));
+  background: transparent;
   color: #31463a;
 }
 
 .stamp-book-inner { width: min(1120px, 100%); margin: 0 auto; }
-.stamp-book-header { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; padding-right: 66px; }
-.stamp-book-header p { display: flex; align-items: center; gap: 8px; margin: 0 0 4px; color: #597562; font-size: 12px; font-weight: 760; letter-spacing: .08em; }
+.stamp-book-header { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px; margin: 12px 0 10px; padding-right: 0; }
+.stamp-book-header p { margin: 0 0 3px; color: #66806a; font-size: 12px; font-weight: 750; letter-spacing: .12em; }
 .stamp-book-header p span { padding: 2px 6px; border: 1px solid #9fb7a0; border-radius: 4px; font-size: 9px; letter-spacing: .05em; }
-.stamp-book-header h1 { margin: 0; color: #31463a; font-size: clamp(29px, 5vw, 38px); line-height: 1.1; }
-.stamp-book-header > strong { flex: none; color: var(--stamp-deep-green); font-size: 15px; font-variant-numeric: tabular-nums; }
+.stamp-book-header h1 { margin: 0; color: #30443a; font-size: 28px; line-height: normal; }
+.stamp-book-header > .demo-badge { flex: none; font-variant-numeric: tabular-nums; }
 .stamp-progress { height: 4px; margin: 18px 0 16px; overflow: hidden; border-radius: 2px; background: rgba(111, 146, 119, .2); }
 .stamp-progress span { display: block; height: 100%; border-radius: inherit; background: var(--stamp-deep-green); transition: width .25s ease; }
 
@@ -95,13 +93,11 @@
 }
 
 @media (min-width: 900px) {
-  .stamp-book-page { padding-top: 46px; }
   .stamp-sheet-layer { align-items: center; justify-items: center; padding: 30px; }
   .stamp-sheet { width: min(470px, 100%); border-radius: 18px; padding: 31px 30px 28px; }
 }
 
 @media (max-width: 520px) {
-  .stamp-book-header { align-items: flex-start; flex-direction: column; gap: 9px; }
   .stamp-empty-notice { grid-template-columns: auto 1fr; }
   .stamp-empty-notice a { grid-column: 1 / -1; justify-self: stretch; justify-content: center; }
 }

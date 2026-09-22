@@ -20,6 +20,9 @@ export function isTempleCompleted(state, templeId) {
   if ((state.completedTempleIds ?? []).some(id => makeTempleKey(id) === key)) return true
   return key === makeTempleKey(WANCHUN_TEMPLE_ID) && isTempleComplete(state)
 }
+export function isCentralDistrictComplete(state) {
+  return (state.completedDistrictIds ?? []).includes('66000010')
+}
 export function isTempleInItinerary(state, templeId) {
   const key = makeTempleKey(templeId)
   return Boolean(key) && (state.itineraryItems ?? []).some(item => makeTempleKey(item) === key)

@@ -7,7 +7,7 @@ export default function TouchDemoScene({ config, phase, onStart }) {
 
   return <section className={`mission-scene touch-scene is-${phase}`} aria-labelledby="touch-scene-title">
     <div className="mission-scene__heading">
-      <span className="scene-kicker">LINE Touch・DEMO 模式</span>
+      <span className="scene-kicker">LINE Touch・文化探索</span>
       <h1 id="touch-scene-title">{success ? '感應成功' : detecting ? '正在感應…' : '開啟宮廟探索'}</h1>
       <p>{success ? `${config.templeName}探索已開啟` : detecting ? '請讓手機保持靠近感應區' : '將手機靠近感應區，開始今天的文化任務。'}</p>
     </div>

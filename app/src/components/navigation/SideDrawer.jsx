@@ -23,7 +23,6 @@ function SessionCard({ onClose }) {
     <div className="session-body">
       <p className="session-name">{ready ? session.profile.name : t('session.disconnected')}</p>
       <p className="session-meta">{ready ? t('session.progress', { completed, total: TASKS.length }) : t('session.loginHint')}</p>
-      {ready && session.profile.userId.startsWith('mock-') && <p className="demo-badge">{t('session.mock')}</p>}
     </div>
     {!ready && <Link className="task-button is-secondary session-login" to={ROUTES.entry} onClick={onClose}>{t('session.connect')}</Link>}
   </section>

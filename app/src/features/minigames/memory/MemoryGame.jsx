@@ -68,7 +68,6 @@ export default function MemoryGame({ seed, pairs = DEFAULT_PAIRS, onComplete, di
       <p className="qian-game__eyebrow">{t('eyebrow')}</p>
       <h2 id="memory-title">{t('title')}</h2>
       <p id="memory-instructions">{t('instructions', { pairs })}</p>
-      <p className="demo-badge">{t('demo')}</p>
     </header>
 
     <ul className="memory-legend" aria-label={t('legend', { pairs })}>

@@ -1,7 +1,7 @@
 import { Camera, Check } from 'lucide-react'
 import { MISSION_PHASES } from '../missionFlow.js'
 
-export default function StampScene({ config, phase, onContinue }) {
+export default function StampScene({ config, phase, onContinue, continueLabel = '開始拍照探索', disabled = false }) {
   const impacted = phase === MISSION_PHASES.stampImpact || phase === MISSION_PHASES.stampComplete
   const complete = phase === MISSION_PHASES.stampComplete
 
@@ -24,13 +24,13 @@ export default function StampScene({ config, phase, onContinue }) {
             {phase === MISSION_PHASES.stampImpact && <span className="stamp-impact-word" aria-hidden="true">啪！</span>}
           </div>
         </div>
-        <footer>NO. DEMO-001</footer>
+        <footer>NO. WC-001</footer>
       </article>
 
       <div className="stamp-tool" aria-hidden="true"><span className="stamp-tool__handle" /><span className="stamp-tool__base" /></div>
     </div>
 
-    {complete && <div className="stamp-complete-copy"><Check size={18} /><span>{config.templeName}探索印章已取得</span></div>}
-    {complete && <button type="button" className="mission-primary-action" onClick={onContinue}><Camera size={20} />開始拍照探索</button>}
+    {complete && <div className="stamp-complete-copy"><Check size={18} /><span>{config.templeName}數位蓋章已完成</span></div>}
+    {complete && <button type="button" className="mission-primary-action mission-next-action" onClick={onContinue} disabled={disabled}><Camera size={20} />{continueLabel}</button>}
   </section>
 }

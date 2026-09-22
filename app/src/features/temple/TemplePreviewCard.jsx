@@ -5,6 +5,7 @@ import { ROUTES } from '../../config/routes.js'
 import { missionEnabledTempleIds, templeContentById } from '../../data/templeContent.js'
 import TempleArtwork from './TempleArtwork.jsx'
 import { useSettings } from '../../state/SettingsContext.js'
+import { formatTempleName } from '../../utils/formatTempleName.js'
 import { buildTempleDescription, localizeReligion, localizeTempleName } from '../../utils/templeLocalization.js'
 
 export default function TemplePreviewCard({ temple, onClose, style, detailState }) {
@@ -16,11 +17,12 @@ export default function TemplePreviewCard({ temple, onClose, style, detailState 
   }, [onClose])
 
   const content = templeContentById[temple.id]
-  const name = localizeTempleName(temple, content, language)
+  const localizedName = localizeTempleName(temple, content, language)
+  const name = formatTempleName(localizedName) || localizedName
   const description = buildTempleDescription(temple, language, content)
   return <section className="temple-preview" aria-label={t('temple.preview')} style={style}>
     <button type="button" className="preview-close" aria-label={t('temple.closePreview')} title={t('common.close')} onClick={onClose}><X size={19} /></button>
-    <TempleArtwork />
+    {content?.image ? <img className="temple-preview-image" src={content.image} alt={name} /> : <TempleArtwork />}
     <div className="preview-body">
       <h2>{name}</h2>
       <p className="temple-religion">{localizeReligion(temple.religion, language, content)}</p>

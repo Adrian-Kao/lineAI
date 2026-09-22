@@ -211,7 +211,7 @@ export default function PhotoAlignTask({ onComplete, disabled = false, task = DE
     } catch (error) {
       if (mediaId) await deletePhoto({ ownerId: session.profile.userId, mediaId }).catch(() => {})
       if (!mountedRef.current) return
-      setMessage(error instanceof Error ? error.message : '測試完成失敗，請再試一次。')
+      setMessage(error instanceof Error ? error.message : '完成失敗，請再試一次。')
       setStatus('permission')
     }
   }
@@ -224,7 +224,6 @@ export default function PhotoAlignTask({ onComplete, disabled = false, task = DE
     <header className="photo-align-header">
       <div className="photo-align-header__meta">
         <span>{task.templeName}</span>
-        {isDemo && <span className="demo-badge">DEMO 比對</span>}
       </div>
       <h2 id="photo-align-title">拍照解鎖</h2>
       <p>{status === 'permission' ? '開啟相機後，將現場建築輪廓對準照片缺口。' : '請移動手機，讓鏡頭中的畫面對準缺口。'}</p>
@@ -247,7 +246,7 @@ export default function PhotoAlignTask({ onComplete, disabled = false, task = DE
         <Camera size={19} />{cameraStatus === 'requesting' ? '正在開啟…' : cameraStatus === 'idle' ? '開啟相機' : '重新嘗試'}
       </button>
       <button type="button" className="task-button is-secondary photo-test-complete" onClick={completeTaskForTesting} disabled={disabled}>
-        測試：直接完成拍照任務
+        直接完成拍照任務
       </button>
     </section>}
 

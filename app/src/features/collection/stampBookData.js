@@ -1,5 +1,6 @@
 import { ROUTES } from '../../config/routes.js'
 import { loadCountyTemples } from '../../services/templeData.js'
+import { formatTempleName } from '../../utils/formatTempleName.js'
 
 const LIVE_STAMPS = [
   {
@@ -44,13 +45,7 @@ export function getPlayableStampCatalog(includeDemo = false) {
 
 const DEMO_DISTRICTS = ['中區', '北區', '西區']
 
-export function formatStampTempleName(name) {
-  if (typeof name !== 'string') return ''
-  return name
-    .replace(/^財團法人\s*/, '')
-    .replace(/^(?:(?:臺灣省|台灣省)\s*)?(?:臺中市|台中市|臺中|台中)\s*/, '')
-    .trim()
-}
+export const formatStampTempleName = formatTempleName
 
 export async function loadTaichungDemoStampCatalog(signal) {
   const temples = await loadCountyTemples('台中市', signal)

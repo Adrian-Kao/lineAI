@@ -5,7 +5,7 @@ import { TASKS, TEMPLE } from '../../data/temple.js'
 import { useGame } from '../../state/GameContext.js'
 import { getNextTaskId, getTaskStatus, isTempleComplete } from '../../state/gameRules.js'
 import { formatTaipeiTime } from '../../utils/formatTime.js'
-import TempleArtwork from './TempleArtwork.jsx'
+import { WANCHUN_REFERENCE_IMAGE } from '../../data/templeContent.js'
 import { useSettings } from '../../state/SettingsContext.js'
 
 const TASK_ICONS = { stamp: Stamp, photo: Camera, puzzle: Puzzle }
@@ -36,7 +36,7 @@ export default function TemplePage() {
 
   return <main className="temple-page">
     <article className="temple-detail temple-hero">
-      <TempleArtwork />
+      <img className="temple-hero-image" src={WANCHUN_REFERENCE_IMAGE} alt={`${TEMPLE.name}探索照片`} />
       <div className="temple-hero-body">
         <p className="temple-location">{t('temple.location')}</p>
         <h1>{TEMPLE.name}</h1>
@@ -44,7 +44,7 @@ export default function TemplePage() {
       </div>
     </article>
 
-    <Link className="task-button mission-demo-entry" to={ROUTES.missionDemo}><Play size={18} />體驗連續探索 DEMO</Link>
+    {!complete && nextTaskId && <Link className="task-button mission-demo-entry" to={ROUTES.mission.replace(':taskId', nextTaskId)}><Play size={18} />開始探索任務</Link>}
 
     {complete
       ? <section className="temple-complete" role="status">

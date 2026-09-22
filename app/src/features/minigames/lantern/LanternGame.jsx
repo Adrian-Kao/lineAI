@@ -126,7 +126,6 @@ export default function LanternGame({ seed, onComplete, disabled = false, showTu
       <p className="qian-game__eyebrow">{t('eyebrow')}</p>
       <h2 id="lantern-title">{t('title')}</h2>
       <p id="lantern-instructions">{t('instructions', { total })}</p>
-      <p className="demo-badge">{t('demo')}</p>
     </header>
 
     <div className="qian-board lantern-board" role="group" aria-label={t('board', { size: GRID_SIZE })} aria-describedby="lantern-instructions"

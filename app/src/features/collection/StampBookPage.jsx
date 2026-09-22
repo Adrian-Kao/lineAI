@@ -3,6 +3,7 @@ import { Link } from 'react-router'
 import { Map, Stamp } from 'lucide-react'
 import { ROUTES } from '../../config/routes.js'
 import { loadAdministrativeRegions } from '../../services/administrativeRegions.js'
+import { loadPublishedTempleCount } from '../../services/templeData.js'
 import { useGame } from '../../state/GameContext.js'
 import { buildStampEntries, loadTaichungDemoStampCatalog } from './stampBookData.js'
 import StampGrid from './StampGrid.jsx'
@@ -14,6 +15,7 @@ export default function StampBookPage() {
   const [selectedStamp, setSelectedStamp] = useState(null)
   const [catalog, setCatalog] = useState([])
   const [regions, setRegions] = useState([])
+  const [totalTempleCount, setTotalTempleCount] = useState(0)
   const [catalogStatus, setCatalogStatus] = useState('loading')
   const returnFocusRef = useRef(null)
   const entries = useMemo(() => buildStampEntries(catalog, progress.stampRecords), [catalog, progress.stampRecords])
@@ -25,10 +27,12 @@ export default function StampBookPage() {
     Promise.all([
       loadTaichungDemoStampCatalog(controller.signal),
       loadAdministrativeRegions(controller.signal),
+      loadPublishedTempleCount(),
     ])
-      .then(([nextCatalog, nextRegions]) => {
+      .then(([nextCatalog, nextRegions, nextTotalTempleCount]) => {
         setCatalog(nextCatalog)
         setRegions(nextRegions)
+        setTotalTempleCount(nextTotalTempleCount)
         setCatalogStatus('ready')
       })
       .catch(error => {
@@ -53,12 +57,12 @@ export default function StampBookPage() {
 
   return <main className="stamp-book-page">
     <div className="stamp-book-inner">
-      <header className="stamp-book-header">
-        <div><p>宮廟文化收藏{import.meta.env.DEV && <span>DEMO</span>}</p><h1>集章簿</h1></div>
-        <strong>已收藏 {collectedCount} / {entries.length}</strong>
+      <header className="stamp-book-header collection-index-header">
+        <div><p>宮廟文化收藏</p><h1>集章簿</h1></div>
+        <span className="demo-badge">已收藏 {collectedCount}/{totalTempleCount.toLocaleString('zh-TW')} 間</span>
       </header>
 
-      <div className="stamp-progress" aria-hidden="true"><span style={{ width: `${entries.length ? (collectedCount / entries.length) * 100 : 0}%` }} /></div>
+      <div className="stamp-progress" aria-hidden="true"><span style={{ width: `${totalTempleCount ? (collectedCount / totalTempleCount) * 100 : 0}%` }} /></div>
 
       {collectedCount === 0 && <section className="stamp-empty-notice">
         <Stamp size={25} aria-hidden="true" />
@@ -67,7 +71,6 @@ export default function StampBookPage() {
       </section>}
 
       <StampGrid entries={entries} regions={regions} onSelect={openStamp} />
-      {import.meta.env.DEV && <p className="stamp-demo-note">目前開放台中市中區、北區與西區宮廟印章，其餘區域保留收藏欄位。</p>}
     </div>
     {selectedStamp && <StampDetailSheet entry={selectedStamp} onClose={closeStamp} />}
   </main>

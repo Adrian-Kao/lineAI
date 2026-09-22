@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { buildStampEntries, formatStampDate, formatStampTempleName, getPlayableStampCatalog } from '../features/collection/stampBookData.js'
+import { formatTempleName } from './formatTempleName.js'
 
 test('production catalog only counts the currently playable temple', () => {
   assert.equal(getPlayableStampCatalog(false).length, 1)
@@ -44,4 +45,9 @@ test('stamp book removes a leading Taichung place name', () => {
   assert.equal(formatStampTempleName('台灣省台中市法華寺'), '法華寺')
   assert.equal(formatStampTempleName('臺灣省臺中市西區觀善寺'), '西區觀善寺')
   assert.equal(formatStampTempleName('財團法人臺灣省台中聖賢堂'), '聖賢堂')
+})
+
+test('shared temple-name formatting preserves district names for map labels', () => {
+  assert.equal(formatTempleName('  財團法人臺灣省臺中市西區觀善寺  '), '西區觀善寺')
+  assert.equal(formatTempleName('中區萬春宮'), '中區萬春宮')
 })

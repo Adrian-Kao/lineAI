@@ -1,10 +1,9 @@
 import { useCallback, useRef, useState } from 'react'
 import { createStartingTiles, isSolved, PUZZLE_GRID_SIZE, swapTiles } from './puzzleRules.js'
-import templeImageUrl from './wan-chun-temple.jpeg'
 import './puzzleTask.css'
 import { useSettings } from '../../../state/SettingsContext.js'
 
-const DEFAULT_IMAGE_URL = templeImageUrl
+const DEFAULT_IMAGE_URL = '/missions/wanchun/reference-full.jpg'
 
 function tileBackgroundPosition(tile) {
   const column = tile % PUZZLE_GRID_SIZE

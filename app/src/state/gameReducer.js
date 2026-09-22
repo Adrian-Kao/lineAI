@@ -2,7 +2,7 @@ import { DEMO_CONTENT_VERSION, TASKS } from '../data/temple.js'
 import { WANCHUN_TEMPLE_ID } from '../data/templeContent.js'
 import { makeTempleKey } from '../utils/templeKey.js'
 export function createInitialState() {
-  return { schemaVersion: 1, contentVersion: DEMO_CONTENT_VERSION, missionCompletions: {}, stampRecords: [], photoRecords: [], journalEvents: [], itineraryItems: [] }
+  return { schemaVersion: 1, contentVersion: DEMO_CONTENT_VERSION, missionCompletions: {}, stampRecords: [], photoRecords: [], journalEvents: [], itineraryItems: [], completedDistrictIds: [] }
 }
 export function gameReducer(state, action) {
   if (action.type === 'HYDRATE') return action.payload
@@ -25,13 +25,18 @@ export function gameReducer(state, action) {
     if (state.missionCompletions[taskId]) return state
     const event = { id: `task:${taskId}`, taskId, occurredAt: completedAt }
     const missionCompletions = { ...state.missionCompletions, [taskId]: { completedAt, evidence } }
-    const itineraryItems = TASKS.every(task => missionCompletions[task.id])
+    const templeComplete = TASKS.every(task => missionCompletions[task.id])
+    const hasWanchunStamp = state.stampRecords.some(record => record.templeId === 'wanchun' || record.taskId === 'stamp')
+    const stampRecords = templeComplete && !hasWanchunStamp
+      ? [...state.stampRecords, { templeId: 'wanchun', acquiredAt: completedAt }]
+      : state.stampRecords
+    const itineraryItems = templeComplete
       ? (state.itineraryItems ?? []).filter(item => makeTempleKey(item) !== makeTempleKey(WANCHUN_TEMPLE_ID))
       : (state.itineraryItems ?? [])
     return {
       ...state,
       missionCompletions,
-      stampRecords: taskId === 'stamp' ? [...state.stampRecords, { taskId, acquiredAt: completedAt }] : state.stampRecords,
+      stampRecords,
       photoRecords: taskId === 'photo' ? [...state.photoRecords, { taskId, mediaId: evidence.mediaId, acquiredAt: completedAt }] : state.photoRecords,
       journalEvents: [...state.journalEvents, event],
       itineraryItems,

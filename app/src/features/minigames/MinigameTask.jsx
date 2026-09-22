@@ -11,7 +11,7 @@ export default function MinigameTask({
   onComplete,
   disabled = false,
   puzzleImageUrl,
-  badge = '測試功能',
+  badge = '',
   description = '可自由切換玩法；完成目前選擇的任一遊戲即可通過第三關。',
 }) {
   const [selectedGame, setSelectedGame] = useState('puzzle')

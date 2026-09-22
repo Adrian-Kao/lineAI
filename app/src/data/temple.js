@@ -1,7 +1,7 @@
 export const DEMO_CONTENT_VERSION = 'wanchun-demo-1'
 export const TEMPLE = {
   id: 'wanchun', districtId: 'taichung-central-demo', name: '萬春宮',
-  mapAnchor: { xPercent: 50, yPercent: 50 }, imageUrl: '/demo/temple.jpg',
+  mapAnchor: { xPercent: 50, yPercent: 50 }, imageUrl: '/missions/wanchun/reference-full.jpg',
   stampImageUrl: '/demo/stamp.png',
 }
 export const TASKS = [
