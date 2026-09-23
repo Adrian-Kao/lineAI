@@ -1,10 +1,11 @@
 import { lazy, Suspense, useState } from 'react'
 import './minigameTask.css'
+import { useSettings } from '../../state/SettingsContext.js'
 
 const GAME_OPTIONS = [
-  { id: 'puzzle', label: '文化拼圖', Component: lazy(() => import('./puzzle/PuzzleTask.jsx')) },
-  { id: 'lantern', label: '點燈祈福', Component: lazy(() => import('./lantern/LanternGame.jsx')) },
-  { id: 'memory', label: '文物翻牌', Component: lazy(() => import('./memory/MemoryGame.jsx')) },
+  { id: 'puzzle', labelKey: 'minigame.puzzle', Component: lazy(() => import('./puzzle/PuzzleTask.jsx')) },
+  { id: 'lantern', labelKey: 'minigame.lantern', Component: lazy(() => import('./lantern/LanternGame.jsx')) },
+  { id: 'memory', labelKey: 'minigame.memory', Component: lazy(() => import('./memory/MemoryGame.jsx')) },
 ]
 
 export default function MinigameTask({
@@ -12,8 +13,9 @@ export default function MinigameTask({
   disabled = false,
   puzzleImageUrl,
   badge = '',
-  description = '可自由切換玩法；完成目前選擇的任一遊戲即可通過第三關。',
+  description,
 }) {
+  const { t } = useSettings()
   const [selectedGame, setSelectedGame] = useState('puzzle')
   const ActiveGame = GAME_OPTIONS.find(option => option.id === selectedGame).Component
 
@@ -21,10 +23,10 @@ export default function MinigameTask({
     <section className="mission-minigame__picker" aria-labelledby="minigame-picker-title">
       <div>
         {badge && <p className="demo-badge">{badge}</p>}
-        <h2 id="minigame-picker-title">選擇小遊戲</h2>
-        <p>{description}</p>
+        <h2 id="minigame-picker-title">{t('minigame.choose')}</h2>
+        <p>{description ?? t('minigame.defaultDescription')}</p>
       </div>
-      <div className="mission-minigame__tabs" role="group" aria-label="小遊戲類型">
+      <div className="mission-minigame__tabs" role="group" aria-label={t('minigame.type')}>
         {GAME_OPTIONS.map(option => <button
           key={option.id}
           type="button"
@@ -33,11 +35,11 @@ export default function MinigameTask({
           disabled={disabled}
           onClick={() => setSelectedGame(option.id)}
         >
-          {option.label}
+          {t(option.labelKey)}
         </button>)}
       </div>
     </section>
-    <Suspense fallback={<p className="mission-minigame__loading" role="status">載入小遊戲…</p>}>
+    <Suspense fallback={<p className="mission-minigame__loading" role="status">{t('minigame.loading')}</p>}>
       <ActiveGame key={selectedGame} onComplete={onComplete} disabled={disabled} {...(selectedGame === 'puzzle' && puzzleImageUrl ? { imageUrl: puzzleImageUrl } : {})} />
     </Suspense>
   </div>

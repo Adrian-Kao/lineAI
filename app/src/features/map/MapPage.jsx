@@ -29,6 +29,7 @@ export default function MapPage() {
     }
     const derived = deriveRegionProgress(actual, districts)
     const demoColored = applyDemoMapColoring(derived, districts, demoControls.mapColoring)
+    if (demoControls.centralComplete) demoColored['66000010'] = 'unlocked'
     return import.meta.env.DEV ? applyMapColorPreview(demoColored, districts) : demoColored
   }, [progress, districts, demoControls.centralComplete, demoControls.mapColoring])
   const { county } = useParams()
@@ -57,7 +58,7 @@ export default function MapPage() {
     if (demoControls.centralComplete) {
       const centralDistrict = districts?.features.find(feature => feature.properties.TOWNCODE === '66000010')
       for (const temple of countyTemples ?? []) {
-        if (centralDistrict && isTempleInDistrict(temple, centralDistrict) && temple.id !== WANCHUN_TEMPLE_ID) ids.add(temple.id)
+        if (centralDistrict && isTempleInDistrict(temple, centralDistrict)) ids.add(temple.id)
       }
     }
     return import.meta.env.DEV ? applyTempleLightPreview(ids) : ids

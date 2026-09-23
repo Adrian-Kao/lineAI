@@ -56,7 +56,7 @@ export default function StampTask({ onComplete, disabled }) {
       config={demoMissionConfig}
       phase={stampPhase}
       onContinue={finishStamp}
-      continueLabel="下一關"
+      continueLabel={t('story.next')}
       disabled={disabled}
     />
   }

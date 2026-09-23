@@ -42,7 +42,8 @@ function currentStep(phase) {
 }
 
 export default function TempleMissionExperience({ config = demoMissionConfig }) {
-  const { reduceMotion } = useSettings()
+  const { reduceMotion, t } = useSettings()
+  const templeName = t('experience.temple')
   const [phase, setPhase] = useState(MISSION_PHASES.touchWaiting)
   const sequenceRef = useRef(null)
   const step = currentStep(phase)
@@ -88,18 +89,18 @@ export default function TempleMissionExperience({ config = demoMissionConfig }) 
 
   return <main className={`mission-experience phase-${phase}`}>
     <header className="mission-experience__header">
-      <Link className="mission-experience__back" to={ROUTES.temple}><ArrowLeft size={18} />返回萬春宮</Link>
+      <Link className="mission-experience__back" to={ROUTES.temple}><ArrowLeft size={18} />{t('experience.back')}</Link>
       <div className="mission-experience__identity">
-        <div><strong>{config.templeName}探索任務</strong><small>{config.location}</small></div>
+        <div><strong>{t('experience.title', { temple: templeName })}</strong><small>{t('experience.location')}</small></div>
       </div>
-      <button className="mission-experience__reset" type="button" onClick={resetExperience} title="重新開始流程"><RotateCcw size={18} /><span>重新開始</span></button>
+      <button className="mission-experience__reset" type="button" onClick={resetExperience} title={t('experience.resetTitle')}><RotateCcw size={18} /><span>{t('experience.reset')}</span></button>
     </header>
 
-    <ol className="mission-experience__progress" aria-label="探索進度">
+    <ol className="mission-experience__progress" aria-label={t('experience.progress')}>
       {[
-        { label: 'LINE Touch', Icon: Nfc },
-        { label: '拍照探索', Icon: Camera },
-        { label: '互動遊戲', Icon: Gamepad2 },
+        { label: t('experience.touch'), Icon: Nfc },
+        { label: t('experience.photo'), Icon: Camera },
+        { label: t('experience.game'), Icon: Gamepad2 },
       ].map(({ label, Icon }, index) => <li key={label} className={`${index === step ? 'is-active' : ''}${index < step ? ' is-complete' : ''}`} aria-current={index === step ? 'step' : undefined}>
         <span>{index < step ? <Check size={15} /> : index === 0 && STAMP_PHASES.has(phase) ? <Stamp size={15} /> : <Icon size={15} />}</span>
         <small>{label}</small>
@@ -115,6 +116,6 @@ export default function TempleMissionExperience({ config = demoMissionConfig }) 
       {phase === MISSION_PHASES.gameReady && <GameScene config={config} />}
     </div>
 
-    <p className="mission-experience__disclaimer">LINE Touch 採感應體驗；拍照可使用裝置相機在本機對位，或使用預設圖片完成。影像不會自動上傳。</p>
+    <p className="mission-experience__disclaimer">{t('experience.disclaimer')}</p>
   </main>
 }

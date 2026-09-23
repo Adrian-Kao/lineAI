@@ -67,6 +67,19 @@ const DEMO_ORANGE_COUNTIES = new Set([
 ])
 const DEMO_ALWAYS_LOCKED_COUNTIES = new Set(['09007']) // 連江縣
 const DEMO_EASTERN_COUNTIES = new Set(['10014', '10015']) // 台東縣、花蓮縣降低選取順位
+const DEMO_ORANGE_DISTRICTS = new Set([
+  '65000010', // 新北市板橋區
+  '68000010', // 桃園市桃園區
+  '10018010', // 新竹市東區
+  '10005010', // 苗栗縣苗栗市
+  '66000040', // 台中市西區
+  '10020020', // 嘉義市西區
+  '64000010', // 高雄市鹽埕區
+  '64000100', // 高雄市旗津區
+  '10013010', // 屏東縣屏東市
+  '10017040', // 基隆市仁愛區
+])
+const DEMO_YELLOW_DISTRICTS = new Set(['10015010']) // 花蓮縣花蓮市
 const DEMO_COLOR_COVERAGE = 0.7
 const TAIWAN_CENTER = [120.98, 23.7]
 
@@ -113,8 +126,8 @@ function getFeatureMetrics(features) {
 
 function selectDemoYellowDistricts(features, orangeCount) {
   const candidates = getFeatureMetrics(features).filter(({ feature }) => {
-    const countyCode = feature.properties?.COUNTYCODE
-    return countyCode && !DEMO_ORANGE_COUNTIES.has(countyCode) && !DEMO_ALWAYS_LOCKED_COUNTIES.has(countyCode)
+    const { COUNTYCODE: countyCode, TOWNCODE: townCode } = feature.properties ?? {}
+    return countyCode && !DEMO_ORANGE_COUNTIES.has(countyCode) && !DEMO_ORANGE_DISTRICTS.has(townCode) && !DEMO_ALWAYS_LOCKED_COUNTIES.has(countyCode)
   })
   const logAreas = candidates.map(item => Math.log(item.area))
   const longitudes = candidates.map(item => item.longitude)
@@ -141,18 +154,23 @@ function selectDemoYellowDistricts(features, orangeCount) {
   })
 
   const coloredTarget = Math.round(features.length * DEMO_COLOR_COVERAGE)
-  return new Set(candidates.slice(0, Math.max(0, coloredTarget - orangeCount)).map(item => item.feature.properties.TOWNCODE))
+  const forced = new Set(features
+    .filter(feature => DEMO_YELLOW_DISTRICTS.has(feature.properties?.TOWNCODE))
+    .map(feature => feature.properties.TOWNCODE))
+  const remaining = candidates.filter(item => !forced.has(item.feature.properties.TOWNCODE))
+  const selected = remaining.slice(0, Math.max(0, coloredTarget - orangeCount - forced.size)).map(item => item.feature.properties.TOWNCODE)
+  return new Set([...forced, ...selected])
 }
 
 export function applyDemoMapColoring(actualProgress, collection, enabled) {
   if (!enabled || !collection?.features) return actualProgress
   const result = { ...actualProgress }
-  const orangeCount = collection.features.filter(feature => DEMO_ORANGE_COUNTIES.has(feature.properties?.COUNTYCODE)).length
+  const orangeCount = collection.features.filter(feature => DEMO_ORANGE_COUNTIES.has(feature.properties?.COUNTYCODE) || DEMO_ORANGE_DISTRICTS.has(feature.properties?.TOWNCODE)).length
   const yellowDistricts = selectDemoYellowDistricts(collection.features, orangeCount)
   for (const feature of collection.features) {
     const { COUNTYCODE, TOWNCODE } = feature.properties
     if (!TOWNCODE) continue
-    if (DEMO_ORANGE_COUNTIES.has(COUNTYCODE)) result[TOWNCODE] = 'unlocked'
+    if (DEMO_ORANGE_COUNTIES.has(COUNTYCODE) || DEMO_ORANGE_DISTRICTS.has(TOWNCODE)) result[TOWNCODE] = 'unlocked'
     else if (yellowDistricts.has(TOWNCODE)) result[TOWNCODE] = 'inProgress'
     else result[TOWNCODE] = 'locked'
   }

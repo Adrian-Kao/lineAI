@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { Gift, Sparkles } from 'lucide-react'
 import './rewardDialog.css'
+import { useSettings } from '../../state/SettingsContext.js'
 
 function RewardVisual({ reward }) {
   if (reward.kind === 'points') return <div className="reward-points-medallion" aria-label={`${reward.amount} LINE POINTS`}>
@@ -14,6 +15,7 @@ function RewardVisual({ reward }) {
 }
 
 export default function RewardDialog({ reward, remaining, onConfirm }) {
+  const { t } = useSettings()
   const confirmRef = useRef(null)
 
   useEffect(() => {
@@ -32,8 +34,8 @@ export default function RewardDialog({ reward, remaining, onConfirm }) {
       <RewardVisual reward={reward} />
       <h2 id="reward-dialog-title">{reward.title}</h2>
       <p id="reward-dialog-description" className="reward-dialog-description">{reward.description}</p>
-      {remaining > 1 && <p className="reward-dialog-remaining">確認後還有 {remaining - 1} 項獎勵</p>}
-      <button ref={confirmRef} className="reward-dialog-confirm" type="button" onClick={onConfirm}>確認</button>
+      {remaining > 1 && <p className="reward-dialog-remaining">{t('reward.remaining', { count: remaining - 1 })}</p>}
+      <button ref={confirmRef} className="reward-dialog-confirm" type="button" onClick={onConfirm}>{t('reward.confirm')}</button>
     </section>
   </div>, document.body)
 }

@@ -5,14 +5,16 @@ import { useGame } from '../state/GameContext.js'
 import { ROUTES } from '../config/routes.js'
 import { ensureLineLogin, getLineProfile, initLine, isLineConfigured, isLineMockMode } from '../services/line.js'
 import BrandMark from '../components/common/BrandMark.jsx'
+import { useSettings } from '../state/SettingsContext.js'
 
-function profileName(email) {
+function profileName(email, fallback) {
   const name = email.trim().split('@')[0]
-  return name || '測試玩家'
+  return name || fallback
 }
 
 export default function EntryPage() {
   const { session, initializeSession } = useGame()
+  const { t } = useSettings()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [passwordVisible, setPasswordVisible] = useState(false)
@@ -36,7 +38,7 @@ export default function EntryPage() {
         const profile = await getLineProfile()
         if (active) await initializeSession(profile)
       } catch (cause) {
-        if (active) setError(cause instanceof Error ? cause.message : 'LINE 連線失敗，請再試一次')
+        if (active) setError(cause instanceof Error ? cause.message : t('entry.connectionFailed'))
       } finally {
         if (active) setLineConnecting(false)
       }
@@ -44,7 +46,7 @@ export default function EntryPage() {
 
     restoreSession()
     return () => { active = false }
-  }, [initializeSession])
+  }, [initializeSession, t])
 
   async function signIn(profile) {
     if (submitting) return
@@ -53,14 +55,14 @@ export default function EntryPage() {
       await initializeSession(profile)
       navigate(returnPath, { replace: true })
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : '登入失敗，請再試一次')
+      setError(cause instanceof Error ? cause.message : t('entry.signInFailed'))
     }
   }
 
   function handleAccountLogin(event) {
     event.preventDefault()
     const account = email.trim().toLowerCase()
-    signIn({ userId: `mock-account:${account || 'guest'}`, name: profileName(email), avatar: null })
+    signIn({ userId: `mock-account:${account || 'guest'}`, name: profileName(email, t('entry.testPlayer')), avatar: null })
   }
 
   async function handleLineLogin() {
@@ -74,7 +76,7 @@ export default function EntryPage() {
       if (!ensureLineLogin({ redirectUri: redirect.toString() })) return
       await signIn(await getLineProfile())
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : 'LINE 登入失敗，請再試一次')
+      setError(cause instanceof Error ? cause.message : t('entry.lineFailed'))
     } finally {
       setLineConnecting(false)
     }
@@ -89,32 +91,32 @@ export default function EntryPage() {
         <p>Templore</p>
       </div>
 
-      <h1 id="login-title">登入帳號</h1>
+      <h1 id="login-title">{t('entry.title')}</h1>
 
       <form className="login-form" onSubmit={handleAccountLogin}>
         <label className="login-field">
           <Mail size={22} aria-hidden="true" />
-          <span className="sr-only">電子郵件或帳號</span>
-          <input type="text" inputMode="email" autoComplete="username" placeholder="請輸入電子郵件或帳號" value={email} onChange={event => setEmail(event.target.value)} />
+          <span className="sr-only">{t('entry.account')}</span>
+          <input type="text" inputMode="email" autoComplete="username" placeholder={t('entry.accountPlaceholder')} value={email} onChange={event => setEmail(event.target.value)} />
         </label>
 
         <label className="login-field">
           <LockKeyhole size={22} aria-hidden="true" />
-          <span className="sr-only">密碼</span>
-          <input type={passwordVisible ? 'text' : 'password'} autoComplete="current-password" placeholder="請輸入密碼" value={password} onChange={event => setPassword(event.target.value)} />
-          <button className="password-toggle" type="button" aria-label={passwordVisible ? '隱藏密碼' : '顯示密碼'} onClick={() => setPasswordVisible(value => !value)}>
+          <span className="sr-only">{t('entry.password')}</span>
+          <input type={passwordVisible ? 'text' : 'password'} autoComplete="current-password" placeholder={t('entry.passwordPlaceholder')} value={password} onChange={event => setPassword(event.target.value)} />
+          <button className="password-toggle" type="button" aria-label={t(passwordVisible ? 'entry.hidePassword' : 'entry.showPassword')} onClick={() => setPasswordVisible(value => !value)}>
             {passwordVisible ? <EyeOff size={22} /> : <Eye size={22} />}
           </button>
         </label>
 
-        <button className="login-submit" type="submit" disabled={submitting}>{submitting ? '登入中…' : '登入'}</button>
+        <button className="login-submit" type="submit" disabled={submitting}>{t(submitting ? 'entry.signingIn' : 'entry.signIn')}</button>
       </form>
 
-      <div className="login-divider"><span>其他登入方式</span></div>
+      <div className="login-divider"><span>{t('entry.other')}</span></div>
 
       <button className="line-login" type="button" onClick={handleLineLogin} disabled={submitting}>
         <MessageCircleMore size={25} fill="currentColor" aria-hidden="true" />
-        {lineConnecting ? '連接 LINE 中…' : '使用 LINE 登入'}
+        {t(lineConnecting ? 'entry.connecting' : 'entry.line')}
       </button>
 
       {(error || session.error) && <p className="login-error" role="alert">{error || session.error}</p>}

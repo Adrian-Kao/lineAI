@@ -51,3 +51,20 @@ test('demo map coloring applies fixed county and district states only when enabl
   assert.equal(statuses.filter(status => status === 'inProgress').length, 5)
   assert.equal(statuses.filter(status => status !== 'locked').length / statuses.length, 0.7)
 })
+
+test('demo map coloring includes individual completed districts and Hualien City', () => {
+  const feature = (countyCode, townCode, longitude) => ({
+    properties: { COUNTYCODE: countyCode, TOWNCODE: townCode },
+    geometry: { type: 'Polygon', coordinates: [[[longitude, 23], [longitude + 0.03, 23], [longitude + 0.03, 23.03], [longitude, 23.03], [longitude, 23]]] },
+  })
+  const collection = { features: [
+    feature('65000', '65000010', 121.4),
+    feature('10015', '10015010', 121.6),
+    feature('09007', '09007010', 119.9),
+    ...Array.from({ length: 7 }, (_, index) => feature('10008', `100080${index + 1}`, 120.2 + index * 0.05)),
+  ] }
+  const result = applyDemoMapColoring({}, collection, true)
+  assert.equal(result['65000010'], 'unlocked')
+  assert.equal(result['10015010'], 'inProgress')
+  assert.equal(result['09007010'], 'locked')
+})

@@ -1,7 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { createInitialState, gameReducer } from '../state/gameReducer.js'
-import { isCentralDistrictComplete } from '../state/gameRules.js'
+import { applyCentralDemoCompletion, isCentralDistrictComplete, isTempleComplete } from '../state/gameRules.js'
 
 function complete(state, taskId, minute) {
   return gameReducer(state, {
@@ -33,4 +33,11 @@ test('does not treat completing Wanchun Temple as completing Central District', 
   state = complete(state, 'puzzle', 2)
   assert.equal(isCentralDistrictComplete(state), false)
   assert.equal(isCentralDistrictComplete({ ...state, completedDistrictIds: ['66000010'] }), true)
+})
+
+test('central district demo marks every Wanchun mission complete without changing stored progress', () => {
+  const state = createInitialState()
+  const displayState = applyCentralDemoCompletion(state, true)
+  assert.equal(isTempleComplete(displayState), true)
+  assert.deepEqual(state.missionCompletions, {})
 })

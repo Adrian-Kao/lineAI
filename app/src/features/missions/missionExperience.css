@@ -161,6 +161,7 @@
 .to-game .mission-transition__icon { animation: puzzle-icon-pop .62s ease-out both; }
 
 .photo-demo-scene { background: #eef2e9; animation: mission-scene-enter .4s ease-out both; }
+.photo-demo-scene.is-photoComplete { animation: none; transform: none; }
 .mission-photo-align-stage { width: min(100%, 620px); flex: none; }
 .mission-photo-hole-placeholder {
   position: absolute;

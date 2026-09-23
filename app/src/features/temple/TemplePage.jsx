@@ -1,9 +1,9 @@
 import { Link } from 'react-router'
 import { Camera, Check, Lock, Play, Puzzle, Stamp } from 'lucide-react'
 import { ROUTES } from '../../config/routes.js'
-import { TASKS, TEMPLE } from '../../data/temple.js'
+import { TASKS } from '../../data/temple.js'
 import { useGame } from '../../state/GameContext.js'
-import { getNextTaskId, getTaskStatus, isTempleComplete } from '../../state/gameRules.js'
+import { applyCentralDemoCompletion, getNextTaskId, getTaskStatus, isTempleComplete } from '../../state/gameRules.js'
 import { formatTaipeiTime } from '../../utils/formatTime.js'
 import { WANCHUN_REFERENCE_IMAGE } from '../../data/templeContent.js'
 import { useSettings } from '../../state/SettingsContext.js'
@@ -29,22 +29,23 @@ function TaskCard({ task, status, completion, t }) {
 
 export default function TemplePage() {
   const { t } = useSettings()
-  const { progress } = useGame()
-  const nextTaskId = getNextTaskId(progress)
-  const complete = isTempleComplete(progress)
-  const completedCount = TASKS.filter(task => progress.missionCompletions[task.id]).length
+  const { progress, demoControls } = useGame()
+  const displayProgress = applyCentralDemoCompletion(progress, demoControls.centralComplete)
+  const nextTaskId = getNextTaskId(displayProgress)
+  const complete = isTempleComplete(displayProgress)
+  const completedCount = TASKS.filter(task => displayProgress.missionCompletions[task.id]).length
 
   return <main className="temple-page">
     <article className="temple-detail temple-hero">
-      <img className="temple-hero-image" src={WANCHUN_REFERENCE_IMAGE} alt={`${TEMPLE.name}探索照片`} />
+      <img className="temple-hero-image" src={WANCHUN_REFERENCE_IMAGE} alt={t('temple.photoAlt')} />
       <div className="temple-hero-body">
         <p className="temple-location">{t('temple.location')}</p>
-        <h1>{TEMPLE.name}</h1>
+        <h1>{t('temple.name')}</h1>
         <p className="demo-badge">{t('temple.routeProgress', { completed: completedCount, total: TASKS.length })}</p>
       </div>
     </article>
 
-    {!complete && nextTaskId && <Link className="task-button mission-demo-entry" to={ROUTES.mission.replace(':taskId', nextTaskId)}><Play size={18} />開始探索任務</Link>}
+    {!complete && nextTaskId && <Link className="task-button mission-demo-entry" to={ROUTES.mission.replace(':taskId', nextTaskId)}><Play size={18} />{t('temple.startExplore')}</Link>}
 
     {complete
       ? <section className="temple-complete" role="status">
@@ -59,7 +60,7 @@ export default function TemplePage() {
 
     <section aria-label={t('temple.list')}>
       <ol className="task-list">
-        {TASKS.map(task => <TaskCard key={task.id} task={task} status={getTaskStatus(progress, task.id)} completion={progress.missionCompletions[task.id]} t={t} />)}
+        {TASKS.map(task => <TaskCard key={task.id} task={task} status={getTaskStatus(displayProgress, task.id)} completion={displayProgress.missionCompletions[task.id]} t={t} />)}
       </ol>
     </section>
   </main>

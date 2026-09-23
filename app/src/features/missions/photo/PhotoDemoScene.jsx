@@ -6,16 +6,17 @@ import CameraHole from '../../photo/CameraHole.jsx'
 import ReferenceOverlay from '../../photo/ReferenceOverlay.jsx'
 import '../../photo/photoAlign.css'
 import { delay, MISSION_PHASES } from '../missionFlow.js'
+import { useSettings } from '../../../state/SettingsContext.js'
 
-function cameraMessage(error) {
-  if (!window.isSecureContext) return '相機需要 HTTPS 或本機開發環境。'
-  if (error?.name === 'NotAllowedError' || error?.name === 'SecurityError') return '相機權限未開啟，請在瀏覽器網站設定中允許相機後再試一次。'
-  if (error?.name === 'NotFoundError' || error?.name === 'OverconstrainedError') return '找不到可用的相機，請確認裝置相機可正常使用。'
-  if (error?.name === 'NotReadableError' || error?.name === 'AbortError') return '相機可能正在被其他應用程式使用，請關閉後再試一次。'
-  return '目前無法開啟相機，請確認權限與瀏覽器支援後再試一次。'
+function cameraMessage(t, error) {
+  if (!window.isSecureContext) return t('photoDemo.insecure')
+  if (error?.name === 'NotAllowedError' || error?.name === 'SecurityError') return t('photoDemo.denied')
+  if (error?.name === 'NotFoundError' || error?.name === 'OverconstrainedError') return t('photoDemo.noCamera')
+  if (error?.name === 'NotReadableError' || error?.name === 'AbortError') return t('photoDemo.busy')
+  return t('photoDemo.cameraFailed')
 }
 
-function waitForVideo(video) {
+function waitForVideo(video, failedMessage) {
   if (video.readyState >= HTMLMediaElement.HAVE_METADATA) return video.play()
   return new Promise((resolve, reject) => {
     function cleanup() {
@@ -28,7 +29,7 @@ function waitForVideo(video) {
     }
     function failed() {
       cleanup()
-      reject(new Error('相機畫面載入失敗'))
+      reject(new Error(failedMessage))
     }
     video.addEventListener('loadedmetadata', ready, { once: true })
     video.addEventListener('error', failed, { once: true })
@@ -49,6 +50,8 @@ function revokeObjectUrl(ref) {
 }
 
 export default function PhotoDemoScene({ config, phase, onPhaseChange, onContinue, reducedMotion, disabled = false }) {
+  const { language, t } = useSettings()
+  const templeName = t('experience.temple')
   const task = config.photoTask
   const [cameraStatus, setCameraStatus] = useState('idle')
   const [alignmentStatus, setAlignmentStatus] = useState('idle')
@@ -69,7 +72,7 @@ export default function PhotoDemoScene({ config, phase, onPhaseChange, onContinu
   const autoCheckTimerRef = useRef(null)
   const mountedRef = useRef(true)
   const compareMode = getImageSimilarityMode()
-  const dateLabel = useMemo(() => new Intl.DateTimeFormat('zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date()), [])
+  const dateLabel = useMemo(() => new Intl.DateTimeFormat(language === 'en' ? 'en-US' : 'zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date()), [language])
 
   function stopCamera() {
     streamRef.current?.getTracks().forEach(track => track.stop())
@@ -108,7 +111,7 @@ export default function PhotoDemoScene({ config, phase, onPhaseChange, onContinu
     setCameraStatus('requesting')
     if (!window.isSecureContext || !navigator.mediaDevices?.getUserMedia) {
       setCameraStatus('error')
-      setMessage(cameraMessage())
+      setMessage(cameraMessage(t))
       return
     }
     try {
@@ -131,20 +134,20 @@ export default function PhotoDemoScene({ config, phase, onPhaseChange, onContinu
       }
       streamRef.current = stream
       video.srcObject = stream
-      await waitForVideo(video)
+      await waitForVideo(video, t('photoDemo.videoFailed'))
       if (!mountedRef.current) {
         stream.getTracks().forEach(track => track.stop())
         return
       }
       setCameraStatus('ready')
       setAlignmentStatus('aligning')
-      setMessage('移動手機，讓鏡頭中的牌匾與缺口邊緣重合。')
+      setMessage(t('photoDemo.alignHelp'))
       onPhaseChange(MISSION_PHASES.photoReady)
     } catch (error) {
       stopCamera()
       if (!mountedRef.current) return
       setCameraStatus('error')
-      setMessage(cameraMessage(error))
+      setMessage(cameraMessage(t, error))
     }
   }
 
@@ -159,7 +162,7 @@ export default function PhotoDemoScene({ config, phase, onPhaseChange, onContinu
     compareAbortRef.current?.abort()
     compareAbortRef.current = controller
     setAlignmentStatus('checking')
-    setMessage('正在比對缺口中的建築輪廓…')
+    setMessage(t('photoDemo.comparing'))
     onPhaseChange(MISSION_PHASES.photoCapturing)
 
     try {
@@ -177,7 +180,7 @@ export default function PhotoDemoScene({ config, phase, onPhaseChange, onContinu
 
       if (!result.passed) {
         setAlignmentStatus('failed')
-        setMessage(`尚未對準，目前相似度 ${Math.round(result.score * 100)}%。請繼續移動鏡頭。`)
+        setMessage(t('photoDemo.notAligned', { score: Math.round(result.score * 100) }))
         onPhaseChange(MISSION_PHASES.photoReady)
         return
       }
@@ -192,7 +195,7 @@ export default function PhotoDemoScene({ config, phase, onPhaseChange, onContinu
       setPhotoUrl(task.referenceImage)
       completedPhotoRef.current = completedPhoto
       setAlignmentStatus('matched')
-      setMessage('對位成功，正在把鏡頭畫面補進原始照片。')
+      setMessage(t('photoDemo.aligned'))
       stopCamera()
       await delay(reducedMotion ? 80 : 720, controller.signal)
       if (!mountedRef.current) return
@@ -203,13 +206,13 @@ export default function PhotoDemoScene({ config, phase, onPhaseChange, onContinu
     } catch (error) {
       if (!mountedRef.current || error?.name === 'AbortError') return
       setAlignmentStatus('failed')
-      setMessage(error instanceof Error ? error.message : '影像比對失敗，請再試一次。')
+      setMessage(error instanceof Error ? error.message : t('photoDemo.compareFailed'))
       onPhaseChange(MISSION_PHASES.photoReady)
     } finally {
       checkingRef.current = false
       if (compareAbortRef.current === controller) compareAbortRef.current = null
     }
-  }, [cameraStatus, compareMode, onPhaseChange, phase, reducedMotion, task])
+  }, [cameraStatus, compareMode, onPhaseChange, phase, reducedMotion, t, task])
 
   useEffect(() => {
     window.clearTimeout(autoCheckTimerRef.current)
@@ -238,7 +241,7 @@ export default function PhotoDemoScene({ config, phase, onPhaseChange, onContinu
     setPhotoUrl(task.referenceImage)
     completedPhotoRef.current = file
     setAlignmentStatus('matched')
-    setMessage('已從相簿選取照片，正在加入旅程紀錄。')
+    setMessage(t('photoDemo.albumSelected'))
     onPhaseChange(MISSION_PHASES.photoCapturing)
 
     try {
@@ -251,7 +254,7 @@ export default function PhotoDemoScene({ config, phase, onPhaseChange, onContinu
     } catch (error) {
       if (error?.name !== 'AbortError' && mountedRef.current) {
         setAlignmentStatus('failed')
-        setMessage('照片處理失敗，請重新從相簿選取。')
+        setMessage(t('photoDemo.albumFailed'))
         onPhaseChange(MISSION_PHASES.photoIntro)
       }
     } finally {
@@ -280,9 +283,9 @@ export default function PhotoDemoScene({ config, phase, onPhaseChange, onContinu
 
   return <section className={`mission-scene photo-demo-scene is-${phase}`} aria-labelledby="photo-demo-title">
     <div className="mission-scene__heading">
-      <span className="scene-kicker">拍照探索・實景對位</span>
-      <h1 id="photo-demo-title">{complete ? '拍照探索完成' : captured ? '完整照片已解鎖' : '補上照片缺口'}</h1>
-      <p>{complete ? `接下來，完成${config.templeName}的小遊戲吧！` : '將現場鏡頭對準原始照片的缺口，完成後才會解鎖照片。'}</p>
+      <span className="scene-kicker">{t('photoDemo.kicker')}</span>
+      <h1 id="photo-demo-title">{t(complete ? 'photoDemo.completeTitle' : captured ? 'photoDemo.unlockedTitle' : 'photoDemo.title')}</h1>
+      <p>{complete ? t('photoDemo.nextGame', { temple: templeName }) : t('photoDemo.help')}</p>
     </div>
 
     {showAlignmentStage && <div
@@ -290,40 +293,40 @@ export default function PhotoDemoScene({ config, phase, onPhaseChange, onContinu
       ref={stageRef}
       style={{ aspectRatio: task.aspectRatio }}
       role="img"
-      aria-label={`${task.templeName}原始照片，中央缺口顯示相機即時畫面`}
+      aria-label={t('photoDemo.stageLabel', { temple: templeName })}
     >
       <CameraHole videoRef={videoRef} hole={task.hole} frozenPatchUrl={frozenPatchUrl} />
-      {cameraStatus !== 'ready' && <div className="mission-photo-hole-placeholder" style={holeStyle}><Camera size={25} /><span>相機畫面</span></div>}
+      {cameraStatus !== 'ready' && <div className="mission-photo-hole-placeholder" style={holeStyle}><Camera size={25} /><span>{t('photoDemo.camera')}</span></div>}
       <ReferenceOverlay imageUrl={task.referenceImage} hole={task.hole} showHole passed={matched} />
-      {checking && <div className="photo-align-stage__checking"><ScanLine size={27} /><span>正在確認位置…</span></div>}
+      {checking && <div className="photo-align-stage__checking"><ScanLine size={27} /><span>{t('photoDemo.checking')}</span></div>}
       {matched && photoUrl && <img className="mission-photo-composite" src={photoUrl} alt="" />}
     </div>}
 
     {(captured || complete) && <div className="photo-memory-stage">
       <figure className="photo-polaroid">
-        <img src={photoUrl || task.referenceImage} alt={`${config.templeName}實景對位完成照片`} />
-        <figcaption><strong>{config.templeName}</strong><span>{dateLabel}</span><small>{completionSource === 'album' ? '相簿照片' : '實景缺口已完成'}</small></figcaption>
+        <img src={photoUrl || task.referenceImage} alt={t('photoDemo.resultAlt', { temple: templeName })} />
+        <figcaption><strong>{templeName}</strong><span>{dateLabel}</span><small>{t(completionSource === 'album' ? 'photoDemo.album' : 'photoDemo.sceneComplete')}</small></figcaption>
       </figure>
-      <span className="photo-collection-target"><Images size={22} /><small>旅程紀錄</small></span>
+      <span className="photo-collection-target"><Images size={22} /><small>{t('photoDemo.record')}</small></span>
     </div>}
 
     {phase === MISSION_PHASES.photoIntro && <div className="photo-demo-actions">
-      <button type="button" className="mission-primary-action" onClick={startCamera} disabled={disabled || cameraStatus === 'requesting'}><Camera size={20} />{cameraStatus === 'requesting' ? '正在開啟…' : cameraStatus === 'error' ? '重新開啟相機' : '開啟相機並開始對位'}</button>
+      <button type="button" className="mission-primary-action" onClick={startCamera} disabled={disabled || cameraStatus === 'requesting'}><Camera size={20} />{t(cameraStatus === 'requesting' ? 'photoDemo.opening' : cameraStatus === 'error' ? 'photoDemo.reopen' : 'photoDemo.open')}</button>
       <input ref={albumInputRef} type="file" accept="image/*" hidden onChange={selectAlbumPhoto} />
-      <button type="button" className="mission-secondary-action" onClick={() => albumInputRef.current?.click()} disabled={disabled || cameraStatus === 'requesting'}><Images size={20} />從相簿選取</button>
+      <button type="button" className="mission-secondary-action" onClick={() => albumInputRef.current?.click()} disabled={disabled || cameraStatus === 'requesting'}><Images size={20} />{t('photoDemo.chooseAlbum')}</button>
     </div>}
 
     {(cameraReady || checking) && <div className="mission-photo-alignment-controls">
-      <p><ScanLine size={18} />系統會持續檢查牌匾與屋簷輪廓</p>
-      {Number.isFinite(score) && <div className="mission-photo-score" aria-label={`目前相似度 ${Math.round(score * 100)}%`}>
+      <p><ScanLine size={18} />{t('photoDemo.continuous')}</p>
+      {Number.isFinite(score) && <div className="mission-photo-score" aria-label={t('photoDemo.score', { score: Math.round(score * 100) })}>
         <span style={{ width: `${Math.round(score * 100)}%` }} />
       </div>}
-      <button type="button" className="mission-primary-action" onClick={checkAlignment} disabled={disabled || checking}>{checking ? '正在確認位置…' : '立即檢查對位'}</button>
+      <button type="button" className="mission-primary-action" onClick={checkAlignment} disabled={disabled || checking}>{t(checking ? 'photoDemo.checking' : 'photoDemo.check')}</button>
     </div>}
 
     {message && showAlignmentStage && <p className={`photo-demo-message${alignmentStatus === 'failed' ? ' is-warning' : ''}`} role="status">{message}</p>}
-    {captured && <p className="photo-captured-status" role="status"><Check size={18} />{completionSource === 'album' ? '相簿照片已選取，正在加入旅程紀錄' : '缺口已補齊，照片正在加入旅程紀錄'}</p>}
-    {complete && <div className="photo-complete-panel"><p><Check size={18} />{completionSource === 'album' ? '相簿照片已解鎖' : '實景照片已解鎖'}</p><button type="button" className="mission-primary-action mission-next-action" onClick={finishPhotoTask} disabled={disabled}><span>下一關</span></button></div>}
-    {!captured && !complete && <p className="photo-demo-privacy"><ShieldCheck size={16} />相機缺口只在裝置上比對，影像不會自動上傳。</p>}
+    {captured && <p className="photo-captured-status" role="status"><Check size={18} />{t(completionSource === 'album' ? 'photoDemo.albumSaving' : 'photoDemo.sceneSaving')}</p>}
+    {complete && <div className="photo-complete-panel"><p><Check size={18} />{t(completionSource === 'album' ? 'photoDemo.albumUnlocked' : 'photoDemo.sceneUnlocked')}</p><button type="button" className="mission-primary-action mission-next-action" onClick={finishPhotoTask} disabled={disabled}><span>{t('photoDemo.next')}</span></button></div>}
+    {!captured && !complete && <p className="photo-demo-privacy"><ShieldCheck size={16} />{t('photoDemo.privacy')}</p>}
   </section>
 }

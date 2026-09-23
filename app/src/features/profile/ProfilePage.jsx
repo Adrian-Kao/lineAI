@@ -7,22 +7,22 @@ import { useSettings } from '../../state/SettingsContext.js'
 const MAX_AVATAR_FILE_BYTES = 8 * 1024 * 1024
 const AVATAR_SIZE = 512
 
-function loadImage(file) {
+function loadImage(file, errorMessage) {
   return new Promise((resolve, reject) => {
     const url = URL.createObjectURL(file)
     const image = new Image()
     image.onload = () => { URL.revokeObjectURL(url); resolve(image) }
-    image.onerror = () => { URL.revokeObjectURL(url); reject(new Error('無法讀取頭像圖片')) }
+    image.onerror = () => { URL.revokeObjectURL(url); reject(new Error(errorMessage)) }
     image.src = url
   })
 }
 
-async function createAvatarDataUrl(file) {
-  if (!file?.type.startsWith('image/')) throw new Error('請選擇圖片檔案')
-  if (file.size > MAX_AVATAR_FILE_BYTES) throw new Error('頭像原圖不可超過 8 MB')
-  const image = await loadImage(file)
+async function createAvatarDataUrl(file, t) {
+  if (!file?.type.startsWith('image/')) throw new Error(t('profile.chooseImage'))
+  if (file.size > MAX_AVATAR_FILE_BYTES) throw new Error(t('profile.tooLarge'))
+  const image = await loadImage(file, t('profile.readFailed'))
   const sourceSize = Math.min(image.naturalWidth, image.naturalHeight)
-  if (!sourceSize) throw new Error('頭像圖片尺寸不正確')
+  if (!sourceSize) throw new Error(t('profile.invalidSize'))
   const sourceX = (image.naturalWidth - sourceSize) / 2
   const sourceY = (image.naturalHeight - sourceSize) / 2
   const canvas = document.createElement('canvas')
@@ -51,9 +51,9 @@ export default function ProfilePage() {
     if (!file) return
     setMessage('')
     try {
-      setAvatar(await createAvatarDataUrl(file))
+      setAvatar(await createAvatarDataUrl(file, t))
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : '無法處理頭像')
+      setMessage(error instanceof Error ? error.message : t('profile.processFailed'))
     } finally {
       event.target.value = ''
     }
@@ -72,7 +72,7 @@ export default function ProfilePage() {
       setMessage(t('profile.saved'))
     } catch (error) {
       setStatus('error')
-      setMessage(error instanceof Error ? error.message : '個人資料保存失敗')
+      setMessage(error instanceof Error ? error.message : t('profile.saveFailed'))
     }
   }
 
@@ -91,7 +91,7 @@ export default function ProfilePage() {
     <form className="profile-card" onSubmit={handleSubmit}>
       <section className="profile-avatar-section" aria-label={t('profile.avatar')}>
         <div className="profile-avatar">
-          {avatar ? <img src={avatar} alt="目前的大頭照" /> : <UserRound size={58} />}
+          {avatar ? <img src={avatar} alt={t('profile.currentAvatar')} /> : <UserRound size={58} />}
         </div>
         <div className="profile-avatar-actions">
           <button type="button" className="task-button" onClick={() => fileInputRef.current?.click()}><Camera size={18} />{t('profile.replaceAvatar')}</button>

@@ -6,6 +6,7 @@ import { clearProgress, loadProgress, saveProgress } from '../services/progressS
 import { applyProfilePreferences, clearProfilePreferences, loadProfilePreferences, saveProfilePreferences } from '../services/profileStorage.js'
 import { buildDemoRewardNotifications, buildRewardNotifications } from '../features/rewards/rewardNotifications.js'
 import { loadDemoControls, saveDemoControls } from '../services/demoControls.js'
+import { useSettings } from './SettingsContext.js'
 
 const DEV_PUZZLE_PREREQUISITES = {
   stamp: {
@@ -30,6 +31,7 @@ function applyDevPuzzlePrerequisites(snapshot) {
 }
 
 export function GameProvider({ children }) {
+  const { language } = useSettings()
   const [progress, dispatch] = useReducer(gameReducer, undefined, () => applyDevPuzzlePrerequisites(createInitialState()))
   const [session, setSession] = useState({ status: 'idle', profile: null, error: null })
   const [rewardQueue, setRewardQueue] = useState([])
@@ -74,7 +76,7 @@ export function GameProvider({ children }) {
     saveProgress(session.profile.userId, next)
     progressRef.current = next
     dispatch({ type: 'HYDRATE', payload: next })
-    const rewards = buildRewardNotifications(previous, next)
+    const rewards = buildRewardNotifications(previous, next, language)
     if (rewards.length) setRewardQueue(current => [...current, ...rewards])
     return next
   }
@@ -111,8 +113,8 @@ export function GameProvider({ children }) {
     setDemoControls(current => saveDemoControls({ ...current, [name]: enabled }))
   }, [])
   const showDemoRewardSequence = useCallback(() => {
-    setRewardQueue(buildDemoRewardNotifications())
-  }, [])
+    setRewardQueue(buildDemoRewardNotifications(language))
+  }, [language])
   const resetCurrentAccount = useCallback(() => {
     if (session.status !== 'ready' || !session.profile?.userId) throw new Error('請先登入要重製的帳號')
     const userId = session.profile.userId

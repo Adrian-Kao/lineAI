@@ -27,7 +27,7 @@ export const router = createBrowserRouter([
     { path: ROUTES.county, element: <MapPage /> },
     { path: ROUTES.templeDetail, element: <TempleDetailPage /> },
     { path: ROUTES.stampbook, element: <Navigate to={ROUTES.stamps} replace /> },
-    { path: ROUTES.points, element: <PlaceholderPage title="點數" /> },
+    { path: ROUTES.points, element: <PlaceholderPage titleKey="nav.points" /> },
     { path: ROUTES.news, element: <NewsPage /> },
     { path: ROUTES.settings, element: <SettingsPage /> },
     { path: ROUTES.minigamesPreview, element: <MinigamesPreviewRoute /> },

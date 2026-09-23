@@ -89,9 +89,9 @@ export function buildStampEntries(catalog, stampRecords = []) {
   })
 }
 
-export function formatStampDate(value) {
+export function formatStampDate(value, language = 'zh-TW') {
   if (!value || Number.isNaN(Date.parse(value))) return ''
-  return new Intl.DateTimeFormat('zh-TW', {
+  return new Intl.DateTimeFormat(language === 'en' ? 'en-CA' : 'zh-TW', {
     timeZone: 'Asia/Taipei', year: 'numeric', month: '2-digit', day: '2-digit',
   }).format(new Date(value)).replaceAll('/', '.')
 }

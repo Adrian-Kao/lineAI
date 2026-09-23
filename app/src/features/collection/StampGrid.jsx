@@ -1,5 +1,7 @@
 import { ChevronDown } from 'lucide-react'
 import StampCard from './StampCard.jsx'
+import { useSettings } from '../../state/SettingsContext.js'
+import { localizeCountyName, localizeDistrictName, localizeRegionLabel } from '../../utils/regionNames.js'
 
 const TAICHUNG_DEMO_DISTRICTS = ['中區', '北區', '西區']
 
@@ -15,6 +17,7 @@ function orderDistricts(county, districts) {
 }
 
 export default function StampGrid({ entries, regions, onSelect }) {
+  const { language, t } = useSettings()
   const groups = regions.map(region => ({
     county: region.name,
     districts: orderDistricts(region.name, region.districts).map(district => {
@@ -26,19 +29,19 @@ export default function StampGrid({ entries, regions, onSelect }) {
     }),
   }))
 
-  if (!groups.length) return <div className="stamp-grid-empty" role="status"><strong>沒有符合條件的印章</strong><span>調整收藏狀態後再看看。</span></div>
-  return <div className="stamp-county-list" aria-label="依縣市與行政區分類的宮廟印章">
+  if (!groups.length) return <div className="stamp-grid-empty" role="status"><strong>{t('stampbook.noMatches')}</strong><span>{t('stampbook.adjust')}</span></div>
+  return <div className="stamp-county-list" aria-label={t('stampbook.aria')}>
     {groups.map(group => {
       const completedDistricts = group.districts.filter(district => district.stamps.length > 0 && district.stamps.every(entry => entry.collected)).length
       return <details className="stamp-county" key={group.county}>
         <summary className="stamp-county-summary">
-          <span><strong>{group.county}</strong><small>已完成 {completedDistricts} / {group.districts.length} 區</small></span>
+          <span><strong>{localizeCountyName(group.county, language)}</strong><small>{t('stampbook.completedDistricts', { completed: completedDistricts, total: group.districts.length })}</small></span>
           <ChevronDown size={21} aria-hidden="true" />
         </summary>
         <div className="stamp-district-list">
           {group.districts.map(district => <section className={`stamp-district${district.stamps.length ? '' : ' is-empty'}`} key={`${group.county}-${district.name}`}>
-            <header><h2>{district.name}</h2><span>{district.stamps.length ? `${district.stamps.length} 間宮廟` : '尚未收藏'}</span></header>
-            {district.stamps.length > 0 && <div className="stamp-grid">{district.stamps.map(entry => <StampCard key={entry.templeId} entry={entry} onSelect={onSelect} />)}</div>}
+            <header><h2>{localizeDistrictName(district, language)}</h2><span>{district.stamps.length ? t('stampbook.templeCount', { count: district.stamps.length }) : t('stampbook.none')}</span></header>
+            {district.stamps.length > 0 && <div className="stamp-grid">{district.stamps.map(entry => <StampCard key={entry.templeId} entry={{ ...entry, locationLabel: localizeRegionLabel(group.county, district, language) }} onSelect={onSelect} />)}</div>}
           </section>)}
         </div>
       </details>

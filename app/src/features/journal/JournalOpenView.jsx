@@ -1,24 +1,26 @@
 import { ChevronLeft, ChevronRight, X } from 'lucide-react'
 import JournalBook from './JournalBook.jsx'
+import { useSettings } from '../../state/SettingsContext.js'
 
 export default function JournalOpenView({ entries, pageIndex, navigationIndex, turn, onTurn, onTurnComplete, onClose }) {
+  const { t } = useSettings()
   const entry = entries[pageIndex]
-  return <section className="journal-open-view" aria-label="打開的旅行手札">
+  return <section className="journal-open-view" aria-label={t('journal.openAria')}>
     <header className="journal-reader-header">
-      <div><p>我的收藏旅程</p><h1>旅行手札</h1></div>
-      <button type="button" className="journal-icon-button" onClick={onClose} aria-label="闔上旅行手札" title="闔上旅行手札"><X size={22} /></button>
+      <div><p>{t('journal.eyebrow')}</p><h1>{t('journal.title')}</h1></div>
+      <button type="button" className="journal-icon-button" onClick={onClose} aria-label={t('journal.close')} title={t('journal.close')}><X size={22} /></button>
     </header>
 
     {entry
       ? <JournalBook entry={entry} turn={turn} onTurnComplete={onTurnComplete} />
-      : <div className="journal-empty"><h2>手札還是空白的</h2><p>完成第一間宮廟參訪後，旅程會寫進這裡。</p></div>}
+      : <div className="journal-empty"><h2>{t('journal.emptyTitle')}</h2><p>{t('journal.emptyBody')}</p></div>}
 
-    {entry && <nav className="journal-page-controls" aria-label="手札翻頁">
-      <button type="button" className="journal-icon-button" onClick={() => onTurn('previous')} disabled={navigationIndex === 0} aria-label="上一間寺廟"><ChevronLeft size={24} /></button>
-      <div className="journal-page-dots" aria-label={`目前第 ${pageIndex + 1} 頁，共 ${entries.length} 頁`}>
+    {entry && <nav className="journal-page-controls" aria-label={t('journal.pagination')}>
+      <button type="button" className="journal-icon-button" onClick={() => onTurn('previous')} disabled={navigationIndex === 0} aria-label={t('journal.previous')}><ChevronLeft size={24} /></button>
+      <div className="journal-page-dots" aria-label={t('journal.pageStatus', { current: pageIndex + 1, total: entries.length })}>
         {entries.map((item, index) => <span key={item.id} className={index === pageIndex ? 'is-current' : ''} />)}
       </div>
-      <button type="button" className="journal-icon-button" onClick={() => onTurn('next')} disabled={navigationIndex === entries.length - 1} aria-label="下一間寺廟"><ChevronRight size={24} /></button>
+      <button type="button" className="journal-icon-button" onClick={() => onTurn('next')} disabled={navigationIndex === entries.length - 1} aria-label={t('journal.next')}><ChevronRight size={24} /></button>
     </nav>}
   </section>
 }

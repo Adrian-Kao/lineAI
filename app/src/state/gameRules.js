@@ -14,6 +14,17 @@ export function getTaskStatus(state, taskId) {
 }
 export function getNextTaskId(state) { return TASKS.find(task => getTaskStatus(state, task.id) === 'available')?.id ?? null }
 export function isTempleComplete(state) { return TASKS.every(task => Boolean(state.missionCompletions[task.id])) }
+export function applyCentralDemoCompletion(state, enabled) {
+  if (!enabled) return state
+  const missionCompletions = { ...state.missionCompletions }
+  TASKS.forEach((task, index) => {
+    missionCompletions[task.id] ??= {
+      completedAt: `2026-09-23T00:0${index}:00.000Z`,
+      evidence: { kind: 'demo', centralDistrictComplete: true },
+    }
+  })
+  return { ...state, missionCompletions }
+}
 export function isTempleCompleted(state, templeId) {
   const key = makeTempleKey(templeId)
   if (!key) return false

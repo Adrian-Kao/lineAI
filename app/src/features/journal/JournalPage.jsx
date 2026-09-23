@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useSettings } from '../../state/SettingsContext.js'
-import { sortJournalEntries, JOURNAL_ENTRIES } from './journalData.js'
+import { localizeJournalEntries, sortJournalEntries, JOURNAL_ENTRIES } from './journalData.js'
 import JournalClosedView from './JournalClosedView.jsx'
 import JournalOpenView from './JournalOpenView.jsx'
 import './journal.css'
@@ -9,8 +9,8 @@ const ZOOMING_MS = 1600
 const PAGE_TURN_FALLBACK_MS = 720
 
 export default function JournalPage() {
-  const { reduceMotion } = useSettings()
-  const entries = useMemo(() => sortJournalEntries(JOURNAL_ENTRIES), [])
+  const { language, reduceMotion } = useSettings()
+  const entries = useMemo(() => sortJournalEntries(localizeJournalEntries(JOURNAL_ENTRIES, language)), [language])
   const [phase, setPhase] = useState('closed')
   const [pageIndex, setPageIndex] = useState(0)
   const [pageTurn, setPageTurn] = useState(null)

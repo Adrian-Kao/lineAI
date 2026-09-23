@@ -20,7 +20,7 @@ function SessionCard({ onClose, onOpenDemoControls }) {
   const ready = session.status === 'ready'
   const completed = TASKS.filter(task => getTaskStatus(progress, task.id) === 'completed').length
   return <section className="session-card" aria-label={t('session.current')}>
-    <button className="session-avatar" type="button" aria-label="個人頭像" onClick={() => { onClose(); onOpenDemoControls() }}>{ready && session.profile.avatar ? <img src={session.profile.avatar} alt="" /> : <UserRound size={26} />}</button>
+    <button className="session-avatar" type="button" aria-label={t('session.avatar')} onClick={() => { onClose(); onOpenDemoControls() }}>{ready && session.profile.avatar ? <img src={session.profile.avatar} alt="" /> : <UserRound size={26} />}</button>
     <div className="session-body">
       <p className="session-name">{ready ? session.profile.name : t('session.disconnected')}</p>
       <p className="session-meta">{ready ? t('session.progress', { completed, total: TASKS.length }) : t('session.loginHint')}</p>

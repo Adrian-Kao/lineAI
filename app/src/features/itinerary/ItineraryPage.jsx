@@ -9,8 +9,8 @@ import { useSettings } from '../../state/SettingsContext.js'
 import ItineraryList from './ItineraryList.jsx'
 import './itinerary.css'
 
-function LoadingCards() {
-  return <div className="itinerary-list" aria-label="行程載入中">
+function LoadingCards({ label }) {
+  return <div className="itinerary-list" aria-label={label}>
     {[0, 1].map(index => <div className="itinerary-skeleton" key={index} aria-hidden="true"><span /><div><i /><i /><i /></div></div>)}
   </div>
 }
@@ -57,7 +57,7 @@ export default function ItineraryPage() {
       </section>
       : <>
         <p className="itinerary-count">{t('itinerary.count', { count: items.length })}</p>
-        {activeData.loading ? <LoadingCards /> : <ItineraryList records={activeData.records} onRemove={removeTempleFromItinerary} />}
+        {activeData.loading ? <LoadingCards label={t('itinerary.loading')} /> : <ItineraryList records={activeData.records} onRemove={removeTempleFromItinerary} />}
       </>}
   </main>
 }

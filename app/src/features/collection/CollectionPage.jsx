@@ -6,26 +6,32 @@ import { CULTURAL_MEMORIES } from '../../data/culturalMemories.js'
 import { loadAdministrativeRegions } from '../../services/administrativeRegions.js'
 import { useGame } from '../../state/GameContext.js'
 import { isCentralDistrictComplete } from '../../state/gameRules.js'
+import { useSettings } from '../../state/SettingsContext.js'
 import CollectibleModal from './CollectibleModal.jsx'
 import RegionCollection from './RegionCollection.jsx'
 
 const CENTRAL_DISTRICT_MEMORY = CULTURAL_MEMORIES['66000010']
 
-function CentralDistrictCollection({ complete }) {
+function CentralDistrictCollection({ complete, t }) {
   const [selectedMemory, setSelectedMemory] = useState(null)
+  const memory = {
+    ...CENTRAL_DISTRICT_MEMORY,
+    title: t('collection.centralTitle'), description: t('collection.centralDescription'),
+    imageAlt: t('collection.centralImageAlt'), sourceNote: t('collection.centralSource'),
+  }
 
   if (!complete) return <div className="district-collection-empty">
-    <Camera size={24} strokeWidth={1.4} /><span>完成中區所有宮廟後解鎖</span><Link to={ROUTES.temple}>前往探索</Link>
+    <Camera size={24} strokeWidth={1.4} /><span>{t('collection.unlockCentral')}</span><Link to={ROUTES.temple}>{t('collection.explore')}</Link>
   </div>
 
   return <div className="district-photo-list">
     <button className="district-photo-item is-reward is-openable" type="button" onClick={() => setSelectedMemory({
-      kind: 'memory', ...CENTRAL_DISTRICT_MEMORY, location: '台中市・中區',
+      kind: 'memory', ...memory, location: t('collection.centralLocation'),
     })}>
-      <div className="district-photo-frame"><img src={CENTRAL_DISTRICT_MEMORY.imageUrl} alt={CENTRAL_DISTRICT_MEMORY.imageAlt} /></div>
+      <div className="district-photo-frame"><img src={memory.imageUrl} alt={memory.imageAlt} /></div>
       <div className="district-photo-copy">
-        <strong title={CENTRAL_DISTRICT_MEMORY.title}>{CENTRAL_DISTRICT_MEMORY.title}</strong>
-        <p className="memory-description">{CENTRAL_DISTRICT_MEMORY.description}</p>
+        <strong title={memory.title}>{memory.title}</strong>
+        <p className="memory-description">{memory.description}</p>
       </div>
     </button>
     <CollectibleModal item={selectedMemory} onClose={() => setSelectedMemory(null)} />
@@ -34,6 +40,7 @@ function CentralDistrictCollection({ complete }) {
 
 export default function CollectionPage() {
   const { progress, demoControls } = useGame()
+  const { t } = useSettings()
   const centralDistrictComplete = isCentralDistrictComplete(progress) || demoControls.centralComplete
   const acquiredCount = centralDistrictComplete ? 1 : 0
   const [totalDistricts, setTotalDistricts] = useState(null)
@@ -48,10 +55,10 @@ export default function CollectionPage() {
 
   return <main className="collection-page collection-index-page">
     <header className="collection-index-header">
-      <div><p>文化記憶</p><h1>照片圖鑑</h1></div>
-      <span className="demo-badge">已收藏 {acquiredCount}/{totalDistricts ?? '…'} 區</span>
+      <div><p>{t('collection.eyebrow')}</p><h1>{t('collection.title')}</h1></div>
+      <span className="demo-badge">{t('collection.collected', { count: acquiredCount, total: totalDistricts ?? '…' })}</span>
     </header>
-    <p className="collection-index-intro">完成整個鄉鎮市區的宮廟探索後，該地的文化記憶照片會收進圖鑑。</p>
-    <RegionCollection collapsible ariaLabel="依行政區分類的文化記憶收藏" emptyLabel="尚未收藏" renderDemoDistrict={() => <CentralDistrictCollection complete={centralDistrictComplete} />} />
+    <p className="collection-index-intro">{t('collection.intro')}</p>
+    <RegionCollection collapsible ariaLabel={t('collection.aria')} emptyLabel={t('collection.empty')} renderDemoDistrict={() => <CentralDistrictCollection complete={centralDistrictComplete} t={t} />} />
   </main>
 }
