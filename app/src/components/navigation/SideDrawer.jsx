@@ -12,6 +12,7 @@ const links = [
   { to: ROUTES.news, labelKey: 'drawer.news' },
   { to: ROUTES.friends, labelKey: 'drawer.friends' },
   { to: ROUTES.profile, labelKey: 'drawer.profile' },
+  { to: ROUTES.credits, labelKey: 'drawer.credits' },
 ]
 
 function SessionCard({ onClose, onOpenDemoControls }) {

@@ -1,0 +1,72 @@
+.credits-page {
+  width: min(760px, 100%);
+  min-height: 100dvh;
+  margin: 0 auto;
+  padding: 34px 22px calc(135px + env(safe-area-inset-bottom));
+}
+
+.credits-heading { margin: 12px 0 26px; }
+.credits-heading > * { margin: 0; }
+.credits-heading > p:first-child { color: #4e7658; font-size: 12px; font-weight: 800; letter-spacing: .1em; }
+.credits-heading h1 { margin-top: 5px; color: #2d4334; font-size: 30px; line-height: 1.25; }
+.credits-heading > p:last-child { max-width: 640px; margin-top: 10px; color: #637368; font-size: 14px; line-height: 1.7; }
+
+.credits-source-list {
+  border-top: 1px solid #cfdccb;
+}
+
+.credits-section {
+  padding: 24px 2px;
+  border-bottom: 1px solid #dbe4d8;
+}
+
+.credits-section__heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #315f42;
+}
+
+.credits-section__heading h2 { margin: 0; color: #30443a; font-size: 19px; line-height: 1.35; }
+.credits-section__body { margin-top: 10px; }
+.credits-section__body > p { margin: 0; color: #607067; font-size: 14px; line-height: 1.75; }
+.credits-section__body > p + p { margin-top: 10px; }
+
+.credits-change-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 12px 13px;
+  border-left: 3px solid #8eb698;
+  background: #f0f6ec;
+  color: #4f6757 !important;
+}
+.credits-change-note svg { flex: none; margin-top: 4px; }
+
+.credits-links { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.credits-links a {
+  display: inline-flex;
+  min-height: 34px;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 9px;
+  border: 1px solid #b9cfb8;
+  border-radius: 6px;
+  background: #f9fbf6;
+  color: #276443;
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+}
+.credits-links a:hover { border-color: #78a282; background: #edf5e9; }
+.credits-links a:focus-visible { outline: 3px solid rgba(54, 143, 98, .24); outline-offset: 2px; }
+
+.credits-updated { margin: 18px 2px 0; color: #7d8981; font-size: 12px; }
+
+@media (max-width: 480px) {
+  .credits-page { padding-inline: 15px; }
+  .credits-heading h1 { font-size: 27px; }
+  .credits-section { padding-block: 20px; }
+  .credits-links { align-items: stretch; flex-direction: column; }
+  .credits-links a { justify-content: space-between; }
+}

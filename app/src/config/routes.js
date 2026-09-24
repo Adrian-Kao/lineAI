@@ -3,7 +3,7 @@ export const ROUTES = {
   templeDetail: '/temples/:county/:uuid',
   mission: '/mission/:taskId', missionDemo: '/mission/demo', story: '/story/:taskId',
   collection: '/collection', stampbook: '/stampbook', journal: '/journal', itinerary: '/itinerary',
-  stamps: '/stamps', points: '/points', news: '/news', settings: '/settings',
+  stamps: '/stamps', points: '/points', news: '/news', settings: '/settings', credits: '/credits',
   friends: '/friends', profile: '/profile',
   minigamesPreview: '/dev/minigames',
 }

@@ -16,6 +16,7 @@ import JournalPage from '../features/journal/JournalPage.jsx'
 import ItineraryPage from '../features/itinerary/ItineraryPage.jsx'
 import FriendsPage from '../features/friends/FriendsPage.jsx'
 import NewsPage from '../features/news/NewsPage.jsx'
+import CreditsPage from '../features/credits/CreditsPage.jsx'
 import PlaceholderPage from '../components/common/PlaceholderPage.jsx'
 import MinigamesPreviewRoute from '../features/minigames/MinigamesPreviewRoute.jsx'
 
@@ -29,6 +30,7 @@ export const router = createBrowserRouter([
     { path: ROUTES.stampbook, element: <Navigate to={ROUTES.stamps} replace /> },
     { path: ROUTES.points, element: <PlaceholderPage titleKey="nav.points" /> },
     { path: ROUTES.news, element: <NewsPage /> },
+    { path: ROUTES.credits, element: <CreditsPage /> },
     { path: ROUTES.settings, element: <SettingsPage /> },
     { path: ROUTES.minigamesPreview, element: <MinigamesPreviewRoute /> },
   ] },
