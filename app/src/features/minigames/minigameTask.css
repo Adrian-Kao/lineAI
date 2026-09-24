@@ -13,9 +13,12 @@
 .mission-minigame__picker p { margin: 0; }
 .mission-minigame__picker h2 { margin-top: 6px; font-size: 20px; }
 .mission-minigame__picker div > p:last-child { margin-top: 5px; color: #66806a; font-size: 14px; line-height: 1.5; }
-.mission-minigame__tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.mission-minigame__tabs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
 .mission-minigame__tabs .task-button { min-width: 0; padding-inline: 8px; font-size: 14px; white-space: nowrap; }
 .mission-minigame__loading { margin: 24px 0; color: #66806a; text-align: center; }
+@media (max-width: 560px) {
+  .mission-minigame__tabs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
 @media (max-width: 390px) {
   .mission-minigame__tabs { grid-template-columns: 1fr; }
 }

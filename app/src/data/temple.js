@@ -7,6 +7,6 @@ export const TEMPLE = {
 export const TASKS = [
   { id: 'stamp', order: 1, type: 'stamp', title: '數位蓋章', storyId: 'stamp-story' },
   { id: 'photo', order: 2, type: 'photo', title: '找點拍照', storyId: 'photo-story' },
-  { id: 'puzzle', order: 3, type: 'puzzle', title: '文化拼圖', storyId: 'puzzle-story' },
+  { id: 'puzzle', order: 3, type: 'puzzle', title: '文化小遊戲', storyId: 'puzzle-story' },
 ]
 export const STORIES = {} // D：加入經確認的故事與來源。

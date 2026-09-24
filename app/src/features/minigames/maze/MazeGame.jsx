@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, Flag, Footprints, RotateCcw } from 'lucide-react'
+import { useSettings } from '../../../state/SettingsContext.js'
 import './maze.css'
 
 const SIZE = 13
@@ -98,7 +100,8 @@ function canMove(player, rowChange, columnChange) {
   return false
 }
 
-export default function MazeGame({ onComplete }) {
+export default function MazeGame({ onComplete, taskId = 'maze', disabled = false }) {
+  const { t } = useSettings()
   const [player, setPlayer] = useState(START)
   const [moves, setMoves] = useState(0)
   const [isComplete, setIsComplete] = useState(false)
@@ -106,7 +109,7 @@ export default function MazeGame({ onComplete }) {
 
   const movePlayer = useCallback(
     (rowChange, columnChange) => {
-      if (isComplete || !canMove(player, rowChange, columnChange)) return
+      if (isComplete || disabled || !canMove(player, rowChange, columnChange)) return
 
       const nextPlayer = {
         row: player.row + rowChange,
@@ -126,7 +129,7 @@ export default function MazeGame({ onComplete }) {
           hasCompleted.current = true
 
           onComplete?.({
-            taskId: 'maze',
+            taskId,
             completedAt: new Date().toISOString(),
             evidence: {
               kind: 'maze',
@@ -137,7 +140,7 @@ export default function MazeGame({ onComplete }) {
         }
       }
     },
-    [isComplete, moves, onComplete, player],
+    [disabled, isComplete, moves, onComplete, player, taskId],
   )
 
   useEffect(() => {
@@ -167,13 +170,14 @@ export default function MazeGame({ onComplete }) {
   }
 
   return (
-    <section className="maze-game" aria-labelledby="maze-title">
-      <header>
-        <h2 id="maze-title">迷宮挑戰</h2>
-        <p>使用方向鍵或按鈕，帶小旅人走到終點。</p>
+    <section className={`qian-game maze-game${isComplete ? ' is-complete' : ''}`} aria-labelledby="maze-title">
+      <header className="qian-game__header">
+        <p className="qian-game__eyebrow">{t('maze.eyebrow')}</p>
+        <h2 id="maze-title">{t('maze.title')}</h2>
+        <p>{t('maze.instructions')}</p>
       </header>
 
-      <div className="maze-game__board" role="grid" aria-label="迷宮">
+      <div className="qian-board maze-game__board" role="grid" aria-label={t('maze.board')}>
         {MAZE.map((row, rowIndex) =>
           row.map((cell, columnIndex) => {
             const isPlayer =
@@ -187,47 +191,48 @@ export default function MazeGame({ onComplete }) {
                 key={`${rowIndex}-${columnIndex}`}
                 role="gridcell"
                 style={{
-                  borderTop: cell.walls.top ? '3px solid #111' : '0',
-                  borderRight: cell.walls.right ? '3px solid #111' : '0',
-                  borderBottom: cell.walls.bottom ? '3px solid #111' : '0',
-                  borderLeft: cell.walls.left ? '3px solid #111' : '0',
+                  borderTop: cell.walls.top ? '2px solid var(--maze-wall)' : '0',
+                  borderLeft: cell.walls.left ? '2px solid var(--maze-wall)' : '0',
+                  borderRight: columnIndex === SIZE - 1 && cell.walls.right ? '2px solid var(--maze-wall)' : '0',
+                  borderBottom: rowIndex === SIZE - 1 && cell.walls.bottom ? '2px solid var(--maze-wall)' : '0',
                 }}
               >
-                {isPlayer && <span aria-label="小旅人">🚶</span>}
-                {isGoal && !isPlayer && <span aria-label="終點">🏁</span>}
+                {isPlayer && <span className="maze-game__traveler" aria-label={t('maze.traveler')}><Footprints aria-hidden="true" /></span>}
+                {isGoal && !isPlayer && <span className="maze-game__goal" aria-label={t('maze.goal')}><Flag aria-hidden="true" /></span>}
               </div>
             )
           }),
         )}
       </div>
 
-      <p className="maze-game__status" aria-live="polite">
+      <p className="qian-game__status maze-game__status" aria-live="polite">
         {isComplete
-          ? `成功抵達終點！共走了 ${moves} 步。`
-          : `目前已走 ${moves} 步。`}
+          ? t('maze.complete', { moves })
+          : t('maze.progress', { moves })}
       </p>
 
-      <div className="maze-game__controls" aria-label="移動控制">
-        <button type="button" onClick={() => movePlayer(-1, 0)} aria-label="向上走">
-          ↑
+      <div className="maze-game__controls" aria-label={t('maze.controls')}>
+        <button type="button" onClick={() => movePlayer(-1, 0)} disabled={disabled || isComplete || !canMove(player, -1, 0)} aria-label={t('maze.up')} title={t('maze.up')}>
+          <ArrowUp aria-hidden="true" />
         </button>
 
         <div>
-          <button type="button" onClick={() => movePlayer(0, -1)} aria-label="向左走">
-            ←
+          <button type="button" onClick={() => movePlayer(0, -1)} disabled={disabled || isComplete || !canMove(player, 0, -1)} aria-label={t('maze.left')} title={t('maze.left')}>
+            <ArrowLeft aria-hidden="true" />
           </button>
-          <button type="button" onClick={() => movePlayer(1, 0)} aria-label="向下走">
-            ↓
+          <button type="button" onClick={() => movePlayer(1, 0)} disabled={disabled || isComplete || !canMove(player, 1, 0)} aria-label={t('maze.down')} title={t('maze.down')}>
+            <ArrowDown aria-hidden="true" />
           </button>
-          <button type="button" onClick={() => movePlayer(0, 1)} aria-label="向右走">
-            →
+          <button type="button" onClick={() => movePlayer(0, 1)} disabled={disabled || isComplete || !canMove(player, 0, 1)} aria-label={t('maze.right')} title={t('maze.right')}>
+            <ArrowRight aria-hidden="true" />
           </button>
         </div>
       </div>
 
       {isComplete && (
-        <button className="maze-game__restart" type="button" onClick={handleRestart}>
-          再玩一次
+        <button className="task-button is-secondary maze-game__restart" type="button" onClick={handleRestart}>
+          <RotateCcw size={18} aria-hidden="true" />
+          {t('maze.restart')}
         </button>
       )}
     </section>

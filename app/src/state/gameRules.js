@@ -2,6 +2,7 @@ import { TASKS } from '../data/temple.js'
 import { WANCHUN_TEMPLE_ID } from '../data/templeContent.js'
 import { isSolved as isPuzzleSolved } from '../features/minigames/puzzle/puzzleRules.js'
 import { GRID_SIZE, isSolved as isLanternSolved } from '../features/minigames/lantern/lanternRules.js'
+import { isMazeSolved } from '../features/minigames/maze/mazeRules.js'
 import { isMemorySolved } from '../features/minigames/memory/memoryRules.js'
 import { isPublishedTemple } from '../utils/normalizeTemple.js'
 import { makeTempleKey } from '../utils/templeKey.js'
@@ -65,6 +66,7 @@ export function validateTaskResult(state, result) {
     const completed = (
       (evidence?.kind === 'puzzle' && isPuzzleSolved(evidence.tileOrder)) ||
       (evidence?.kind === 'lantern' && evidence.size === GRID_SIZE && isLanternSolved(evidence.board, GRID_SIZE)) ||
+      (evidence?.kind === 'maze' && isMazeSolved(evidence)) ||
       (evidence?.kind === 'memory' && isMemorySolved(evidence.deck, evidence.flips))
     )
     if (!completed) throw new Error('小遊戲尚未完成')

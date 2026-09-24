@@ -5,6 +5,7 @@ import { useSettings } from '../../state/SettingsContext.js'
 const GAME_OPTIONS = [
   { id: 'puzzle', labelKey: 'minigame.puzzle', Component: lazy(() => import('./puzzle/PuzzleTask.jsx')) },
   { id: 'lantern', labelKey: 'minigame.lantern', Component: lazy(() => import('./lantern/LanternGame.jsx')) },
+  { id: 'maze', labelKey: 'minigame.maze', Component: lazy(() => import('./maze/MazeGame.jsx')) },
   { id: 'memory', labelKey: 'minigame.memory', Component: lazy(() => import('./memory/MemoryGame.jsx')) },
 ]
 
@@ -40,7 +41,13 @@ export default function MinigameTask({
       </div>
     </section>
     <Suspense fallback={<p className="mission-minigame__loading" role="status">{t('minigame.loading')}</p>}>
-      <ActiveGame key={selectedGame} onComplete={onComplete} disabled={disabled} {...(selectedGame === 'puzzle' && puzzleImageUrl ? { imageUrl: puzzleImageUrl } : {})} />
+      <ActiveGame
+        key={selectedGame}
+        onComplete={onComplete}
+        disabled={disabled}
+        {...(selectedGame === 'puzzle' && puzzleImageUrl ? { imageUrl: puzzleImageUrl } : {})}
+        {...(selectedGame === 'maze' ? { taskId: 'puzzle' } : {})}
+      />
     </Suspense>
   </div>
 }
