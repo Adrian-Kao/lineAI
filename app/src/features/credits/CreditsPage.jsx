@@ -6,7 +6,7 @@ import './credits.css'
 
 const COPY = {
   'zh-TW': {
-    back: '返回地圖', eyebrow: '公開資訊', title: '資料與授權',
+    eyebrow: '公開資訊', title: '資料與授權',
     intro: 'Templore 使用公開資料、地圖圖資與開源軟體呈現台灣宮廟文化。以下說明資料來源、加工方式、授權條件與使用限制。',
     templeTitle: '宮廟點位資料', templeBody: '原始資訊來自內政部宗教資訊網，並透過 kiang/religion 提供的 GeoJSON 資料快照匯入。上游將點位資料標示為 CC BY 授權。',
     templeChange: 'Templore 已修改資料：僅保留「類型＝寺廟」且「教別＝道教／佛教」的有效點位，並正規化縣市名稱、座標與顯示欄位。資料快照擷取於 2026 年 9 月 18 日。',
@@ -21,7 +21,7 @@ const COPY = {
     updated: '本頁最後更新：2026 年 9 月 24 日', external: '開啟外部連結：{label}',
   },
   en: {
-    back: 'Back to map', eyebrow: 'Public information', title: 'Data & Licenses',
+    eyebrow: 'Public information', title: 'Data & Licenses',
     intro: 'Templore uses public data, map resources, and open-source software to present Taiwan temple culture. This page explains the sources, modifications, license terms, and limitations.',
     templeTitle: 'Temple location data', templeBody: 'The original information comes from the Ministry of the Interior religion database and is imported from GeoJSON snapshots maintained by kiang/religion. The upstream project labels the POI data as CC BY.',
     templeChange: 'Templore modifies this data by retaining valid records where the type is temple and the religion is Taoism or Buddhism, then normalizing place names, coordinates, and display fields. The current snapshot was retrieved on September 18, 2026.',
