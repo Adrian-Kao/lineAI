@@ -6,7 +6,7 @@ import './credits.css'
 
 const COPY = {
   'zh-TW': {
-    eyebrow: '公開資訊', title: '資料授權',
+    eyebrow: '公開資訊', title: '資料與授權',
     intro: 'Templore 使用公開資料、地圖圖資與開源軟體呈現台灣宮廟文化。以下說明資料來源、加工方式、授權條件與使用限制。',
     templeTitle: '宮廟點位資料', templeBody: '原始資訊來自內政部宗教資訊網，並透過 kiang/religion 提供的 GeoJSON 資料快照匯入。上游將點位資料標示為 CC BY 授權。',
     templeChange: 'Templore 已修改資料：僅保留「類型＝寺廟」且「教別＝道教／佛教」的有效點位，並正規化縣市名稱、座標與顯示欄位。資料快照擷取於 2026 年 9 月 18 日。',
